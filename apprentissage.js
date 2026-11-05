@@ -14,8 +14,8 @@ const LEARN_PATH = path.join(__dirname, "apprentissage_state.json");
 // Poids appris par backtest 24 mois (5429 tirages avec apprentissage continu)
 const DEFAULT_WEIGHTS = {
   jourAffinity: 29.5, freqGlob: 29.2, markov2: 29.2, paires: 29.0,
-  terminaisons: 28.0, conditionnel: 21.1, retard: 7.5, antiRepet: 7.0,
-  freqRecent: 6.9, momentum: 6.1, cycleOverdue: 3.4,
+  terminaisons: 28.0, sameDayBoost: 20.0, conditionnel: 21.1, retard: 7.5,
+  antiRepet: 7.0, freqRecent: 6.9, momentum: 6.1, cycleOverdue: 3.4,
 };
 
 const DRAW_CATEGORIES = {
@@ -70,7 +70,8 @@ function saveLearnState(state) {
 }
 
 // ═══ CRITERES DE SCORING INDEPENDANTS ═══
-function computeCriteriaTops(filtered, allDraws, topN, jourSemaine) {
+// todayDraws: tirages deja sortis aujourd'hui (pour correlation intra-journee)
+function computeCriteriaTops(filtered, allDraws, topN, jourSemaine, todayDraws) {
   if (filtered.length < 20) return null;
 
   const freq = Array(NUM_RANGE + 1).fill(0);
@@ -185,6 +186,32 @@ function computeCriteriaTops(filtered, allDraws, topN, jourSemaine) {
   // Cond 6: boost frequence recente dans le score conditionnel
   for (let n = 1; n <= NUM_RANGE; n++) condScore[n] += freqR[n] * 2;
 
+  // ═══ SAME-DAY BOOST (correlation intra-journee ~19.75%) ═══
+  const sameDayScore = Array(NUM_RANGE + 1).fill(0);
+  if (todayDraws && todayDraws.length > 0) {
+    // Frequence historique: quels numeros suivent les numeros du jour
+    const todayNums = new Set(todayDraws.flatMap(d => d.gagnants));
+    // Boost direct: numeros deja sortis aujourd'hui
+    for (const n of todayNums) sameDayScore[n] += 5;
+    // Boost voisins +/-2 des numeros du jour
+    for (const n of todayNums) {
+      for (let delta = -2; delta <= 2; delta++) {
+        const v = n + delta;
+        if (v >= 1 && v <= NUM_RANGE && !todayNums.has(v)) sameDayScore[v] += 2;
+      }
+    }
+    // Boost par co-occurrence historique: si un numero sort souvent le meme jour qu'un des numeros du jour
+    for (const d of allDraws.slice(0, 500)) {
+      const dNums = new Set(d.gagnants);
+      const overlap = [...todayNums].filter(n => dNums.has(n)).length;
+      if (overlap >= 1) {
+        for (const n of d.gagnants) {
+          if (!todayNums.has(n)) sameDayScore[n] += overlap;
+        }
+      }
+    }
+  }
+
   const rank = (arr) => [...Array(NUM_RANGE)].map((_, i) => ({ n: i + 1, v: arr[i + 1] })).sort((a, b) => b.v - a.v).slice(0, topN).map(x => x.n);
 
   return {
@@ -197,9 +224,10 @@ function computeCriteriaTops(filtered, allDraws, topN, jourSemaine) {
     paires: rank(pairBoost),
     terminaisons: rank(termBoost),
     conditionnel: rank(condScore),
+    sameDayBoost: (todayDraws && todayDraws.length > 0) ? rank(sameDayScore) : null,
     jourAffinity: jourFreq.some(v => v > 0) ? rank(jourFreq) : null,
     lastDrawNums: lastDrawSet,
-    _raw: { freq, freqR, overdueRatio, momentum: mom, lastSeen, markov, pairBoost, jourFreq, termBoost, condScore },
+    _raw: { freq, freqR, overdueRatio, momentum: mom, lastSeen, markov, pairBoost, jourFreq, termBoost, condScore, sameDayScore },
   };
 }
 
@@ -337,13 +365,14 @@ function backtestScore(draws, weights, nTest) {
 }
 
 // ═══ PREDICTION PAR CONVERGENCE v5 ═══
-function predictConvergence(draws, typeFilter, jourSemaine) {
+// todayDraws: tirages deja sortis aujourd'hui (optionnel, pour same-day boost)
+function predictConvergence(draws, typeFilter, jourSemaine, todayDraws) {
   const filtered = typeFilter ? draws.filter(d => d.type === typeFilter) : draws;
   if (filtered.length < 20) return null;
 
   const state = loadLearnState();
   const weights = typeFilter ? getWeightsForType(state, typeFilter) : state.criteriaWeights;
-  const tops = computeCriteriaTops(filtered, draws, state.topNPerCriteria || 15, jourSemaine);
+  const tops = computeCriteriaTops(filtered, draws, state.topNPerCriteria || 15, jourSemaine, todayDraws);
   if (!tops) return null;
 
   const ranked = convergenceScore(tops, weights);

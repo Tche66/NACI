@@ -463,14 +463,17 @@ function autoSavePredictions(db) {
   const jour = now.getDay();
   const tiragesInfo = getTiragesJour(jour);
 
+  // Tirages deja sortis aujourd'hui (pour same-day boost)
+  const todayDraws = db.draws.filter(d => d.date === todayStr);
+
   let saved = 0;
   for (const t of tiragesInfo) {
     // Verifier si deja sauvegarde
     const exists = history.predictions.find(p => p.date === todayStr && p.tirage === t.nom);
     if (exists) continue;
 
-    // Generer la prediction
-    const conv = predictConvergence(db.draws, t.nom, jour);
+    // Generer la prediction avec tirages du jour
+    const conv = predictConvergence(db.draws, t.nom, jour, todayDraws);
     if (!conv || !conv.combos || conv.combos.length === 0) continue;
 
     history.predictions.push({
@@ -533,8 +536,13 @@ app.get("/api/predictions/:jour", (req, res) => {
   const tiragesInfo = getTiragesJour(jour);
   const learnState = loadLearnState();
 
+  // Tirages du jour pour same-day boost
+  const now = new Date();
+  const todayStr = `${String(now.getDate()).padStart(2, "0")}/${String(now.getMonth() + 1).padStart(2, "0")}/${now.getFullYear()}`;
+  const todayDraws = db.draws.filter(d => d.date === todayStr);
+
   // Prediction par convergence (nouveau moteur)
-  const globalConv = predictConvergence(db.draws, null, jour);
+  const globalConv = predictConvergence(db.draws, null, jour, todayDraws);
 
   // Predictions classiques en backup
   const history = loadHistory();
@@ -543,7 +551,7 @@ app.get("/api/predictions/:jour", (req, res) => {
 
   const parTirage = [];
   for (const t of tiragesInfo) {
-    const convPred = predictConvergence(db.draws, t.nom, jour);
+    const convPred = predictConvergence(db.draws, t.nom, jour, todayDraws);
     const classicPred = scoring5(db.draws, t.nom, weights, jour);
     const pair = scoringPaires(db.draws, t.nom);
     parTirage.push({
