@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LONACI Loto Bonheur</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    :root{--bg:#0f1117;--card:#1a1d27;--card2:#222533;--green:#00e676;--red:#ff5252;--blue:#448aff;--orange:#ffab40;--purple:#e040fb;--cyan:#18ffff;--text:#e8eaed;--text2:#9aa0a6;--border:#2d3140;--yellow:#ffd740}
+    body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+    .layout{display:flex;gap:0}
+    .container{flex:1;max-width:1200px;margin:0 auto;padding:16px;margin-right:290px}
+    .sidebar{position:fixed;right:0;top:0;width:280px;height:100vh;background:var(--card);border-left:1px solid var(--border);overflow-y:auto;padding:14px;z-index:100}
+    .sidebar h3{font-size:13px;color:var(--green);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+    .sidebar .sid-date{font-size:10px;color:var(--text2);font-weight:400}
+    .sid-draw{padding:8px 0;border-bottom:1px solid var(--border)}
+    .sid-draw:last-child{border-bottom:none}
+    .sid-draw-name{font-size:11px;font-weight:600;margin-bottom:4px;display:flex;align-items:center;gap:6px}
+    .sid-draw-name .h{font-size:9px;color:var(--cyan);font-weight:700}
+    .sid-nums{display:flex;gap:3px;flex-wrap:wrap}
+    .sid-num{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}
+    .sid-g{background:linear-gradient(135deg,#2e7d32,#43a047);color:#fff}
+    .sid-m{background:var(--card2);color:var(--orange);border:1px solid var(--orange)}
+    .sid-empty{text-align:center;color:var(--text2);font-size:11px;padding:20px 0}
+    .sid-refresh{width:100%;padding:6px;border:none;border-radius:6px;background:var(--card2);color:var(--green);font-size:10px;font-weight:600;cursor:pointer;margin-top:8px;transition:background .2s}
+    .sid-refresh:hover{background:var(--border)}
+    .sid-count{background:var(--card2);padding:6px 10px;border-radius:6px;margin-bottom:10px;text-align:center;font-size:11px;color:var(--text2)}
+    .sid-count b{color:var(--green);font-size:14px}
+    @media(max-width:1100px){.container{margin-right:0}.sidebar{display:none}}
+    header{background:linear-gradient(135deg,#1a3a1a,#0d2818);border:1px solid #2d5a2d;border-radius:14px;padding:18px 24px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+    header h1{font-size:20px;color:var(--green)} header h1 span{color:var(--text2);font-size:12px;font-weight:400;display:block;margin-top:2px}
+    .header-right{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .status{font-size:11px;color:var(--text2)} .status b{color:var(--green)}
+    .btn{padding:7px 14px;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s}
+    .btn-green{background:var(--green);color:#000} .btn-green:hover{background:#69f0ae}
+    .btn-blue{background:var(--blue);color:#fff} .btn-orange{background:var(--orange);color:#000}
+    .btn:disabled{opacity:.5;cursor:wait}
+    .auto-badge{background:var(--green);color:#000;padding:2px 7px;border-radius:10px;font-size:9px;font-weight:700;animation:pulse 2s infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+    .tabs{display:flex;gap:3px;margin-bottom:20px;background:var(--card);border-radius:10px;padding:3px;border:1px solid var(--border);overflow-x:auto}
+    .tab{padding:9px 18px;border-radius:7px;font-size:13px;font-weight:500;cursor:pointer;color:var(--text2);transition:all .2s;white-space:nowrap;border:none;background:none}
+    .tab:hover{color:var(--text);background:var(--card2)} .tab.active{background:var(--green);color:#000;font-weight:700}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px}
+    .card h2{font-size:16px;margin-bottom:14px;color:var(--green);display:flex;align-items:center;gap:8px}
+    .nums{display:flex;gap:6px;flex-wrap:wrap}
+    .num{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800}
+    .num-red{background:linear-gradient(135deg,#c62828,#e53935);color:#fff;box-shadow:0 3px 10px rgba(229,57,53,.3)}
+    .num-blue{background:linear-gradient(135deg,#1565c0,#1e88e5);color:#fff;box-shadow:0 3px 10px rgba(30,136,229,.3)}
+    .num-orange{background:linear-gradient(135deg,#ef6c00,#fb8c00);color:#fff;box-shadow:0 3px 10px rgba(251,140,0,.3)}
+    .num-purple{background:linear-gradient(135deg,#7b1fa2,#9c27b0);color:#fff;box-shadow:0 3px 10px rgba(156,39,176,.3)}
+    .num-green{background:linear-gradient(135deg,#2e7d32,#43a047);color:#fff;box-shadow:0 3px 10px rgba(67,160,71,.3)}
+    .num-small{width:34px;height:34px;font-size:13px}
+    .num-match{background:linear-gradient(135deg,#00c853,#69f0ae);color:#000;box-shadow:0 3px 10px rgba(0,200,83,.4)}
+    .num-close{background:linear-gradient(135deg,#ff8f00,#ffc107);color:#000;box-shadow:0 3px 10px rgba(255,193,7,.4)}
+    .num-miss{background:var(--card2);color:var(--text2);border:1px solid var(--border)}
+    .super-paire{display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,#1a1a2e,#16213e);border:2px solid var(--orange);border-radius:10px;padding:14px 20px;margin:6px 0}
+    .super-paire .label{color:var(--orange);font-weight:700;font-size:12px;min-width:55px}
+    .super-paire .num{width:50px;height:50px;font-size:20px} .super-paire .sep{color:var(--text2);font-size:20px}
+    .super-paire .meta{margin-left:auto;color:var(--text2);font-size:11px;text-align:right}
+    table{width:100%;border-collapse:collapse}
+    th{padding:7px 8px;text-align:center;font-size:10px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;border-bottom:2px solid var(--border)}
+    td{padding:7px 8px;text-align:center;font-size:12px;border-bottom:1px solid var(--border)}
+    tr:hover td{background:var(--card2)}
+    .tag{padding:2px 7px;border-radius:16px;font-size:10px;font-weight:600}
+    .tag-hot{background:rgba(255,82,82,.15);color:var(--red)} .tag-warm{background:rgba(255,171,64,.15);color:var(--orange)} .tag-cold{background:rgba(68,138,255,.15);color:var(--blue)}
+    .tag-high{background:rgba(0,230,118,.15);color:var(--green)} .tag-mid{background:rgba(255,171,64,.15);color:var(--orange)}
+    .combo-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border)} .combo-row:last-child{border-bottom:none}
+    .combo-name{min-width:140px;font-weight:600;font-size:12px;color:var(--text2)} .combo-conf{margin-left:auto}
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    .tirage-row{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--border);border-radius:6px;transition:background .2s}
+    .tirage-row:hover{background:var(--card2)}
+    .tirage-name{min-width:120px;font-weight:600;font-size:12px}
+    .tirage-heure{background:var(--card2);padding:2px 7px;border-radius:5px;font-size:10px;font-weight:700;color:var(--cyan);min-width:44px;text-align:center}
+    .tirage-type{font-size:9px;padding:2px 5px;border-radius:4px;font-weight:600}
+    .tirage-type-standard{background:rgba(0,230,118,.1);color:var(--green)}
+    .tirage-type-digital{background:rgba(68,138,255,.1);color:var(--blue)}
+    .tirage-type-special{background:rgba(224,64,251,.1);color:var(--purple)}
+    .tirage-data{color:var(--text2);font-size:10px;margin-left:auto}
+    .jour-select{display:flex;gap:4px;margin-bottom:16px;flex-wrap:wrap}
+    .jour-btn{padding:7px 12px;border-radius:7px;border:1px solid var(--border);background:var(--card2);color:var(--text);font-size:11px;font-weight:500;cursor:pointer;transition:all .2s}
+    .jour-btn:hover{border-color:var(--green);color:var(--green)} .jour-btn.active{background:var(--green);color:#000;border-color:var(--green);font-weight:700}
+    .loading{text-align:center;padding:40px;color:var(--text2)}
+    .spinner{display:inline-block;width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--green);border-radius:50%;animation:spin .8s linear infinite;margin-bottom:8px}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .semaine-jour{background:var(--card2);border-radius:8px;padding:12px;margin-bottom:8px;border-left:4px solid var(--green)}
+    .semaine-jour h3{color:var(--green);margin-bottom:6px;font-size:13px}
+    .semaine-tirage{display:flex;align-items:center;gap:5px;padding:3px 0;font-size:11px}
+    .semaine-tirage .name{min-width:120px;color:var(--text2);font-weight:500} .semaine-tirage .heure{color:var(--cyan);font-size:10px;font-weight:700;min-width:40px}
+    .freq-bar{height:4px;border-radius:2px;background:var(--border);position:relative;min-width:60px}
+    .freq-bar-fill{height:100%;border-radius:2px;position:absolute;left:0;top:0}
+    .analyse-card{background:linear-gradient(135deg,#1a1a2e,#16213e);border:1px solid var(--blue);border-radius:10px;padding:16px;margin-bottom:10px}
+    .analyse-card h3{color:var(--blue);margin-bottom:10px;font-size:14px}
+    .score-big{font-size:32px;font-weight:800;text-align:center;padding:12px}
+    .score-bar{height:6px;border-radius:3px;background:var(--border);overflow:hidden;margin:6px 0}
+    .score-bar-fill{height:100%;border-radius:3px;transition:width .5s}
+    .learn-badge{background:rgba(224,64,251,.15);color:var(--purple);padding:3px 8px;border-radius:6px;font-size:10px;font-weight:600;display:inline-flex;align-items:center;gap:4px}
+    .page{display:none} .page.active{display:block}
+    .grille-line{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border)}
+    .grille-line:last-child{border-bottom:none}
+    .grille-label{min-width:150px;font-size:12px;font-weight:600;color:var(--text2)}
+    .grille-conf{font-size:10px;color:var(--text2);margin-left:auto;min-width:36px;text-align:right}
+    @media(max-width:900px){.grid-2{grid-template-columns:1fr}.combo-name,.tirage-name,.grille-label{min-width:90px}header{flex-direction:column;gap:10px}}
+  </style>
+</head>
+<body>
+<div class="sidebar" id="sidebar">
+  <h3>Resultats du jour <span class="sid-date" id="sidDate"></span></h3>
+  <div id="sidContent"><div class="sid-empty">Chargement...</div></div>
+  <button class="sid-refresh" onclick="loadSidebar()">Rafraichir</button>
+</div>
+<div class="container">
+  <header>
+    <h1>LONACI Loto Bonheur <span id="dbStatus">Chargement...</span></h1>
+    <div class="header-right">
+      <span class="auto-badge">AUTO</span>
+      <div class="status" id="statusInfo"></div>
+      <button class="btn btn-green" id="btnUpdate" onclick="updateDB()">MAJ</button>
+      <button class="btn btn-orange" onclick="compareNow()">Comparer</button>
+    </div>
+  </header>
+  <div class="tabs">
+    <button class="tab active" data-page="predictions" onclick="showPage('predictions')">Predictions</button>
+    <button class="tab" data-page="grilles" onclick="showPage('grilles')">Grilles</button>
+    <button class="tab" data-page="semaine" onclick="showPage('semaine')">Semaine</button>
+    <button class="tab" data-page="performance" onclick="showPage('performance')">Performance</button>
+    <button class="tab" data-page="donnees" onclick="showPage('donnees')">Donnees</button>
+  </div>
+  <div class="page active" id="page-predictions"><div class="jour-select" id="jourSelect5"></div><div id="predContent"><div class="loading"><div class="spinner"></div><br>Chargement...</div></div></div>
+  <div class="page" id="page-grilles"><div class="jour-select" id="jourSelectCouv"></div><div id="couvContent"><div class="loading"><div class="spinner"></div><br>Chargement...</div></div></div>
+  <div class="page" id="page-semaine"><div id="semaineContent"><div class="loading"><div class="spinner"></div><br>Chargement...</div></div></div>
+  <div class="page" id="page-performance"><div id="analyseContent"><div class="loading"><div class="spinner"></div><br>Chargement...</div></div></div>
+  <div class="page" id="page-donnees"><div id="donneesContent"><div class="loading"><div class="spinner"></div><br>Chargement...</div></div></div>
+</div>
+<script>
+const JOURS=["Dimanche","Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi"];
+let cj5=new Date().getDay(),cjc=new Date().getDay();
+function showPage(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.getElementById('page-'+id).classList.add('active');document.querySelector(`[data-page="${id}"]`).classList.add('active');({predictions:()=>loadPredictions(cj5),grilles:()=>loadCouverture(cjc),semaine:loadSemaine,performance:loadAnalyse,donnees:loadDonnees})[id]()}
+function buildJourSelect(cid,cur,cb){const c=document.getElementById(cid);c.innerHTML='';for(let i=0;i<7;i++){const d=new Date();d.setDate(d.getDate()+i);const j=d.getDay();const l=i===0?"Aujourd'hui":i===1?"Demain":JOURS[j];const ds=`${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`;const b=document.createElement('button');b.className='jour-btn'+(j===cur?' active':'');b.textContent=`${l} ${ds}`;b.onclick=()=>{c.querySelectorAll('.jour-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');cb(j)};c.appendChild(b)}}
+function nb(n,cls='num-red'){return`<div class="num ${cls}">${String(n).padStart(2,'0')}</div>`}
+function nbs(n,cls='num-red'){return`<div class="num num-small ${cls}">${String(n).padStart(2,'0')}</div>`}
+function typeTag(t){const c={standard:'tirage-type-standard',digital:'tirage-type-digital',special:'tirage-type-special'}[t]||'';return`<span class="tirage-type ${c}">${t}</span>`}
+
+async function loadStatus(){try{const r=await fetch('/api/status').then(r=>r.json());document.getElementById('dbStatus').innerHTML=`${(r.nbTirages||0).toLocaleString()} tirages | ${r.nbAnalyses||0} analyses`;const d=r.lastUpdate?new Date(r.lastUpdate):null;document.getElementById('statusInfo').innerHTML=d?`MAJ: ${d.toLocaleDateString('fr')} ${d.toLocaleTimeString('fr',{hour:'2-digit',minute:'2-digit'})}`:''}catch(e){document.getElementById('dbStatus').innerHTML='Erreur connexion'}}
+async function updateDB(){const b=document.getElementById('btnUpdate');b.disabled=true;b.textContent='...';const r=await fetch('/api/update',{method:'POST'}).then(r=>r.json());b.disabled=false;b.textContent='MAJ';if(r.success){alert(`+${r.newDraws} tirages. Total: ${r.total}`);loadStatus();showPage(document.querySelector('.tab.active').dataset.page)}else alert('Erreur: '+r.error)}
+async function compareNow(){const r=await fetch('/api/compare-now',{method:'POST'}).then(r=>r.json());if(r.success){let msg=`+${r.newDraws} tirages\n`;if(r.analyses.length>0){const a=r.analyses[r.analyses.length-1];const total=a.comparaisons.reduce((s,c)=>s+c.comp.nbExacts,0);msg+=`${a.comparaisons.length} compares, ${total} exacts`}else msg+='Pas de comparaison dispo.';alert(msg);loadStatus();showPage(document.querySelector('.tab.active').dataset.page)}else alert('Erreur: '+r.error)}
+
+// ═══ PREDICTIONS ═══
+async function loadPredictions(jour){
+  cj5=jour;buildJourSelect('jourSelect5',jour,loadPredictions);
+  const el=document.getElementById('predContent');el.innerHTML='<div class="loading"><div class="spinner"></div><br>Calcul...</div>';
+  let data;try{data=await fetch(`/api/predictions/${jour}`).then(r=>r.json())}catch(e){el.innerHTML='<div class="card" style="color:var(--red)">Erreur serveur</div>';return}
+  if(data.error){el.innerHTML=`<div class="card">${data.error}</div>`;return}
+  let h='';
+  if(data.weights){h+=`<div style="margin-bottom:12px"><span class="learn-badge">APPRENTISSAGE ACTIF — ${data.weights.totalCompared} comparaisons</span></div>`}
+
+  // Combos globaux
+  h+='<div class="card"><h2>Combinaisons — '+data.jourNom+'</h2>';
+  for(const c of data.global.combos){h+='<div class="combo-row"><div class="combo-name">'+c.nom+'</div><div class="nums">';for(const n of c.nums)h+=nb(n,c.confiance==='HAUTE'?'num-red':'num-orange');h+='</div><span style="color:var(--text2);font-size:11px;margin-left:6px">'+c.nums.reduce((a,b)=>a+b,0)+'</span><div class="combo-conf"><span class="tag '+(c.confiance==='HAUTE'?'tag-high':'tag-mid')+'">'+c.confiance+'</span></div></div>'}
+  h+='</div>';
+
+  // Paires du jour
+  try{
+    const pData=await fetch(`/api/paires/${jour}`).then(r=>r.json());
+    if(pData.superPaire1){
+      h+='<div class="card"><h2>Super Paires — '+data.jourNom+'</h2>';
+      if(pData.superPaire1){h+='<div class="super-paire"><div class="label">PAIRE 1</div>'+nb(pData.superPaire1.a,'num-red')+'<div class="sep">—</div>'+nb(pData.superPaire1.b,'num-red')+'<div class="meta">'+pData.superPaire1.votes+' votes</div></div>'}
+      if(pData.superPaire2){h+='<div class="super-paire" style="border-color:var(--purple)"><div class="label" style="color:var(--purple)">PAIRE 2</div>'+nb(pData.superPaire2.a,'num-purple')+'<div class="sep">—</div>'+nb(pData.superPaire2.b,'num-purple')+'<div class="meta">'+pData.superPaire2.votes+' votes</div></div>'}
+      h+='</div>';
+    }
+  }catch(e){}
+
+  // Par tirage
+  h+='<div class="card"><h2>Par tirage</h2>';
+  for(const t of data.parTirage){
+    h+='<div class="tirage-row"><div class="tirage-heure">'+t.heure+'</div>'+typeTag(t.type)+'<div class="tirage-name">'+t.tirage+'</div>';
+    if(t.prediction){h+='<div class="nums">';for(const n of t.prediction.combos[0].nums)h+=nbs(n,'num-blue');h+='</div>';
+      if(t.paire){h+='<div style="margin-left:6px;display:flex;gap:2px;align-items:center"><span style="color:var(--text2);font-size:9px;margin-right:2px">P:</span>'+nbs(t.paire.p1.a,'num-orange')+nbs(t.paire.p1.b,'num-orange')+'</div>'}
+    }else h+='<span style="color:var(--text2);font-size:11px">—</span>';
+    h+='</div>'
+  }
+  h+='</div>';
+
+  // Sauvegarder
+  h+='<div style="text-align:center;margin:14px 0"><button class="btn btn-green" onclick="savePredictions('+jour+')">Sauvegarder les predictions</button></div>';
+  el.innerHTML=h;
+  window._lastPredData=data;
+}
+async function savePredictions(jour){
+  if(!window._lastPredData)return;
+  const now=new Date();const ds=now.toLocaleDateString('fr-FR');
+  const preds=[];
+  for(const t of window._lastPredData.parTirage){if(t.prediction)preds.push({date:ds,tirage:t.tirage,heure:t.heure,nums:t.prediction.combos[0].nums})}
+  const r=await fetch('/api/save-predictions',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({predictions:preds})}).then(r=>r.json());
+  if(r.success)alert(`${r.saved} predictions sauvegardees !`);
+}
+
+// ═══ GRILLES COUVERTURE ═══
+async function loadCouverture(jour){
+  cjc=jour;buildJourSelect('jourSelectCouv',jour,loadCouverture);
+  const el=document.getElementById('couvContent');el.innerHTML='<div class="loading"><div class="spinner"></div><br>Calcul...</div>';
+  let data;try{data=await fetch('/api/couverture/'+jour).then(r=>r.json())}catch(e){el.innerHTML='<div class="card" style="color:var(--red)">Erreur serveur</div>';return}
+  if(data.error){el.innerHTML='<div class="card">'+data.error+'</div>';return}
+  let h='';
+
+  // Zones chaudes resumees
+  if(data.global&&data.global.plages){
+    const p=data.global.plages;
+    h+='<div class="card" style="border-color:var(--cyan)"><h2 style="color:var(--cyan)">Zones chaudes — '+data.jourNom+'</h2>';
+    h+='<div style="display:flex;flex-wrap:wrap;gap:10px">';
+    h+='<div style="background:var(--card2);padding:10px 14px;border-radius:8px;flex:1;min-width:140px"><div style="color:var(--text2);font-size:10px;margin-bottom:4px">DIZAINES</div>';
+    for(const d of p.dizainesTop3)h+='<span style="display:inline-block;background:rgba(0,230,118,.12);color:var(--green);padding:2px 8px;border-radius:5px;margin:1px;font-weight:700;font-size:12px">'+d+'</span>';
+    h+='</div>';
+    h+='<div style="background:var(--card2);padding:10px 14px;border-radius:8px;flex:1;min-width:140px"><div style="color:var(--text2);font-size:10px;margin-bottom:4px">SOMME</div><div style="font-size:16px;font-weight:700;color:var(--orange)">'+p.sommeZone[0]+' — '+p.sommeZone[1]+'</div></div>';
+    h+='<div style="background:var(--card2);padding:10px 14px;border-radius:8px;flex:1;min-width:140px"><div style="color:var(--text2);font-size:10px;margin-bottom:4px">PAIR/IMPAIR</div><div style="font-size:16px;font-weight:700;color:var(--purple)">'+p.pairImpair+'</div></div>';
+    h+='</div>';
+    // Momentum + Overdue en ligne
+    if((p.momentumNums&&p.momentumNums.length>0)||(p.overdueNums&&p.overdueNums.length>0)){
+      h+='<div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:10px">';
+      if(p.momentumNums&&p.momentumNums.length>0){
+        h+='<div style="background:var(--card2);padding:10px 14px;border-radius:8px;flex:1"><div style="color:var(--text2);font-size:10px;margin-bottom:4px">MOMENTUM</div><div class="nums">';
+        for(const n of p.momentumNums.slice(0,8))h+=nbs(n,'num-red');
+        h+='</div></div>';
+      }
+      if(p.overdueNums&&p.overdueNums.length>0){
+        h+='<div style="background:var(--card2);padding:10px 14px;border-radius:8px;flex:1"><div style="color:var(--text2);font-size:10px;margin-bottom:4px">OVERDUE</div><div class="nums" style="gap:10px">';
+        for(const o of p.overdueNums.slice(0,5))h+='<div style="display:flex;align-items:center;gap:3px">'+nbs(o.num,'num-orange')+'<span style="font-size:9px;color:var(--orange)">'+o.ratio.toFixed(1)+'x</span></div>';
+        h+='</div></div>';
+      }
+      h+='</div>';
+    }
+    h+='</div>';
+  }
+
+  // Grilles globales
+  if(data.global&&data.global.grilles){
+    h+='<div class="card"><h2>'+data.global.grilles.length+' grilles de couverture</h2>';
+    for(const g of data.global.grilles){
+      h+='<div class="grille-line"><div class="grille-label" style="color:'+(g.confiance>=80?'var(--green)':g.confiance>=65?'var(--orange)':'var(--blue)')+'">'+g.nom+'</div><div class="nums">';
+      for(const n of g.nums)h+=nbs(n,g.confiance>=80?'num-red':g.confiance>=65?'num-orange':'num-blue');
+      h+='</div><div class="grille-conf">'+g.confiance+'%</div></div>';
+    }
+    h+='</div>';
+  }
+
+  // Par tirage — compact
+  h+='<div class="card"><h2>Par tirage</h2>';
+  for(const t of data.parTirage){
+    if(!t.couverture||!t.couverture.grilles)continue;
+    h+='<div style="margin-bottom:14px"><div style="display:flex;align-items:center;gap:6px;margin-bottom:6px"><span class="tirage-heure">'+t.heure+'</span>'+typeTag(t.type)+'<span style="font-weight:600;font-size:13px">'+t.tirage+'</span></div>';
+    for(const g of t.couverture.grilles.slice(0,3)){
+      h+='<div style="display:flex;align-items:center;gap:6px;padding:3px 0"><span style="min-width:130px;font-size:11px;color:var(--text2)">'+g.nom+'</span><div class="nums">';
+      for(const n of g.nums)h+=nbs(n,g.confiance>=80?'num-red':g.confiance>=65?'num-orange':'num-blue');
+      h+='</div><span style="font-size:9px;color:var(--text2);margin-left:auto">'+g.confiance+'%</span></div>';
+    }
+    h+='</div>';
+  }
+  h+='</div>';
+  el.innerHTML=h;
+}
+
+// ═══ SEMAINE ═══
+async function loadSemaine(){
+  const el=document.getElementById('semaineContent');
+  el.innerHTML='<div class="loading"><div class="spinner"></div><br>Calcul semaine...</div>';
+  let data;
+  try{data=await fetch('/api/semaine').then(r=>r.json())}catch(e){el.innerHTML='<div class="card" style="color:var(--red)">Erreur serveur</div>';return}
+  if(data.error){el.innerHTML=`<div class="card">${data.error}</div>`;return}
+
+  let h='';
+
+  // Resume de la semaine
+  h+='<div class="card" style="border-color:var(--green)"><h2 style="color:var(--green)">7 prochains jours</h2>';
+  h+='<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">';
+  for(const j of data){
+    const perfColor=j.perf>=6.5?'var(--green)':j.perf>=5.5?'var(--orange)':'var(--red)';
+    const isToday=data.indexOf(j)===0;
+    h+='<div style="background:var(--card2);padding:10px 14px;border-radius:8px;text-align:center;min-width:110px;flex:1;'+(isToday?'border:2px solid var(--green)':'')+'">';
+    h+='<div style="font-size:11px;color:var(--text2)">'+(isToday?'AUJOURD\'HUI':j.jour)+'</div>';
+    h+='<div style="font-size:16px;font-weight:700">'+j.date+'</div>';
+    h+='<div style="font-size:13px;font-weight:800;color:'+perfColor+'">'+j.perf+'%</div>';
+    h+='<div style="font-size:9px;color:var(--text2)">perf. bot</div>';
+    h+='</div>';
+  }
+  h+='</div></div>';
+
+  // Detail par jour
+  for(const j of data){
+    const isToday=data.indexOf(j)===0;
+    const perfColor=j.perf>=6.5?'var(--green)':j.perf>=5.5?'var(--orange)':'var(--red)';
+
+    h+='<div class="card" style="'+(isToday?'border-color:var(--green)':'')+'"><h2>';
+    h+=j.jour+' '+j.date;
+    h+=' <span style="font-size:12px;color:'+perfColor+';margin-left:8px">'+j.perf+'% perf</span>';
+    if(isToday) h+=' <span style="font-size:10px;background:var(--green);color:#000;padding:2px 6px;border-radius:4px;margin-left:6px">AUJOURD\'HUI</span>';
+    h+='</h2>';
+
+    // Tirages recommandes en premier
+    const top=j.predictions.filter(t=>t.isTop&&t.combo);
+    if(top.length>0){
+      h+='<div style="background:linear-gradient(135deg,#1a2a1a,#0d1f0d);border:1px solid #2d5a2d;border-radius:8px;padding:12px;margin-bottom:12px">';
+      h+='<div style="color:var(--green);font-size:11px;font-weight:700;margin-bottom:8px">TIRAGES RECOMMANDES</div>';
+      for(const t of top){
+        h+='<div style="display:flex;align-items:center;gap:6px;padding:4px 0">';
+        h+='<span class="tirage-heure">'+t.heure+'</span>';
+        h+='<span style="font-weight:600;font-size:12px;min-width:120px">'+t.tirage+'</span>';
+        h+='<div class="nums">';
+        for(const n of t.combo) h+=nbs(n,'num-green');
+        h+='</div>';
+        if(t.paire1){h+='<div style="margin-left:4px;display:flex;gap:2px;align-items:center"><span style="color:var(--text2);font-size:9px">P:</span>'+nbs(t.paire1.a,'num-orange')+nbs(t.paire1.b,'num-orange')+'</div>'}
+        h+='</div>';
+        // Combos alternatifs
+        if(t.combos&&t.combos.length>1){
+          for(const co of t.combos.slice(1,3)){
+            h+='<div style="display:flex;align-items:center;gap:6px;padding:2px 0;padding-left:44px">';
+            h+='<span style="font-size:10px;color:var(--text2);min-width:120px">'+co.nom+'</span>';
+            h+='<div class="nums">';
+            for(const n of co.nums) h+=nbs(n,'num-blue');
+            h+='</div>';
+            h+='</div>';
+          }
+        }
+      }
+      h+='</div>';
+    }
+
+    // Tous les tirages
+    h+='<div style="margin-top:8px">';
+    for(const t of j.predictions){
+      const isFav=t.isTop;
+      h+='<div class="semaine-tirage" style="'+(isFav?'background:rgba(0,230,118,.04);border-radius:4px;padding:3px 6px':'')+'">';
+      h+='<div class="heure">'+t.heure+'</div>';
+      h+='<div class="name" style="'+(isFav?'color:var(--green)':'')+'">'+t.tirage+(isFav?' *':'')+'</div>';
+      if(t.combo){
+        h+='<div class="nums">';
+        for(const n of t.combo) h+=nbs(n,isFav?'num-green':'num-blue');
+        h+='</div>';
+        if(t.paire1){h+='<div style="margin-left:4px;display:flex;gap:2px;align-items:center"><span style="color:var(--text2);font-size:9px">P:</span>'+nbs(t.paire1.a,'num-orange')+nbs(t.paire1.b,'num-orange')+'</div>'}
+      }else h+='<span style="color:var(--text2);font-size:10px">—</span>';
+      h+='</div>';
+    }
+    h+='</div>';
+    h+='</div>';
+  }
+
+  h+='<div style="text-align:center;margin:10px 0;color:var(--text2);font-size:10px"><b style="color:var(--green)">Vert</b> = tirages recommandes (meilleur taux backtest) | <b style="color:var(--blue)">Bleu</b> = standard | <b style="color:var(--orange)">Orange</b> = paires</div>';
+  el.innerHTML=h;
+}
+
+// ═══ PERFORMANCE ═══
+async function loadAnalyse(){
+  const el=document.getElementById('analyseContent');el.innerHTML='<div class="loading"><div class="spinner"></div><br>Chargement...</div>';
+  const data=await fetch('/api/historique').then(r=>r.json());
+  let h='';
+  const pctExact=data.stats.totalPredictions>0?(data.stats.totalExacts/data.stats.totalPredictions*100).toFixed(1):0;
+  const pctProche=data.stats.totalPredictions>0?((data.stats.totalExacts+data.stats.totalProches)/data.stats.totalPredictions*100).toFixed(1):0;
+
+  // Stats compactes
+  h+='<div class="card"><h2>Performance</h2>';
+  h+='<div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px">';
+  h+='<div style="background:var(--card2);padding:14px;border-radius:8px;text-align:center;flex:1;min-width:100px"><div style="font-size:28px;font-weight:800;color:var(--green)">'+pctExact+'%</div><div style="font-size:10px;color:var(--text2)">Taux exact</div></div>';
+  h+='<div style="background:var(--card2);padding:14px;border-radius:8px;text-align:center;flex:1;min-width:100px"><div style="font-size:28px;font-weight:800;color:var(--cyan)">'+pctProche+'%</div><div style="font-size:10px;color:var(--text2)">Exacts + proches</div></div>';
+  h+='<div style="background:var(--card2);padding:14px;border-radius:8px;text-align:center;flex:1;min-width:80px"><div style="font-size:22px;font-weight:700;color:var(--green)">'+data.stats.totalExacts+'</div><div style="font-size:10px;color:var(--text2)">Exacts</div></div>';
+  h+='<div style="background:var(--card2);padding:14px;border-radius:8px;text-align:center;flex:1;min-width:80px"><div style="font-size:22px;font-weight:700;color:var(--cyan)">'+data.stats.totalProches+'</div><div style="font-size:10px;color:var(--text2)">Proches</div></div>';
+  h+='<div style="background:var(--card2);padding:14px;border-radius:8px;text-align:center;flex:1;min-width:80px"><div style="font-size:22px;font-weight:700">'+data.stats.totalComparisons+'</div><div style="font-size:10px;color:var(--text2)">Compares</div></div>';
+  h+='</div>';
+
+  // Apprentissage v4
+  h+='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">';
+  if(data.learning) h+='<span class="learn-badge">APPRENTISSAGE ACTIF — '+data.learning.totalCompared+' comparaisons</span>';
+  if(data.autoSavedCount) h+='<span class="learn-badge" style="background:rgba(0,230,118,.15);color:var(--green)">'+data.autoSavedCount+' predictions auto-sauvegardees</span>';
+  if(data.lastBacktest) h+='<span class="learn-badge" style="background:rgba(68,138,255,.15);color:var(--blue)">Backtest: '+new Date(data.lastBacktest).toLocaleDateString("fr")+'</span>';
+  h+='</div>';
+
+  // Poids v4 en temps reel
+  if(data.v4Weights){
+    h+='<div style="margin-bottom:12px;font-size:12px;color:var(--text2)">Poids appris par le bot (ajustes a chaque comparaison) :</div>';
+    h+='<table><thead><tr><th>Critere</th><th>Poids</th><th>Barre</th></tr></thead><tbody>';
+    const noms={markov2:'Markov',jourAffinity:'Jour',freqGlob:'Freq. globale',paires:'Paires',terminaisons:'Terminaisons',conditionnel:'Conditionnel',momentum:'Momentum',freqRecent:'Freq. recente',retard:'Retard',cycleOverdue:'Cycles',antiRepet:'Anti-repet.'};
+    const sorted=Object.entries(data.v4Weights).sort((a,b)=>b[1]-a[1]);
+    const maxW=sorted[0]?sorted[0][1]:1;
+    for(const [k,v] of sorted){
+      const pct=(v/maxW*100).toFixed(0);
+      const color=v>=15?'var(--green)':v>=10?'var(--orange)':v>=5?'var(--blue)':'var(--text2)';
+      h+=`<tr><td style="text-align:left;font-weight:600">${noms[k]||k}</td><td style="font-weight:700;color:${color}">${typeof v==='number'?v.toFixed(1):v}</td><td><div class="freq-bar" style="min-width:120px"><div class="freq-bar-fill" style="width:${pct}%;background:${color}"></div></div></td></tr>`;
+    }
+    h+='</tbody></table>';
+  }
+
+  // Ancien tableau de comparaison (si dispo)
+  if(data.learning){
+    h+='<div style="margin-top:14px;font-size:11px;color:var(--text2)">Ajustements recents ('+data.learning.totalCompared+' comparaisons) :</div>';
+    h+='<table><thead><tr><th>Critere</th><th>Base</th><th>Ajust.</th><th>Actuel</th></tr></thead><tbody>';
+    const base={jourAffinity:29.5,freqGlob:29.2,markov2:29.2,paires:29,terminaisons:28,conditionnel:21.1,retard:7.5,freqRecent:6.9,momentum:6.1,cycleOverdue:3.4};
+    const noms2={markov2:'Markov',jourAffinity:'Jour',freqGlob:'Freq.',paires:'Paires',terminaisons:'Term.',conditionnel:'Cond.',momentum:'Mom.',freqRecent:'Rec.',retard:'Ret.',cycleOverdue:'Cyc.'};
+    for(const k of Object.keys(base)){const adj=data.learning.critereScores[k]||0;const cur=data.learning.adjusted[k];if(cur===undefined)continue;const color=adj>0?'var(--green)':adj<0?'var(--red)':'var(--text2)';h+=`<tr><td style="text-align:left;font-size:11px">${noms2[k]||k}</td><td style="font-size:11px">${base[k]}</td><td style="color:${color};font-weight:700;font-size:11px">${adj>0?'+':''}${adj}</td><td style="font-weight:700;font-size:11px">${cur}</td></tr>`}
+    h+='</tbody></table>';
+  }
+  h+='</div>';
+
+  // Dernieres comparaisons
+  if(data.recent.length>0){
+    h+='<div class="card"><h2>Dernieres comparaisons</h2>';
+    for(const a of data.recent.reverse().slice(0,5)){
+      h+=`<div class="analyse-card"><h3>${a.date}</h3>`;
+      for(const c of a.comparaisons){
+        h+=`<div style="padding:6px 0;border-bottom:1px solid var(--border)"><div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap"><span style="font-weight:600;font-size:12px;min-width:120px">${c.tirage}</span><div class="nums">`;
+        for(const n of c.prediction){const isExact=c.resultat.includes(n);const isClose=!isExact&&c.resultat.some(r=>Math.abs(r-n)<=2);h+=nbs(n,isExact?'num-match':isClose?'num-close':'num-miss')}
+        h+=`</div><span style="color:var(--text2);font-size:10px">vs</span><div class="nums">`;
+        for(const n of c.resultat)h+=nbs(n,'num-green');
+        h+=`</div><span style="font-size:11px;margin-left:auto"><span style="color:var(--green);font-weight:700">${c.comp.nbExacts}</span>`;
+        if(c.comp.proches.length>0)h+=`<span style="color:var(--yellow)">+${c.comp.proches.length}</span>`;
+        h+='</span></div></div>'
+      }
+      h+='</div>';
+    }
+    h+='</div>';
+  }
+  el.innerHTML=h;
+}
+
+// ═══ DONNEES (Freq + Distribution + Resultats) ═══
+async function loadDonnees(){
+  const el=document.getElementById('donneesContent');el.innerHTML='<div class="loading"><div class="spinner"></div><br>Chargement...</div>';
+  let h='';
+
+  // Frequences
+  try{
+    const freq=await fetch('/api/frequence').then(r=>r.json());
+    if(!freq.error){
+      const mf=freq[0].freq;
+      h+='<div class="card"><h2>Frequences (90 numeros)</h2><table><thead><tr><th>#</th><th>N</th><th>Freq</th><th></th><th>Recent</th><th>Ecart</th><th></th></tr></thead><tbody>';
+      for(let i=0;i<freq.length;i++){const d=freq[i];const tc=d.temp==='CHAUD'?'tag-hot':d.temp==='TIEDE'?'tag-warm':'tag-cold';const bc=d.temp==='CHAUD'?'var(--red)':d.temp==='TIEDE'?'var(--orange)':'var(--blue)';const bw=(d.freq/mf*100).toFixed(0);h+=`<tr><td>${i+1}</td><td style="font-weight:700">${d.num}</td><td>${d.freq}</td><td><div class="freq-bar"><div class="freq-bar-fill" style="width:${bw}%;background:${bc}"></div></div></td><td>${d.freqRecent}</td><td>${d.ecart>0?'+':''}${d.ecart}%</td><td><span class="tag ${tc}">${d.temp}</span></td></tr>`}
+      h+='</tbody></table></div>';
+    }
+  }catch(e){}
+
+  // Distribution
+  try{
+    const dist=await fetch('/api/distribution').then(r=>r.json());
+    if(!dist.error){
+      h+='<div class="grid-2">';
+      h+='<div class="card"><h2>Sommes</h2><div style="text-align:center;margin-bottom:10px"><div style="font-size:28px;font-weight:800;color:var(--green)">'+dist.avgSomme+'</div><div style="color:var(--text2);font-size:11px">Moyenne ('+dist.minSomme+' — '+dist.maxSomme+')</div></div></div>';
+      h+='<div class="card"><h2>Pair/Impair</h2><table><thead><tr><th>Distrib.</th><th>Freq</th><th>%</th></tr></thead><tbody>';
+      const tp=dist.pairImpair.reduce((a,b)=>a+b[1],0);
+      for(const[k,v]of dist.pairImpair)h+=`<tr><td style="font-weight:600">${k}</td><td>${v}</td><td>${(v/tp*100).toFixed(1)}%</td></tr>`;
+      h+='</tbody></table></div></div>';
+    }
+  }catch(e){}
+
+  // Resultats
+  try{
+    const res=await fetch('/api/resultats').then(r=>r.json());
+    h+='<div class="card"><h2>50 derniers tirages</h2><table><thead><tr><th>Date</th><th>Tirage</th><th>G1</th><th>G2</th><th>G3</th><th>G4</th><th>G5</th></tr></thead><tbody>';
+    for(const d of res.slice(0,50)){h+=`<tr><td style="font-size:11px">${d.date}</td><td style="text-align:left;font-weight:500;font-size:11px">${d.type}</td>`;for(const n of d.gagnants)h+=`<td style="color:var(--green);font-weight:700">${String(n).padStart(2,'0')}</td>`;h+='</tr>'}
+    h+='</tbody></table></div>';
+  }catch(e){}
+
+  el.innerHTML=h;
+}
+
+// ═══ SIDEBAR RESULTATS DU JOUR ═══
+async function loadSidebar(){
+  const el=document.getElementById('sidContent');
+  try{
+    const data=await fetch('/api/resultats-jour').then(r=>r.json());
+    document.getElementById('sidDate').textContent=data.date+' — '+data.jourNom;
+    if(!data.tirages||data.tirages.length===0){
+      el.innerHTML='<div class="sid-empty">Aucun resultat encore aujourd\'hui</div>';
+      return;
+    }
+    let h='<div class="sid-count"><b>'+data.tirages.length+'</b> tirages sortis</div>';
+    for(const d of data.tirages){
+      h+='<div class="sid-draw"><div class="sid-draw-name"><span class="h">'+(data.horaires[d.type]||'')+'</span>'+d.type+'</div>';
+      h+='<div class="sid-nums">';
+      for(const n of d.gagnants) h+='<div class="sid-num sid-g">'+String(n).padStart(2,'0')+'</div>';
+      if(d.machine&&d.machine.length>0){
+        h+='<span style="color:var(--text2);font-size:9px;margin:0 2px">|</span>';
+        for(const n of d.machine) h+='<div class="sid-num sid-m">'+String(n).padStart(2,'0')+'</div>';
+      }
+      h+='</div></div>';
+    }
+    el.innerHTML=h;
+  }catch(e){el.innerHTML='<div class="sid-empty">Erreur chargement</div>'}
+}
+
+// Auto-refresh
+setInterval(()=>{loadStatus();loadSidebar();const active=document.querySelector('.tab.active');if(active)showPage(active.dataset.page)},300000);
+setInterval(loadSidebar,120000);
+loadStatus();loadSidebar();try{loadPredictions(cj5)}catch(e){document.getElementById('predContent').innerHTML='<div class="card" style="color:var(--red)">Erreur: relance node server.js</div>'}
+</script>
+</body>
+</html>

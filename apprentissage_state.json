@@ -1,0 +1,103 @@
+{
+  "criteriaWeights": {
+    "jourAffinity": 29.308795986621977,
+    "freqGlob": 29.429999999999943,
+    "markov2": 29.069999999999943,
+    "paires": 29.789999999999964,
+    "terminaisons": 29.278896321070135,
+    "conditionnel": 19.148461538461444,
+    "retard": 4.717892976588608,
+    "antiRepet": 7,
+    "freqRecent": 9.72836120401341,
+    "momentum": 10.608327759197357,
+    "cycleOverdue": 3
+  },
+  "topNPerCriteria": 15,
+  "lastBacktest": "2026-11-02T12:48:08.680Z",
+  "backtestHistory": [
+    {
+      "date": "2026-10-27T00:00:00.000Z",
+      "note": "Poids appris par backtest 24 mois complets (5429 tirages)",
+      "weights": {
+        "jourAffinity": 29.5,
+        "freqGlob": 29.2,
+        "markov2": 29.2,
+        "paires": 29,
+        "terminaisons": 28,
+        "conditionnel": 21.1,
+        "retard": 7.5,
+        "antiRepet": 7,
+        "freqRecent": 6.9,
+        "momentum": 6.1,
+        "cycleOverdue": 3.4
+      }
+    },
+    {
+      "date": "2026-10-27T21:09:44.310Z",
+      "weights": {
+        "jourAffinity": 29.84,
+        "freqGlob": 30,
+        "markov2": 29.89,
+        "paires": 29.490000000000002,
+        "terminaisons": 28.65,
+        "conditionnel": 21.200000000000003,
+        "retard": 7.29,
+        "antiRepet": 7,
+        "freqRecent": 6.91,
+        "momentum": 6.07,
+        "cycleOverdue": 3.0100000000000007
+      }
+    },
+    {
+      "date": "2026-10-27T21:09:44.806Z",
+      "weights": {
+        "jourAffinity": 29.84,
+        "freqGlob": 30,
+        "markov2": 29.89,
+        "paires": 29.490000000000002,
+        "terminaisons": 28.65,
+        "conditionnel": 21.200000000000003,
+        "retard": 7.29,
+        "antiRepet": 7,
+        "freqRecent": 6.91,
+        "momentum": 6.07,
+        "cycleOverdue": 3.0100000000000007
+      }
+    },
+    {
+      "date": "2026-10-28T19:07:43.252Z",
+      "weights": {
+        "jourAffinity": 29.79,
+        "freqGlob": 30,
+        "markov2": 29.83,
+        "paires": 29.470000000000006,
+        "terminaisons": 28.599999999999998,
+        "conditionnel": 21.240000000000006,
+        "retard": 7.24,
+        "antiRepet": 7,
+        "freqRecent": 6.910000000000001,
+        "momentum": 6.06,
+        "cycleOverdue": 3.0300000000000002
+      }
+    },
+    {
+      "date": "2026-11-02T12:48:08.680Z",
+      "weights": {
+        "jourAffinity": 29.698795986622077,
+        "freqGlob": 30,
+        "markov2": 29.83852842809364,
+        "paires": 29.45913043478261,
+        "terminaisons": 28.588896321070237,
+        "conditionnel": 21.15846153846154,
+        "retard": 7.267892976588629,
+        "antiRepet": 7,
+        "freqRecent": 6.878361204013379,
+        "momentum": 5.958327759197324,
+        "cycleOverdue": 3.0180267558528433
+      }
+    }
+  ],
+  "version": 4,
+  "trainedOn": 5429,
+  "trainedPeriod": "nov 2024 - oct 2026 (24 mois)"
+}
