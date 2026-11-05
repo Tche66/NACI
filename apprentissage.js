@@ -52,6 +52,7 @@ function loadLearnState() {
     saveLearnState(state);
   }
   if (!state.categoryWeights) state.categoryWeights = {};
+  if (!state.comboPerf) state.comboPerf = { CONV: 1.0, EQ: 1.0, COND: 1.0, MARKOV: 1.0, JOUR: 1.0 };
   if (state.version < 5) state.version = 5;
   return state;
 }
@@ -376,40 +377,74 @@ function predictConvergence(draws, typeFilter, jourSemaine) {
     return att.sort((a, b) => a - b);
   }
 
-  const combos = [];
+  // Generer les combos individuels
+  const subCombos = [];
 
-  // Combo 1: CONVERGENCE PURE
-  combos.push({
-    nom: "CONVERGENCE",
+  // Combo A: CONVERGENCE PURE
+  subCombos.push({
+    key: "CONV", nom: "CONVERGENCE",
     nums: ajuster(ranked.slice(0, 5).map(r => r.num)),
     confiance: "HAUTE",
     detail: ranked.slice(0, 5).map(r => `N${r.num}(${r.votes}crit)`).join(", "),
   });
 
-  // Combo 2: CONVERGENCE EQUILIBREE (2P+3I)
+  // Combo B: CONVERGENCE EQUILIBREE (2P+3I)
   const imps = ranked.filter(r => r.num % 2 === 1);
   const prs = ranked.filter(r => r.num % 2 === 0);
   const eq = ajuster([...prs.slice(0, 2).map(r => r.num), ...imps.slice(0, 3).map(r => r.num)]);
-  if (eq.length === 5) combos.push({ nom: "CONVERGENCE EQ", nums: eq, confiance: "HAUTE" });
+  if (eq.length === 5) subCombos.push({ key: "EQ", nom: "CONVERGENCE EQ", nums: eq, confiance: "HAUTE" });
 
-  // Combo 3: CONDITIONNEL+ (proba conditionnelle confirme par convergence)
+  // Combo C: CONDITIONNEL+
   const condConv = ranked.filter(r => r.votes >= 2 && r.criteria.includes("conditionnel")).slice(0, 7);
   if (condConv.length >= 5) {
-    combos.push({ nom: "CONDITIONNEL+", nums: ajuster(condConv.slice(0, 5).map(r => r.num)), confiance: "HAUTE" });
+    subCombos.push({ key: "COND", nom: "CONDITIONNEL+", nums: ajuster(condConv.slice(0, 5).map(r => r.num)), confiance: "HAUTE" });
   }
 
-  // Combo 4: MARKOV+ (markov confirme par convergence)
+  // Combo D: MARKOV+
   const mkConv = ranked.filter(r => r.votes >= 2 && r.criteria.includes("markov2")).slice(0, 7);
   if (mkConv.length >= 5) {
-    combos.push({ nom: "MARKOV+", nums: ajuster(mkConv.slice(0, 5).map(r => r.num)), confiance: "HAUTE" });
+    subCombos.push({ key: "MARKOV", nom: "MARKOV+", nums: ajuster(mkConv.slice(0, 5).map(r => r.num)), confiance: "HAUTE" });
   }
 
-  // Combo 5: JOUR+ (jour affinity confirme par convergence)
+  // Combo E: JOUR+
   if (jourSemaine !== undefined && jourSemaine !== null) {
     const jourConv = ranked.filter(r => r.votes >= 2 && r.criteria.includes("jourAffinity")).slice(0, 7);
     if (jourConv.length >= 5) {
-      combos.push({ nom: "JOUR+", nums: ajuster(jourConv.slice(0, 5).map(r => r.num)), confiance: "MOYENNE" });
+      subCombos.push({ key: "JOUR", nom: "JOUR+", nums: ajuster(jourConv.slice(0, 5).map(r => r.num)), confiance: "MOYENNE" });
     }
+  }
+
+  // ═══ SUPER COMBO: fusion par vote pondere de tous les combos ═══
+  const comboWeights = state.comboPerf || {};
+  const numScore = {};
+  const numSources = {};
+  for (const sc of subCombos) {
+    const w = comboWeights[sc.key] || 1.0;
+    for (let rank = 0; rank < sc.nums.length; rank++) {
+      const n = sc.nums[rank];
+      numScore[n] = (numScore[n] || 0) + w * (1.2 - rank * 0.1);
+      if (!numSources[n]) numSources[n] = [];
+      numSources[n].push(sc.key);
+    }
+  }
+  const superCandidates = Object.entries(numScore)
+    .map(([n, s]) => ({ num: parseInt(n), score: s, sources: numSources[parseInt(n)] || [] }))
+    .sort((a, b) => b.score - a.score);
+  const superNums = ajuster(superCandidates.slice(0, 5).map(c => c.num));
+  const superDetail = superCandidates.slice(0, 5)
+    .map(c => `N${c.num}(${c.sources.length}strat)`).join(", ");
+
+  // SUPER COMBO en premier, puis les combos individuels
+  const combos = [];
+  combos.push({
+    nom: "SUPER COMBO",
+    nums: superNums,
+    confiance: "MAXIMALE",
+    detail: superDetail,
+    isSuper: true,
+  });
+  for (const sc of subCombos) {
+    combos.push({ nom: sc.nom, nums: sc.nums, confiance: sc.confiance, detail: sc.detail });
   }
 
   return {
@@ -417,7 +452,7 @@ function predictConvergence(draws, typeFilter, jourSemaine) {
     combos,
     nbTirages: filtered.length,
     dernier: filtered[0],
-    weights: state.criteriaWeights,
+    weights: typeFilter ? weights : state.criteriaWeights,
   };
 }
 

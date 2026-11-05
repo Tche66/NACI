@@ -426,6 +426,19 @@ function autoCompare(db) {
               }
             }
           }
+          // Ajuster poids des combos (pour SUPER COMBO)
+          if (pred.allCombos && pred.allCombos.length > 0) {
+            if (!state.comboPerf) state.comboPerf = { CONV: 1.0, EQ: 1.0, COND: 1.0, MARKOV: 1.0, JOUR: 1.0 };
+            const comboKeyMap = { "CONVERGENCE": "CONV", "CONVERGENCE EQ": "EQ", "CONDITIONNEL+": "COND", "MARKOV+": "MARKOV", "JOUR+": "JOUR" };
+            for (const combo of pred.allCombos) {
+              const key = comboKeyMap[combo.nom];
+              if (!key || state.comboPerf[key] === undefined) continue;
+              const comboHits = (combo.nums || []).filter(n => realNums.includes(n)).length;
+              if (comboHits > 0) state.comboPerf[key] = Math.min(2.0, state.comboPerf[key] * 0.95 + 0.1);
+              else state.comboPerf[key] = Math.max(0.3, state.comboPerf[key] * 0.97 - 0.01);
+            }
+          }
+
           saveLearnState(state);
           learnUpdated = true;
         }
