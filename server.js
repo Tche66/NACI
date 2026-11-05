@@ -5,7 +5,7 @@ const https = require("https");
 const { loadDB, saveDB, mergeDraws } = require("./db");
 const { TIRAGES_COMPLET, JOURS_NOMS, getTiragesJour, getNomsTiragesJour } = require("./horaires");
 const { genererCouverture, CONSTRAINTS } = require("./couverture");
-const { learnAndAdapt, loadLearnState, predictConvergence, DEFAULT_WEIGHTS } = require("./apprentissage");
+const { learnAndAdapt, loadLearnState, predictConvergence, DEFAULT_WEIGHTS, DRAW_CATEGORIES, getCategoryForType } = require("./apprentissage");
 
 const app = express();
 const PORT = 3000;
@@ -395,8 +395,7 @@ function autoCompare(db) {
     pred.resultat = realDraw.gagnants;
     pred.nbExacts = comp.nbExacts;
 
-    // ═══ AUTO-APPRENTISSAGE PAR PREDICTION ═══
-    // Pour chaque resultat reel, on regarde quels criteres avaient les bons numeros
+    // ═══ AUTO-APPRENTISSAGE PAR PREDICTION (v5: global + par categorie) ═══
     try {
       const { computeCriteriaTops, loadLearnState, saveLearnState } = require("./apprentissage");
       const filtered = db.draws.filter(d => d.type === pred.tirage);
@@ -408,17 +407,22 @@ function autoCompare(db) {
         if (tops) {
           const state = loadLearnState();
           const realNums = realDraw.gagnants;
+          const cat = getCategoryForType(pred.tirage);
+          if (!state.categoryWeights[cat]) state.categoryWeights[cat] = { ...state.criteriaWeights };
           for (const n of realNums) {
             for (const [critere, topList] of Object.entries(tops)) {
               if (!topList || critere.startsWith("_") || critere === "lastDrawNums") continue;
-              const w = state.criteriaWeights[critere];
-              if (w === undefined) continue;
-              if (topList.includes(n)) {
-                // Ce critere a trouve un gagnant — petit boost
-                state.criteriaWeights[critere] = Math.min(30, w + 0.15);
-              } else {
-                // Ce critere a rate — petite penalite
-                state.criteriaWeights[critere] = Math.max(3, w - 0.03);
+              // Ajuster poids global
+              const wg = state.criteriaWeights[critere];
+              if (wg !== undefined) {
+                if (topList.includes(n)) state.criteriaWeights[critere] = Math.min(30, wg + 0.15);
+                else state.criteriaWeights[critere] = Math.max(3, wg - 0.03);
+              }
+              // Ajuster poids categorie (pas plus vite que le global)
+              const wc = state.categoryWeights[cat][critere];
+              if (wc !== undefined) {
+                if (topList.includes(n)) state.categoryWeights[cat][critere] = Math.min(30, wc + 0.2);
+                else state.categoryWeights[cat][critere] = Math.max(3, wc - 0.04);
               }
             }
           }
@@ -661,6 +665,80 @@ app.post("/api/backtest", (req, res) => {
 
 app.get("/api/learn-state", (req, res) => {
   res.json(loadLearnState());
+});
+
+app.get("/api/performance", (req, res) => {
+  const history = loadHistory();
+  const preds = history.predictions.filter(p => p.compared);
+  if (preds.length === 0) return res.json({ error: "Aucune comparaison" });
+
+  const eRandom = 5 * 5 / 90;
+  const totalHits = preds.reduce((s, p) => s + (p.nbExacts || 0), 0);
+  const avgHits = totalHits / preds.length;
+
+  // Par type de tirage
+  const byType = {};
+  for (const p of preds) {
+    if (!byType[p.tirage]) byType[p.tirage] = { total: 0, hits: 0, max: 0 };
+    byType[p.tirage].total++;
+    byType[p.tirage].hits += (p.nbExacts || 0);
+    if ((p.nbExacts || 0) > byType[p.tirage].max) byType[p.tirage].max = p.nbExacts;
+  }
+  const typePerf = Object.entries(byType).map(([t, s]) => ({
+    tirage: t, category: getCategoryForType(t),
+    total: s.total, hits: s.hits, max: s.max,
+    avg: +(s.hits / s.total).toFixed(3),
+    lift: +((s.hits / s.total) / eRandom).toFixed(2),
+  })).sort((a, b) => b.avg - a.avg);
+
+  // Par categorie
+  const byCat = {};
+  for (const p of preds) {
+    const cat = getCategoryForType(p.tirage);
+    if (!byCat[cat]) byCat[cat] = { total: 0, hits: 0 };
+    byCat[cat].total++;
+    byCat[cat].hits += (p.nbExacts || 0);
+  }
+  const catPerf = Object.entries(byCat).map(([c, s]) => ({
+    category: c, total: s.total, hits: s.hits,
+    avg: +(s.hits / s.total).toFixed(3),
+    lift: +((s.hits / s.total) / eRandom).toFixed(2),
+  })).sort((a, b) => b.avg - a.avg);
+
+  // Par semaine
+  const byWeek = {};
+  for (const p of preds) {
+    const parts = p.date.match(/(\d{2})\/(\d{2})\/(\d{4})/);
+    if (!parts) continue;
+    const d = new Date(parseInt(parts[3]), parseInt(parts[2]) - 1, parseInt(parts[1]));
+    const ws = new Date(d); ws.setDate(d.getDate() - d.getDay());
+    const wk = ws.toISOString().slice(0, 10);
+    if (!byWeek[wk]) byWeek[wk] = { total: 0, hits: 0 };
+    byWeek[wk].total++;
+    byWeek[wk].hits += (p.nbExacts || 0);
+  }
+  const weekPerf = Object.entries(byWeek).sort().map(([w, s]) => ({
+    week: w, total: s.total, hits: s.hits,
+    avg: +(s.hits / s.total).toFixed(3),
+  }));
+
+  // Top predictions
+  const best = preds.filter(p => (p.nbExacts || 0) >= 2).sort((a, b) => b.nbExacts - a.nbExacts).slice(0, 10).map(p => ({
+    date: p.date, tirage: p.tirage, nbExacts: p.nbExacts,
+    prediction: p.nums, resultat: p.resultat,
+    communs: p.nums.filter(n => (p.resultat || []).includes(n)),
+  }));
+
+  // Poids par categorie (etat actuel de l'apprentissage)
+  const state = loadLearnState();
+
+  res.json({
+    total: preds.length, totalHits, avgHits: +avgHits.toFixed(3),
+    eRandom: +eRandom.toFixed(3), lift: +(avgHits / eRandom).toFixed(2),
+    byType: typePerf, byCategory: catPerf, byWeek: weekPerf, best,
+    categoryWeights: state.categoryWeights,
+    globalWeights: state.criteriaWeights,
+  });
 });
 
 app.get("/api/resultats", (req, res) => {

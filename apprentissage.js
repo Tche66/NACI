@@ -12,29 +12,56 @@ const NUM_RANGE = 90;
 const LEARN_PATH = path.join(__dirname, "apprentissage_state.json");
 
 // Poids appris par backtest 24 mois (5429 tirages avec apprentissage continu)
-// 5 criteres dominants: jourAffinity, freqGlob, markov2, paires, terminaisons
 const DEFAULT_WEIGHTS = {
   jourAffinity: 29.5, freqGlob: 29.2, markov2: 29.2, paires: 29.0,
   terminaisons: 28.0, conditionnel: 21.1, retard: 7.5, antiRepet: 7.0,
   freqRecent: 6.9, momentum: 6.1, cycleOverdue: 3.4,
 };
 
+const DRAW_CATEGORIES = {
+  digital: ["Digital Reveil 7h", "Digital Reveil 8h", "Digital 21h", "Digital 22h", "Digital 23h"],
+  matin: ["Reveil", "La Matinale", "Premiere Heure", "Kado", "Cash", "Soutra", "Benediction"],
+  midi: ["Etoile", "Emergence", "Fortune", "Privilege", "Solution", "Diamant", "Prestige"],
+  aprem: ["Akwaba", "Sika", "Baraka", "Monni", "Wari", "Moaye", "Awale"],
+  soir: ["Monday Special", "Lucky Tuesday", "Midweek", "Fortune Thursday", "Friday Bonanza", "National", "Espoir"],
+  afterwork: ["Afterwork"],
+  weekend: ["Special Weekend 1h", "Special Weekend 3h"],
+};
+
+function getCategoryForType(typeName) {
+  for (const [cat, types] of Object.entries(DRAW_CATEGORIES)) {
+    if (types.includes(typeName)) return cat;
+  }
+  return "global";
+}
+
 function loadLearnState() {
   if (!fs.existsSync(LEARN_PATH)) return {
     criteriaWeights: { ...DEFAULT_WEIGHTS },
+    categoryWeights: {},
     topNPerCriteria: 15,
     lastBacktest: null,
     backtestHistory: [],
-    version: 4,
+    version: 5,
   };
   const state = JSON.parse(fs.readFileSync(LEARN_PATH, "utf8"));
   if (!state.version || state.version < 4) {
     state.criteriaWeights = { ...DEFAULT_WEIGHTS };
-    state.version = 4;
+    state.version = 5;
     state.backtestHistory = state.backtestHistory || [];
     saveLearnState(state);
   }
+  if (!state.categoryWeights) state.categoryWeights = {};
+  if (state.version < 5) state.version = 5;
   return state;
+}
+
+function getWeightsForType(state, typeName) {
+  const cat = getCategoryForType(typeName);
+  if (state.categoryWeights[cat]) {
+    return state.categoryWeights[cat];
+  }
+  return state.criteriaWeights;
 }
 
 function saveLearnState(state) {
@@ -277,16 +304,17 @@ function walkForwardLearn(draws, blockSize, nBlocks) {
   return weights;
 }
 
-// ═══ PREDICTION PAR CONVERGENCE v4 ═══
+// ═══ PREDICTION PAR CONVERGENCE v5 ═══
 function predictConvergence(draws, typeFilter, jourSemaine) {
   const filtered = typeFilter ? draws.filter(d => d.type === typeFilter) : draws;
   if (filtered.length < 20) return null;
 
   const state = loadLearnState();
+  const weights = typeFilter ? getWeightsForType(state, typeFilter) : state.criteriaWeights;
   const tops = computeCriteriaTops(filtered, draws, state.topNPerCriteria || 15, jourSemaine);
   if (!tops) return null;
 
-  const ranked = convergenceScore(tops, state.criteriaWeights);
+  const ranked = convergenceScore(tops, weights);
 
   function valide(nums) {
     const s = nums.reduce((a, b) => a + b, 0);
@@ -362,12 +390,12 @@ function predictConvergence(draws, typeFilter, jourSemaine) {
   };
 }
 
-// ═══ LEARN AND ADAPT (walk-forward) ═══
+// ═══ LEARN AND ADAPT v5 (walk-forward global + par categorie) ═══
 function learnAndAdapt() {
   const db = loadDB();
   if (db.draws.length < 500) return null;
 
-  // Walk-forward sur les 1500 derniers tirages, 5 blocs de 300
+  // Walk-forward global
   const learnedWeights = walkForwardLearn(db.draws, 300, 5);
 
   const state = loadLearnState();
@@ -375,19 +403,32 @@ function learnAndAdapt() {
   state.lastBacktest = new Date().toISOString();
   state.backtestHistory.push({ date: state.lastBacktest, weights: { ...learnedWeights } });
   if (state.backtestHistory.length > 20) state.backtestHistory = state.backtestHistory.slice(-20);
-  state.version = 4;
+  state.version = 5;
+
+  // Walk-forward par categorie de tirage
+  for (const [cat, types] of Object.entries(DRAW_CATEGORIES)) {
+    const catDraws = db.draws.filter(d => types.includes(d.type));
+    if (catDraws.length < 200) continue;
+    const catWeights = walkForwardLearn(catDraws, Math.min(150, Math.floor(catDraws.length / 4)), 4);
+    state.categoryWeights[cat] = catWeights;
+  }
+
   saveLearnState(state);
 
-  console.log("[LEARN v4] Walk-forward termine. Poids:");
+  console.log("[LEARN v5] Walk-forward global + " + Object.keys(state.categoryWeights).length + " categories");
   const sorted = Object.entries(learnedWeights).sort((a, b) => b[1] - a[1]);
   for (const [k, v] of sorted.slice(0, 5)) console.log("  " + k + ": " + v.toFixed(1));
+  for (const [cat, w] of Object.entries(state.categoryWeights)) {
+    const top = Object.entries(w).sort((a, b) => b[1] - a[1]).slice(0, 3);
+    console.log("  [" + cat + "] " + top.map(([k, v]) => k + ":" + v.toFixed(1)).join(", "));
+  }
 
   return state;
 }
 
 module.exports = {
-  loadLearnState, saveLearnState,
+  loadLearnState, saveLearnState, getWeightsForType,
   computeCriteriaTops, convergenceScore,
   walkForwardLearn, predictConvergence, learnAndAdapt,
-  DEFAULT_WEIGHTS,
+  DEFAULT_WEIGHTS, DRAW_CATEGORIES, getCategoryForType,
 };
