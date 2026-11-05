@@ -248,12 +248,13 @@ function convergenceScore(tops, weights) {
   return ranked;
 }
 
-// ═══ WALK-FORWARD LEARNING ═══
-function walkForwardLearn(draws, blockSize, nBlocks) {
+// ═══ WALK-FORWARD LEARNING v5 ═══
+// startWeights: poids de depart (poids actuels appris, pas DEFAULT_WEIGHTS)
+function walkForwardLearn(draws, blockSize, nBlocks, startWeights) {
   blockSize = blockSize || 200;
   nBlocks = nBlocks || 5;
   const TOP_N = 15;
-  let weights = { ...DEFAULT_WEIGHTS };
+  let weights = { ...(startWeights || DEFAULT_WEIGHTS) };
   const criteriaSucc = {};
   const criteriaFail = {};
 
@@ -262,7 +263,6 @@ function walkForwardLearn(draws, blockSize, nBlocks) {
     const end = Math.min(start + blockSize, draws.length - 100);
     if (start >= draws.length - 100) break;
 
-    // Reset compteurs
     for (const k of Object.keys(weights)) { criteriaSucc[k] = 0; criteriaFail[k] = 0; }
 
     for (let i = start; i < end; i++) {
@@ -287,7 +287,6 @@ function walkForwardLearn(draws, blockSize, nBlocks) {
       }
     }
 
-    // Ajuster les poids
     for (const k of Object.keys(weights)) {
       if (k === "antiRepet") continue;
       const succ = criteriaSucc[k] || 0;
@@ -302,6 +301,38 @@ function walkForwardLearn(draws, blockSize, nBlocks) {
   }
 
   return weights;
+}
+
+// ═══ BACKTEST SCORING ═══
+// Mesure le hit rate d'un jeu de poids sur les N derniers tirages
+function backtestScore(draws, weights, nTest) {
+  nTest = nTest || 200;
+  const TOP_N = 15;
+  let hits = 0, total = 0;
+
+  for (let i = 0; i < Math.min(nTest, draws.length - 100); i++) {
+    const target = draws[i];
+    const hist = draws.slice(i + 1);
+    const filt = hist.filter(d => d.type === target.type);
+    if (filt.length < 20) continue;
+
+    const parts = target.date.match(/(\d{2})\/(\d{2})\/(\d{4})/);
+    let jour = null;
+    if (parts) { const dt = new Date(parseInt(parts[3]), parseInt(parts[2]) - 1, parseInt(parts[1])); jour = dt.getDay(); }
+
+    const tops = computeCriteriaTops(filt, hist, TOP_N, jour);
+    if (!tops) continue;
+
+    const ranked = convergenceScore(tops, weights);
+    const predicted = new Set(ranked.slice(0, 5).map(r => r.num));
+
+    for (const n of target.gagnants) {
+      total++;
+      if (predicted.has(n)) hits++;
+    }
+  }
+
+  return total > 0 ? hits / total : 0;
 }
 
 // ═══ PREDICTION PAR CONVERGENCE v5 ═══
@@ -390,45 +421,100 @@ function predictConvergence(draws, typeFilter, jourSemaine) {
   };
 }
 
-// ═══ LEARN AND ADAPT v5 (walk-forward global + par categorie) ═══
+// ═══ LEARN AND ADAPT v5 (cumulatif + validation par backtest) ═══
 function learnAndAdapt() {
   const db = loadDB();
   if (db.draws.length < 500) return null;
 
-  // Walk-forward global
-  const learnedWeights = walkForwardLearn(db.draws, 300, 5);
-
   const state = loadLearnState();
-  state.criteriaWeights = learnedWeights;
-  state.lastBacktest = new Date().toISOString();
-  state.backtestHistory.push({ date: state.lastBacktest, weights: { ...learnedWeights } });
-  if (state.backtestHistory.length > 20) state.backtestHistory = state.backtestHistory.slice(-20);
-  state.version = 5;
+  const oldGlobalScore = backtestScore(db.draws, state.criteriaWeights, 300);
 
-  // Walk-forward par categorie de tirage
+  // Walk-forward global: demarre des poids actuels (cumulatif)
+  const candidateWeights = walkForwardLearn(db.draws, 300, 5, state.criteriaWeights);
+  const newGlobalScore = backtestScore(db.draws, candidateWeights, 300);
+
+  // Ne garder que si c'est une amelioration (ou equivalent)
+  if (newGlobalScore >= oldGlobalScore) {
+    state.criteriaWeights = candidateWeights;
+    console.log("[LEARN v5] Global: " + (oldGlobalScore * 100).toFixed(2) + "% -> " + (newGlobalScore * 100).toFixed(2) + "% AMELIORE");
+  } else {
+    // Blend: 70% nouveau + 30% ancien pour ne pas perdre le progres
+    for (const k of Object.keys(state.criteriaWeights)) {
+      if (k === "antiRepet") continue;
+      state.criteriaWeights[k] = state.criteriaWeights[k] * 0.3 + candidateWeights[k] * 0.7;
+    }
+    const blendScore = backtestScore(db.draws, state.criteriaWeights, 300);
+    console.log("[LEARN v5] Global: " + (oldGlobalScore * 100).toFixed(2) + "% -> blend " + (blendScore * 100).toFixed(2) + "% (candidat " + (newGlobalScore * 100).toFixed(2) + "% etait pire)");
+  }
+
+  state.lastBacktest = new Date().toISOString();
+  state.backtestHistory.push({
+    date: state.lastBacktest,
+    weights: { ...state.criteriaWeights },
+    score: newGlobalScore >= oldGlobalScore ? newGlobalScore : backtestScore(db.draws, state.criteriaWeights, 300),
+    prevScore: oldGlobalScore,
+    improved: newGlobalScore >= oldGlobalScore,
+  });
+  if (state.backtestHistory.length > 50) state.backtestHistory = state.backtestHistory.slice(-50);
+  state.version = 5;
+  state.trainedOn = db.draws.length;
+  state.trainedPeriod = db.draws[db.draws.length - 1]?.date + " - " + db.draws[0]?.date;
+
+  // Walk-forward par categorie: demarre des poids categorie actuels
   for (const [cat, types] of Object.entries(DRAW_CATEGORIES)) {
     const catDraws = db.draws.filter(d => types.includes(d.type));
     if (catDraws.length < 200) continue;
-    const catWeights = walkForwardLearn(catDraws, Math.min(150, Math.floor(catDraws.length / 4)), 4);
-    state.categoryWeights[cat] = catWeights;
+
+    const currentCatWeights = state.categoryWeights[cat] || { ...state.criteriaWeights };
+    const oldCatScore = backtestScore(catDraws, currentCatWeights, 150);
+    const blockSz = Math.min(150, Math.floor(catDraws.length / 4));
+    const candidateCat = walkForwardLearn(catDraws, blockSz, 4, currentCatWeights);
+    const newCatScore = backtestScore(catDraws, candidateCat, 150);
+
+    if (newCatScore >= oldCatScore) {
+      state.categoryWeights[cat] = candidateCat;
+      console.log("  [" + cat + "] " + (oldCatScore * 100).toFixed(2) + "% -> " + (newCatScore * 100).toFixed(2) + "% AMELIORE");
+    } else {
+      // Blend pour cette categorie aussi
+      const blended = {};
+      for (const k of Object.keys(currentCatWeights)) {
+        blended[k] = k === "antiRepet" ? currentCatWeights[k] : currentCatWeights[k] * 0.3 + candidateCat[k] * 0.7;
+      }
+      const blendCatScore = backtestScore(catDraws, blended, 150);
+      if (blendCatScore > oldCatScore) {
+        state.categoryWeights[cat] = blended;
+        console.log("  [" + cat + "] " + (oldCatScore * 100).toFixed(2) + "% -> blend " + (blendCatScore * 100).toFixed(2) + "%");
+      } else {
+        state.categoryWeights[cat] = currentCatWeights;
+        console.log("  [" + cat + "] " + (oldCatScore * 100).toFixed(2) + "% CONSERVE (candidat " + (newCatScore * 100).toFixed(2) + "% pire)");
+      }
+    }
   }
+
+  // Persistance des scores pour suivi de progression
+  if (!state.performanceLog) state.performanceLog = [];
+  state.performanceLog.push({
+    date: state.lastBacktest,
+    globalScore: backtestScore(db.draws, state.criteriaWeights, 300),
+    categoryScores: Object.fromEntries(
+      Object.entries(state.categoryWeights).map(([cat, w]) => {
+        const catDraws = db.draws.filter(d => (DRAW_CATEGORIES[cat] || []).includes(d.type));
+        return [cat, catDraws.length >= 100 ? backtestScore(catDraws, w, 150) : null];
+      })
+    ),
+    trainedOn: db.draws.length,
+  });
+  if (state.performanceLog.length > 100) state.performanceLog = state.performanceLog.slice(-100);
 
   saveLearnState(state);
 
-  console.log("[LEARN v5] Walk-forward global + " + Object.keys(state.categoryWeights).length + " categories");
-  const sorted = Object.entries(learnedWeights).sort((a, b) => b[1] - a[1]);
-  for (const [k, v] of sorted.slice(0, 5)) console.log("  " + k + ": " + v.toFixed(1));
-  for (const [cat, w] of Object.entries(state.categoryWeights)) {
-    const top = Object.entries(w).sort((a, b) => b[1] - a[1]).slice(0, 3);
-    console.log("  [" + cat + "] " + top.map(([k, v]) => k + ":" + v.toFixed(1)).join(", "));
-  }
-
+  console.log("[LEARN v5] Termine. " + Object.keys(state.categoryWeights).length + " categories, " + db.draws.length + " tirages");
   return state;
 }
 
 module.exports = {
   loadLearnState, saveLearnState, getWeightsForType,
-  computeCriteriaTops, convergenceScore,
+  computeCriteriaTops, convergenceScore, backtestScore,
   walkForwardLearn, predictConvergence, learnAndAdapt,
   DEFAULT_WEIGHTS, DRAW_CATEGORIES, getCategoryForType,
 };

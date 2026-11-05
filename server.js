@@ -664,7 +664,22 @@ app.post("/api/backtest", (req, res) => {
 });
 
 app.get("/api/learn-state", (req, res) => {
-  res.json(loadLearnState());
+  const state = loadLearnState();
+  const progression = (state.performanceLog || []).map(p => ({
+    date: p.date,
+    global: p.globalScore ? +(p.globalScore * 100).toFixed(2) : null,
+    categories: p.categoryScores ? Object.fromEntries(
+      Object.entries(p.categoryScores).map(([k, v]) => [k, v ? +(v * 100).toFixed(2) : null])
+    ) : {},
+    trainedOn: p.trainedOn,
+  }));
+  const history = (state.backtestHistory || []).slice(-10).map(h => ({
+    date: h.date,
+    score: h.score ? +(h.score * 100).toFixed(2) : null,
+    prevScore: h.prevScore ? +(h.prevScore * 100).toFixed(2) : null,
+    improved: h.improved,
+  }));
+  res.json({ ...state, progression, recentHistory: history });
 });
 
 app.get("/api/performance", (req, res) => {
