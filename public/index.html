@@ -65,7 +65,11 @@
     .tag-hot{background:rgba(255,82,82,.15);color:var(--red)} .tag-warm{background:rgba(255,171,64,.15);color:var(--orange)} .tag-cold{background:rgba(68,138,255,.15);color:var(--blue)}
     .tag-high{background:rgba(0,230,118,.15);color:var(--green)} .tag-mid{background:rgba(255,171,64,.15);color:var(--orange)}
     .combo-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border)} .combo-row:last-child{border-bottom:none}
+    .combo-row.combo-super{background:linear-gradient(135deg,rgba(0,230,118,.08),rgba(0,200,83,.04));border:1px solid rgba(0,230,118,.3);border-radius:8px;padding:10px 12px;margin:4px 0}
+    .combo-row.combo-neural{background:linear-gradient(135deg,rgba(156,39,176,.08),rgba(224,64,251,.04));border:1px solid rgba(224,64,251,.3);border-radius:8px;padding:10px 12px;margin:4px 0}
     .combo-name{min-width:140px;font-weight:600;font-size:12px;color:var(--text2)} .combo-conf{margin-left:auto}
+    .tag-super{background:rgba(0,230,118,.2);color:var(--green);font-weight:700}
+    .tag-neural{background:rgba(224,64,251,.2);color:var(--purple);font-weight:700}
     .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
     .tirage-row{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--border);border-radius:6px;transition:background .2s}
     .tirage-row:hover{background:var(--card2)}
@@ -110,12 +114,13 @@
 </div>
 <div class="container">
   <header>
-    <h1>LONACI Loto Bonheur <span id="dbStatus">Chargement...</span></h1>
+    <h1>LONACI Loto Bonheur <span style="font-size:10px;color:var(--purple);background:rgba(224,64,251,.15);padding:2px 6px;border-radius:4px;vertical-align:middle;margin-left:6px">v5 + IA</span> <span id="dbStatus">Chargement...</span></h1>
     <div class="header-right">
       <span class="auto-badge">AUTO</span>
       <div class="status" id="statusInfo"></div>
       <button class="btn btn-green" id="btnUpdate" onclick="updateDB()">MAJ</button>
       <button class="btn btn-orange" onclick="compareNow()">Comparer</button>
+      <button class="btn" style="background:var(--purple);color:#fff" onclick="trainNN()">Entrainer IA</button>
     </div>
   </header>
   <div class="tabs">
@@ -143,6 +148,7 @@ function typeTag(t){const c={standard:'tirage-type-standard',digital:'tirage-typ
 async function loadStatus(){try{const r=await fetch('/api/status').then(r=>r.json());document.getElementById('dbStatus').innerHTML=`${(r.nbTirages||0).toLocaleString()} tirages | ${r.nbAnalyses||0} analyses`;const d=r.lastUpdate?new Date(r.lastUpdate):null;document.getElementById('statusInfo').innerHTML=d?`MAJ: ${d.toLocaleDateString('fr')} ${d.toLocaleTimeString('fr',{hour:'2-digit',minute:'2-digit'})}`:''}catch(e){document.getElementById('dbStatus').innerHTML='Erreur connexion'}}
 async function updateDB(){const b=document.getElementById('btnUpdate');b.disabled=true;b.textContent='...';const r=await fetch('/api/update',{method:'POST'}).then(r=>r.json());b.disabled=false;b.textContent='MAJ';if(r.success){alert(`+${r.newDraws} tirages. Total: ${r.total}`);loadStatus();showPage(document.querySelector('.tab.active').dataset.page)}else alert('Erreur: '+r.error)}
 async function compareNow(){const r=await fetch('/api/compare-now',{method:'POST'}).then(r=>r.json());if(r.success){let msg=`+${r.newDraws} tirages\n`;if(r.analyses.length>0){const a=r.analyses[r.analyses.length-1];const total=a.comparaisons.reduce((s,c)=>s+c.comp.nbExacts,0);msg+=`${a.comparaisons.length} compares, ${total} exacts`}else msg+='Pas de comparaison dispo.';alert(msg);loadStatus();showPage(document.querySelector('.tab.active').dataset.page)}else alert('Erreur: '+r.error)}
+async function trainNN(){if(!confirm('Re-entrainer le reseau de neurones ? (prend ~30s)'))return;const r=await fetch('/api/train-nn',{method:'POST'}).then(r=>r.json());alert(r.success?r.message:'Erreur: '+r.error);showPage(document.querySelector('.tab.active').dataset.page)}
 
 // ═══ PREDICTIONS ═══
 async function loadPredictions(jour){
@@ -155,7 +161,7 @@ async function loadPredictions(jour){
 
   // Combos globaux
   h+='<div class="card"><h2>Combinaisons — '+data.jourNom+'</h2>';
-  for(const c of data.global.combos){h+='<div class="combo-row"><div class="combo-name">'+c.nom+'</div><div class="nums">';for(const n of c.nums)h+=nb(n,c.confiance==='HAUTE'?'num-red':'num-orange');h+='</div><span style="color:var(--text2);font-size:11px;margin-left:6px">'+c.nums.reduce((a,b)=>a+b,0)+'</span><div class="combo-conf"><span class="tag '+(c.confiance==='HAUTE'?'tag-high':'tag-mid')+'">'+c.confiance+'</span></div></div>'}
+  for(const c of data.global.combos){const isS=c.isSuper||c.confiance==='MAXIMALE';const isN=c.isNeural||c.confiance==='IA';const rowCls=isS?'combo-row combo-super':isN?'combo-row combo-neural':'combo-row';const numCls=isS?'num-green':isN?'num-purple':c.confiance==='HAUTE'?'num-red':'num-orange';const tagCls=isS?'tag tag-super':isN?'tag tag-neural':c.confiance==='HAUTE'?'tag tag-high':'tag tag-mid';const label=isS?c.confiance:isN?'RESEAU NEURONAL':c.confiance;h+='<div class="'+rowCls+'"><div class="combo-name"'+(isS?' style="color:var(--green);font-size:14px"':isN?' style="color:var(--purple);font-size:13px"':'')+'>'+c.nom+'</div><div class="nums">';for(const n of c.nums)h+=nb(n,numCls);h+='</div><span style="color:var(--text2);font-size:11px;margin-left:6px">'+c.nums.reduce((a,b)=>a+b,0)+'</span><div class="combo-conf"><span class="'+tagCls+'">'+label+'</span></div></div>'}
   h+='</div>';
 
   // Paires du jour
@@ -173,8 +179,9 @@ async function loadPredictions(jour){
   h+='<div class="card"><h2>Par tirage</h2>';
   for(const t of data.parTirage){
     h+='<div class="tirage-row"><div class="tirage-heure">'+t.heure+'</div>'+typeTag(t.type)+'<div class="tirage-name">'+t.tirage+'</div>';
-    if(t.prediction){h+='<div class="nums">';for(const n of t.prediction.combos[0].nums)h+=nbs(n,'num-blue');h+='</div>';
-      if(t.paire){h+='<div style="margin-left:6px;display:flex;gap:2px;align-items:center"><span style="color:var(--text2);font-size:9px;margin-right:2px">P:</span>'+nbs(t.paire.p1.a,'num-orange')+nbs(t.paire.p1.b,'num-orange')+'</div>'}
+    if(t.prediction){const sc=t.prediction.combos.find(c=>c.isSuper||c.confiance==='MAXIMALE');const nc=t.prediction.combos.find(c=>c.isNeural||c.confiance==='IA');const mainC=sc||t.prediction.combos[0];h+='<div class="nums">';for(const n of mainC.nums)h+=nbs(n,sc?'num-green':'num-blue');h+='</div>';
+      if(nc){h+='<div style="margin-left:4px;display:flex;gap:2px;align-items:center"><span style="color:var(--purple);font-size:8px;font-weight:700;margin-right:1px">IA:</span>';for(const n of nc.nums)h+=nbs(n,'num-purple');h+='</div>'}
+      if(t.paire){h+='<div style="margin-left:4px;display:flex;gap:2px;align-items:center"><span style="color:var(--text2);font-size:9px;margin-right:2px">P:</span>'+nbs(t.paire.p1.a,'num-orange')+nbs(t.paire.p1.b,'num-orange')+'</div>'}
     }else h+='<span style="color:var(--text2);font-size:11px">—</span>';
     h+='</div>'
   }

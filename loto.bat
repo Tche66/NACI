@@ -5,11 +5,12 @@ cd /d "%~dp0"
 echo.
 echo ====================================================
 echo        LONACI LOTO BONHEUR - MENU PRINCIPAL
-echo        Bot v4 - Auto-apprentissage (5429 tirages)
+echo        Bot v5 - IA + Auto-apprentissage
+echo        Base: 15000+ tirages / 5 ans de donnees
 echo ====================================================
 echo.
 echo   1. Mise a jour des resultats
-echo   2. Chargement complet 24 mois
+echo   2. Chargement complet (scrape historique)
 echo   3. Predictions du jour - Excel
 echo   4. Paires du jour - Excel
 echo   5. Analyse complete - Excel
@@ -17,13 +18,17 @@ echo.
 echo   6. DASHBOARD WEB - RECOMMANDE
 echo   7. MAJ + Dashboard - tout en 1
 echo   8. MAJ + Predictions + Paires - Excel
-echo   9. Backtest apprentissage (5 mois)
+echo.
+echo   9. Backtest apprentissage (walk-forward)
+echo   A. Backtest sequentiel 6 mois
+echo   B. Entrainer le reseau de neurones
+echo   C. Backtest comparaison profondeurs (6m a 5 ans)
 echo.
 echo   0. Quitter
 echo.
 echo ====================================================
 echo.
-set /p choix="Ton choix [0-9]: "
+set /p choix="Ton choix [0-9/A/B/C]: "
 
 if "%choix%"=="0" exit /b 0
 if "%choix%"=="1" goto update
@@ -35,6 +40,9 @@ if "%choix%"=="6" goto dashboard
 if "%choix%"=="7" goto majdashboard
 if "%choix%"=="8" goto toutexcel
 if "%choix%"=="9" goto backtest
+if /i "%choix%"=="A" goto backtestseq
+if /i "%choix%"=="B" goto trainnn
+if /i "%choix%"=="C" goto backtestdepth
 
 echo Choix invalide
 goto fin
@@ -47,7 +55,7 @@ goto fin
 
 :full
 echo.
-echo --- Chargement complet 24 mois ---
+echo --- Chargement complet historique ---
 node update.js --full
 goto fin
 
@@ -71,7 +79,7 @@ goto fin
 
 :dashboard
 echo.
-echo Lancement du Dashboard...
+echo Lancement du Dashboard (Stats + IA + Auto-apprentissage)...
 echo Ouvre http://localhost:3000
 echo.
 start http://localhost:3000
@@ -100,10 +108,34 @@ goto fin
 
 :backtest
 echo.
-echo --- Backtest 5 mois avec apprentissage ---
-echo Cela prend environ 15 secondes...
+echo --- Backtest walk-forward (apprentissage cumulatif) ---
+echo Entraine les poids globaux + par categorie...
 echo.
-node backtest_5mois_learn.js
+node -e "const{learnAndAdapt}=require('./apprentissage');const s=learnAndAdapt();if(s)console.log('OK');else console.log('Pas assez de donnees');"
+goto fin
+
+:backtestseq
+echo.
+echo --- Backtest sequentiel 6 mois (predire + apprendre + suivant) ---
+echo Cela prend environ 5-10 minutes...
+echo.
+node backtest_sequential.js
+goto fin
+
+:trainnn
+echo.
+echo --- Entrainement du reseau de neurones ---
+echo 12 features x 32 neurones, 5 epochs sur 15000+ tirages...
+echo.
+node neural.js
+goto fin
+
+:backtestdepth
+echo.
+echo --- Comparaison profondeurs (6m a 5 ans) ---
+echo Cela prend environ 30-60 minutes...
+echo.
+node backtest_depth.js
 goto fin
 
 :fin

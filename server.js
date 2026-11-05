@@ -6,10 +6,27 @@ const { loadDB, saveDB, mergeDraws } = require("./db");
 const { TIRAGES_COMPLET, JOURS_NOMS, getTiragesJour, getNomsTiragesJour } = require("./horaires");
 const { genererCouverture, CONSTRAINTS } = require("./couverture");
 const { learnAndAdapt, loadLearnState, predictConvergence, DEFAULT_WEIGHTS, DRAW_CATEGORIES, getCategoryForType } = require("./apprentissage");
+const { NeuralNet, trainNeural, predictNeural, MODEL_PATH } = require("./neural");
 
 const app = express();
 const PORT = 3000;
 const NUM_RANGE = 90;
+
+// NN global — charge ou entraine au demarrage
+let neuralNet = null;
+function loadOrTrainNN(db) {
+  try {
+    if (require("fs").existsSync(MODEL_PATH)) {
+      neuralNet = NeuralNet.load(MODEL_PATH);
+      console.log("[NN] Modele charge depuis " + MODEL_PATH);
+    } else {
+      console.log("[NN] Entrainement du reseau de neurones...");
+      neuralNet = trainNeural(db.draws, 5, 32);
+      neuralNet.save(MODEL_PATH);
+      console.log("[NN] Modele entraine et sauvegarde.");
+    }
+  } catch (e) { console.log("[NN] Erreur:", e.message); }
+}
 const HISTORY_PATH = path.join(__dirname, "historique_predictions.json");
 
 const MONTHS_FR = [
@@ -451,6 +468,16 @@ function autoCompare(db) {
     saveHistory(history);
     const totalEx = analyse.comparaisons.reduce((s, c) => s + (c.comp ? c.comp.nbExacts : 0), 0);
     console.log(`[AUTO] Compare ${analyse.comparaisons.length} tirages — ${totalEx} exacts` + (learnUpdated ? " — poids ajustes" : ""));
+
+    // Re-entrainer le NN toutes les 50 comparaisons
+    if (neuralNet && history.analyses.length % 10 === 0) {
+      try {
+        console.log("[NN] Re-entrainement incremental...");
+        neuralNet = trainNeural(db.draws, 2, 32);
+        neuralNet.save(MODEL_PATH);
+        console.log("[NN] Modele mis a jour.");
+      } catch (e) { console.log("[NN] Erreur re-entrainement:", e.message); }
+    }
   }
 }
 
@@ -475,6 +502,16 @@ function autoSavePredictions(db) {
     // Generer la prediction avec tirages du jour
     const conv = predictConvergence(db.draws, t.nom, jour, todayDraws);
     if (!conv || !conv.combos || conv.combos.length === 0) continue;
+
+    // Ajouter combo NEURAL
+    if (neuralNet) {
+      try {
+        const nnScores = predictNeural(neuralNet, db.draws, t.nom, jour, todayDraws);
+        if (nnScores) {
+          conv.combos.push({ nom: "NEURAL", nums: nnScores.slice(0, 5).map(s => s.num).sort((a, b) => a - b), confiance: "IA", isNeural: true });
+        }
+      } catch (e) { /* silencieux */ }
+    }
 
     history.predictions.push({
       date: todayStr,
@@ -554,9 +591,23 @@ app.get("/api/predictions/:jour", (req, res) => {
     const convPred = predictConvergence(db.draws, t.nom, jour, todayDraws);
     const classicPred = scoring5(db.draws, t.nom, weights, jour);
     const pair = scoringPaires(db.draws, t.nom);
+
+    // Ajouter combo NEURAL si NN disponible
+    let pred = convPred || classicPred;
+    if (neuralNet && pred && pred.combos) {
+      try {
+        const nnScores = predictNeural(neuralNet, db.draws, t.nom, jour, todayDraws);
+        if (nnScores) {
+          const nnNums = nnScores.slice(0, 5).map(s => s.num).sort((a, b) => a - b);
+          const nnDetail = nnScores.slice(0, 5).map(s => "N" + s.num + "(" + (s.prob * 100).toFixed(0) + "%)").join(", ");
+          pred.combos.push({ nom: "NEURAL", nums: nnNums, confiance: "IA", detail: nnDetail, isNeural: true });
+        }
+      } catch (e) { /* silencieux */ }
+    }
+
     parTirage.push({
       tirage: t.nom, heure: t.heure, type: t.type,
-      prediction: convPred || classicPred,
+      prediction: pred,
       paire: pair ? { p1: pair.paire1, p2: pair.paire2 } : null,
     });
   }
@@ -681,6 +732,17 @@ app.post("/api/backtest", (req, res) => {
     const state = learnAndAdapt();
     if (!state) return res.json({ error: "Pas assez de donnees" });
     res.json({ success: true, weights: state.criteriaWeights, lastBacktest: state.lastBacktest });
+  } catch (e) { res.json({ success: false, error: e.message }); }
+});
+
+app.post("/api/train-nn", (req, res) => {
+  try {
+    const db = loadDB();
+    console.log("[NN] Re-entrainement complet demande...");
+    neuralNet = trainNeural(db.draws, 5, 32);
+    neuralNet.save(MODEL_PATH);
+    console.log("[NN] Modele re-entraine et sauvegarde.");
+    res.json({ success: true, message: "NN re-entraine sur " + db.draws.length + " tirages" });
   } catch (e) { res.json({ success: false, error: e.message }); }
 });
 
@@ -815,10 +877,24 @@ app.get("/api/semaine", (req, res) => {
     for (const t of tiragesInfo) {
       const conv = predictConvergence(db.draws, t.nom, j);
       const pair = scoringPaires(db.draws, t.nom);
+
+      // Ajouter combo NEURAL pour la semaine aussi
+      let nnCombo = null;
+      if (neuralNet && conv) {
+        try {
+          const nnS = predictNeural(neuralNet, db.draws, t.nom, j, []);
+          if (nnS) nnCombo = nnS.slice(0, 5).map(s => s.num).sort((a, b) => a - b);
+        } catch (e) { /* silencieux */ }
+      }
+
+      const combos = conv ? conv.combos.slice(0, 3) : null;
+      if (combos && nnCombo) combos.push({ nom: "NEURAL", nums: nnCombo, confiance: "IA" });
+
       preds.push({
         tirage: t.nom, heure: t.heure, type: t.type,
         combo: conv ? conv.combos[0].nums : null,
-        combos: conv ? conv.combos.slice(0, 3) : null,
+        combos,
+        neural: nnCombo,
         paire1: pair ? pair.paire1 : null,
         paire2: pair ? pair.paire2 : null,
         isTop: topTypes.has(t.nom),
@@ -842,7 +918,10 @@ app.listen(PORT, () => {
   console.log(`║  Auto-update activé (toutes les minutes)         ║`);
   console.log(`╚══════════════════════════════════════════════════╝\n`);
   autoUpdate();
+  const db = loadDB();
   // Backtest + sauvegarde auto au demarrage
   try { learnAndAdapt(); } catch (e) { console.log("[LEARN] Erreur backtest:", e.message); }
-  try { autoSavePredictions(loadDB()); } catch (e) { console.log("[AUTO-SAVE] Erreur:", e.message); }
+  // Charger ou entrainer le reseau de neurones
+  loadOrTrainNN(db);
+  try { autoSavePredictions(db); } catch (e) { console.log("[AUTO-SAVE] Erreur:", e.message); }
 });
