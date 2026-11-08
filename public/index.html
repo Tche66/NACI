@@ -446,26 +446,35 @@ async function loadAnalyse(){
         h+='</div></div>';
       }
 
-      // Graphique evolution hebdomadaire
+      // Graphique ligne evolution hebdomadaire
       if(perf.byWeek&&perf.byWeek.length>1){
         const weeks=perf.byWeek.slice(-12);
-        const maxAvg=Math.max(...weeks.map(w=>w.avg),0.01);
+        const maxAvg=Math.max(...weeks.map(w=>w.avg),eR*1.5);
+        const minAvg=Math.min(...weeks.map(w=>w.avg),0);
+        const range=maxAvg-minAvg||0.1;
+        const W=600,H=200,padL=40,padR=10,padT=20,padB=30;
+        const cW=W-padL-padR,cH=H-padT-padB;
+        const pts=weeks.map((w,i)=>({x:padL+i*(cW/(weeks.length-1||1)),y:padT+cH-(w.avg-minAvg)/range*cH,avg:w.avg,dt:w.week.slice(5)}));
+        const refY=padT+cH-(eR-minAvg)/range*cH;
         h+='<div class="card"><h2>Evolution hebdomadaire</h2>';
-        h+='<div style="display:flex;align-items:flex-end;gap:3px;height:180px;padding-top:20px">';
-        for(const w of weeks){
-          const barH=Math.max(4,Math.round(w.avg/maxAvg*130));
-          const col=w.avg>=eR*1.2?'var(--green)':w.avg>=eR?'var(--orange)':'var(--red)';
-          const dt=w.week.slice(5);
-          h+='<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%">';
-          h+='<span style="font-size:9px;color:var(--text);font-weight:700">'+w.avg.toFixed(2)+'</span>';
-          h+='<div style="width:70%;max-width:36px;height:'+barH+'px;background:'+col+';border-radius:4px 4px 0 0"></div>';
-          h+='<span style="font-size:8px;color:var(--text2);white-space:nowrap;margin-top:4px">'+dt+'</span>';
-          h+='</div>';
-        }
-        h+='</div>';
-        h+='<div style="display:flex;justify-content:space-between;font-size:9px;color:var(--text2);border-top:1px solid var(--border);padding-top:6px">';
-        h+='<span>Hasard: '+eR.toFixed(3)+' exacts/pred</span>';
-        h+='<span>Lift global: x'+perf.lift+'</span>';
+        h+='<div style="overflow-x:auto"><svg viewBox="0 0 '+W+' '+H+'" style="width:100%;max-width:600px;height:auto">';
+        // Grille horizontale
+        for(let i=0;i<=4;i++){const gy=padT+i*cH/4;const val=(maxAvg-i*range/4).toFixed(2);h+='<line x1="'+padL+'" y1="'+gy+'" x2="'+(W-padR)+'" y2="'+gy+'" stroke="#2d3140" stroke-width="0.5"/>';h+='<text x="'+(padL-4)+'" y="'+(gy+3)+'" fill="#9aa0a6" font-size="8" text-anchor="end">'+val+'</text>'}
+        // Ligne hasard
+        if(refY>=padT&&refY<=padT+cH){h+='<line x1="'+padL+'" y1="'+refY+'" x2="'+(W-padR)+'" y2="'+refY+'" stroke="#ff5252" stroke-width="1" stroke-dasharray="4,3"/>';h+='<text x="'+(W-padR+2)+'" y="'+(refY+3)+'" fill="#ff5252" font-size="7">hasard</text>'}
+        // Zone sous la courbe
+        let area='M'+pts[0].x+','+pts[0].y;for(let i=1;i<pts.length;i++)area+=' L'+pts[i].x+','+pts[i].y;area+=' L'+pts[pts.length-1].x+','+(padT+cH)+' L'+pts[0].x+','+(padT+cH)+' Z';
+        h+='<path d="'+area+'" fill="url(#grad)" opacity="0.3"/>';
+        h+='<defs><linearGradient id="grad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#00e676"/><stop offset="100%" stop-color="#00e676" stop-opacity="0"/></linearGradient></defs>';
+        // Ligne principale
+        let line='M'+pts[0].x+','+pts[0].y;for(let i=1;i<pts.length;i++)line+=' L'+pts[i].x+','+pts[i].y;
+        h+='<polyline points="'+pts.map(p=>p.x+','+p.y).join(' ')+'" fill="none" stroke="#00e676" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>';
+        // Points + labels
+        for(const p of pts){const col=p.avg>=eR*1.2?'#00e676':p.avg>=eR?'#ffab40':'#ff5252';h+='<circle cx="'+p.x+'" cy="'+p.y+'" r="4" fill="'+col+'" stroke="#0f1117" stroke-width="1.5"/>';h+='<text x="'+p.x+'" y="'+(padT+cH+14)+'" fill="#9aa0a6" font-size="7" text-anchor="middle">'+p.dt+'</text>';h+='<text x="'+p.x+'" y="'+(p.y-8)+'" fill="#e8eaed" font-size="7" text-anchor="middle" font-weight="700">'+p.avg.toFixed(2)+'</text>'}
+        h+='</svg></div>';
+        h+='<div style="display:flex;justify-content:space-between;font-size:9px;color:var(--text2);margin-top:6px">';
+        h+='<span><span style="color:#ff5252">---</span> Hasard: '+eR.toFixed(3)+'</span>';
+        h+='<span><span style="color:#00e676">&#9679;</span> Bot: moy '+perf.avgHits.toFixed(3)+' | Lift x'+perf.lift+'</span>';
         h+='</div>';
         h+='</div>';
       }
