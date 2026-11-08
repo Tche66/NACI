@@ -864,13 +864,45 @@ app.get("/api/performance", (req, res) => {
     communs: p.nums.filter(n => (p.resultat || []).includes(n)),
   }));
 
+  // ═══ TRACKING IA vs CLASSIQUE ═══
+  const nnByWeek = {};
+  let nnTotal = 0, nnHits = 0, classicWins = 0, nnWins = 0, ties = 0;
+  for (const a of history.analyses) {
+    for (const c of (a.comparaisons || [])) {
+      if (!c.comp || !c.neuralComp) continue;
+      const parts2 = a.date.match(/(\d{2})\/(\d{2})\/(\d{4})/);
+      if (parts2) {
+        const d2 = new Date(parseInt(parts2[3]), parseInt(parts2[2]) - 1, parseInt(parts2[1]));
+        const ws2 = new Date(d2); ws2.setDate(d2.getDate() - d2.getDay());
+        const wk2 = ws2.toISOString().slice(0, 10);
+        if (!nnByWeek[wk2]) nnByWeek[wk2] = { total: 0, hits: 0 };
+        nnByWeek[wk2].total++;
+        nnByWeek[wk2].hits += c.neuralComp.nbExacts;
+      }
+      nnTotal++;
+      nnHits += c.neuralComp.nbExacts;
+      if (c.comp.nbExacts > c.neuralComp.nbExacts) classicWins++;
+      else if (c.neuralComp.nbExacts > c.comp.nbExacts) nnWins++;
+      else ties++;
+    }
+  }
+  const nnWeekPerf = Object.entries(nnByWeek).sort().map(([w, s]) => ({
+    week: w, total: s.total, hits: s.hits, avg: +(s.hits / s.total).toFixed(3),
+  }));
+  const vsIA = {
+    nnTotal, nnHits, nnAvg: nnTotal > 0 ? +(nnHits / nnTotal).toFixed(3) : 0,
+    nnLift: nnTotal > 0 ? +((nnHits / nnTotal) / eRandom).toFixed(2) : 0,
+    classicWins, nnWins, ties,
+    nnByWeek: nnWeekPerf,
+  };
+
   // Poids par categorie (etat actuel de l'apprentissage)
   const state = loadLearnState();
 
   res.json({
     total: preds.length, totalHits, avgHits: +avgHits.toFixed(3),
     eRandom: +eRandom.toFixed(3), lift: +(avgHits / eRandom).toFixed(2),
-    byType: typePerf, byCategory: catPerf, byWeek: weekPerf, best,
+    byType: typePerf, byCategory: catPerf, byWeek: weekPerf, best, vsIA,
     categoryWeights: state.categoryWeights,
     globalWeights: state.criteriaWeights,
   });
