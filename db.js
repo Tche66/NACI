@@ -1,7 +1,21 @@
 const fs = require("fs");
 const path = require("path");
 
-const DB_PATH = path.join(__dirname, "lonaci_db.json");
+const IS_VERCEL = !!process.env.VERCEL;
+
+function getDataPath(filename) {
+  if (IS_VERCEL) {
+    const tmpPath = path.join("/tmp", filename);
+    const srcPath = path.join(__dirname, filename);
+    if (!fs.existsSync(tmpPath) && fs.existsSync(srcPath)) {
+      try { fs.copyFileSync(srcPath, tmpPath); } catch (e) {}
+    }
+    return tmpPath;
+  }
+  return path.join(__dirname, filename);
+}
+
+const DB_PATH = getDataPath("lonaci_db.json");
 
 function loadDB() {
   if (!fs.existsSync(DB_PATH)) return { draws: [], lastUpdate: null };
@@ -10,7 +24,11 @@ function loadDB() {
 
 function saveDB(db) {
   db.lastUpdate = new Date().toISOString();
-  fs.writeFileSync(DB_PATH, JSON.stringify(db, null, 2), "utf8");
+  try {
+    fs.writeFileSync(DB_PATH, JSON.stringify(db, null, 2), "utf8");
+  } catch (e) {
+    if (!IS_VERCEL) throw e;
+  }
 }
 
 function drawKey(d) {
@@ -42,4 +60,4 @@ function parseDate(dateStr) {
   return new Date(parseInt(m[3]), parseInt(m[2]) - 1, parseInt(m[1])).getTime();
 }
 
-module.exports = { loadDB, saveDB, mergeDraws, drawKey, parseDate, DB_PATH };
+module.exports = { loadDB, saveDB, mergeDraws, drawKey, parseDate, DB_PATH, IS_VERCEL, getDataPath };

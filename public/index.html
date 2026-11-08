@@ -51,6 +51,7 @@
     .num-green{background:linear-gradient(135deg,#2e7d32,#43a047);color:#fff;box-shadow:0 3px 10px rgba(67,160,71,.3)}
     .num-small{width:34px;height:34px;font-size:13px}
     .num-match{background:linear-gradient(135deg,#00c853,#69f0ae);color:#000;box-shadow:0 3px 10px rgba(0,200,83,.4)}
+    .num-machine{background:linear-gradient(135deg,#00838f,#00acc1);color:#fff;box-shadow:0 3px 10px rgba(0,172,193,.4)}
     .num-close{background:linear-gradient(135deg,#ff8f00,#ffc107);color:#000;box-shadow:0 3px 10px rgba(255,193,7,.4)}
     .num-miss{background:var(--card2);color:var(--text2);border:1px solid var(--border)}
     .super-paire{display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,#1a1a2e,#16213e);border:2px solid var(--orange);border-radius:10px;padding:14px 20px;margin:6px 0}
@@ -366,10 +367,24 @@ async function loadAnalyse(){
   h+='<div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px">';
   h+='<div style="background:var(--card2);padding:14px;border-radius:8px;text-align:center;flex:1;min-width:100px"><div style="font-size:28px;font-weight:800;color:var(--green)">'+pctExact+'%</div><div style="font-size:10px;color:var(--text2)">Taux exact</div></div>';
   h+='<div style="background:var(--card2);padding:14px;border-radius:8px;text-align:center;flex:1;min-width:100px"><div style="font-size:28px;font-weight:800;color:var(--cyan)">'+pctProche+'%</div><div style="font-size:10px;color:var(--text2)">Exacts + proches</div></div>';
-  h+='<div style="background:var(--card2);padding:14px;border-radius:8px;text-align:center;flex:1;min-width:80px"><div style="font-size:22px;font-weight:700;color:var(--green)">'+data.stats.totalExacts+'</div><div style="font-size:10px;color:var(--text2)">Exacts</div></div>';
+  h+='<div style="background:var(--card2);padding:14px;border-radius:8px;text-align:center;flex:1;min-width:80px"><div style="font-size:22px;font-weight:700;color:var(--green)">'+data.stats.totalExacts+'</div><div style="font-size:10px;color:var(--text2)">Gagnants</div></div>';
+  h+='<div style="background:var(--card2);padding:14px;border-radius:8px;text-align:center;flex:1;min-width:80px"><div style="font-size:22px;font-weight:700;color:#00acc1">'+(data.stats.totalMachineExacts||0)+'</div><div style="font-size:10px;color:var(--text2)">Machine</div></div>';
   h+='<div style="background:var(--card2);padding:14px;border-radius:8px;text-align:center;flex:1;min-width:80px"><div style="font-size:22px;font-weight:700;color:var(--cyan)">'+data.stats.totalProches+'</div><div style="font-size:10px;color:var(--text2)">Proches</div></div>';
   h+='<div style="background:var(--card2);padding:14px;border-radius:8px;text-align:center;flex:1;min-width:80px"><div style="font-size:22px;font-weight:700">'+data.stats.totalComparisons+'</div><div style="font-size:10px;color:var(--text2)">Compares</div></div>';
   h+='</div>';
+
+  // Stats IA Neural
+  if(data.stats.neuralComparisons>0){
+    const nnPctExact=(data.stats.neuralExacts/(data.stats.neuralComparisons*5)*100).toFixed(1);
+    h+='<div style="background:linear-gradient(135deg,rgba(156,39,176,.08),rgba(224,64,251,.04));border:1px solid rgba(224,64,251,.3);border-radius:10px;padding:14px;margin-top:10px">';
+    h+='<div style="color:var(--purple);font-size:12px;font-weight:700;margin-bottom:8px">RESEAU NEURONAL (IA)</div>';
+    h+='<div style="display:flex;flex-wrap:wrap;gap:10px">';
+    h+='<div style="text-align:center;flex:1;min-width:80px"><div style="font-size:22px;font-weight:800;color:var(--purple)">'+nnPctExact+'%</div><div style="font-size:10px;color:var(--text2)">Taux exact IA</div></div>';
+    h+='<div style="text-align:center;flex:1;min-width:80px"><div style="font-size:22px;font-weight:700;color:var(--green)">'+data.stats.neuralExacts+'</div><div style="font-size:10px;color:var(--text2)">Gagnants IA</div></div>';
+    h+='<div style="text-align:center;flex:1;min-width:80px"><div style="font-size:22px;font-weight:700;color:#00acc1">'+(data.stats.neuralMachineExacts||0)+'</div><div style="font-size:10px;color:var(--text2)">Machine IA</div></div>';
+    h+='<div style="text-align:center;flex:1;min-width:80px"><div style="font-size:22px;font-weight:700">'+data.stats.neuralComparisons+'</div><div style="font-size:10px;color:var(--text2)">Compares IA</div></div>';
+    h+='</div></div>';
+  }
 
   // Apprentissage v4
   h+='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">';
@@ -407,16 +422,36 @@ async function loadAnalyse(){
   // Dernieres comparaisons
   if(data.recent.length>0){
     h+='<div class="card"><h2>Dernieres comparaisons</h2>';
+    h+='<div style="margin-bottom:12px;padding:8px 12px;background:var(--card2);border-radius:8px;font-size:10px;color:var(--text2);display:flex;gap:12px;flex-wrap:wrap;align-items:center">';
+    h+='<span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:linear-gradient(135deg,#00c853,#69f0ae);vertical-align:middle"></span> Gagnant</span>';
+    h+='<span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:linear-gradient(135deg,#00838f,#00acc1);vertical-align:middle"></span> Machine</span>';
+    h+='<span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:linear-gradient(135deg,#ff8f00,#ffc107);vertical-align:middle"></span> Proche (+/-2)</span>';
+    h+='<span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--card2);border:1px solid var(--border);vertical-align:middle"></span> Manque</span>';
+    h+='<span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:linear-gradient(135deg,#7b1fa2,#9c27b0);vertical-align:middle"></span> IA Neural</span>';
+    h+='</div>';
     for(const a of data.recent.reverse().slice(0,5)){
       h+=`<div class="analyse-card"><h3>${a.date}</h3>`;
       for(const c of a.comparaisons){
-        h+=`<div style="padding:6px 0;border-bottom:1px solid var(--border)"><div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap"><span style="font-weight:600;font-size:12px;min-width:120px">${c.tirage}</span><div class="nums">`;
-        for(const n of c.prediction){const isExact=c.resultat.includes(n);const isClose=!isExact&&c.resultat.some(r=>Math.abs(r-n)<=2);h+=nbs(n,isExact?'num-match':isClose?'num-close':'num-miss')}
+        const mach=c.machine||[];
+        h+=`<div style="padding:6px 0;border-bottom:1px solid var(--border)">`;
+        h+=`<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap"><span style="font-weight:600;font-size:12px;min-width:120px">${c.tirage}</span><div class="nums">`;
+        for(const n of c.prediction){const isExact=c.resultat.includes(n);const isMachine=!isExact&&mach.includes(n);const isClose=!isExact&&!isMachine&&c.resultat.some(r=>Math.abs(r-n)<=2);h+=nbs(n,isExact?'num-match':isMachine?'num-machine':isClose?'num-close':'num-miss')}
         h+=`</div><span style="color:var(--text2);font-size:10px">vs</span><div class="nums">`;
         for(const n of c.resultat)h+=nbs(n,'num-green');
-        h+=`</div><span style="font-size:11px;margin-left:auto"><span style="color:var(--green);font-weight:700">${c.comp.nbExacts}</span>`;
-        if(c.comp.proches.length>0)h+=`<span style="color:var(--yellow)">+${c.comp.proches.length}</span>`;
-        h+='</span></div></div>'
+        if(mach.length>0){h+=`<span style="color:var(--text2);font-size:9px;margin:0 2px">|</span>`;for(const n of mach)h+=nbs(n,'num-orange')}
+        h+=`</div><span style="font-size:11px;margin-left:auto"><span style="color:var(--green);font-weight:700">${c.comp.nbExacts}g</span>`;
+        if((c.comp.nbMachineExacts||0)>0)h+=`<span style="color:#00acc1;font-weight:700"> +${c.comp.nbMachineExacts}m</span>`;
+        if(c.comp.proches.length>0)h+=`<span style="color:var(--yellow)"> +${c.comp.proches.length}p</span>`;
+        h+='</span></div>';
+        if(c.neuralPrediction&&c.neuralComp){
+          h+=`<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:4px 0;margin-top:2px"><span style="font-size:10px;color:var(--purple);font-weight:700;min-width:120px">IA Neural</span><div class="nums">`;
+          for(const n of c.neuralPrediction){const isExact=c.resultat.includes(n);const isMachine=!isExact&&mach.includes(n);const isClose=!isExact&&!isMachine&&c.resultat.some(r=>Math.abs(r-n)<=2);h+=nbs(n,isExact?'num-match':isMachine?'num-machine':isClose?'num-close':'num-miss')}
+          h+=`</div><span style="font-size:11px;margin-left:auto"><span style="color:var(--green);font-weight:700">${c.neuralComp.nbExacts}g</span>`;
+          if((c.neuralComp.nbMachineExacts||0)>0)h+=`<span style="color:#00acc1;font-weight:700"> +${c.neuralComp.nbMachineExacts}m</span>`;
+          if(c.neuralComp.proches.length>0)h+=`<span style="color:var(--yellow)"> +${c.neuralComp.proches.length}p</span>`;
+          h+='</span></div>';
+        }
+        h+='</div>';
       }
       h+='</div>';
     }

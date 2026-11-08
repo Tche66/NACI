@@ -6,10 +6,10 @@
 
 const fs = require("fs");
 const path = require("path");
-const { loadDB } = require("./db");
+const { loadDB, IS_VERCEL, getDataPath } = require("./db");
 
 const NUM_RANGE = 90;
-const LEARN_PATH = path.join(__dirname, "apprentissage_state.json");
+const LEARN_PATH = getDataPath("apprentissage_state.json");
 
 // Poids appris par backtest 24 mois (5429 tirages avec apprentissage continu)
 const DEFAULT_WEIGHTS = {
@@ -66,7 +66,11 @@ function getWeightsForType(state, typeName) {
 }
 
 function saveLearnState(state) {
-  fs.writeFileSync(LEARN_PATH, JSON.stringify(state, null, 2), "utf8");
+  try {
+    fs.writeFileSync(LEARN_PATH, JSON.stringify(state, null, 2), "utf8");
+  } catch (e) {
+    if (!IS_VERCEL) throw e;
+  }
 }
 
 // ═══ CRITERES DE SCORING INDEPENDANTS ═══

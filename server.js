@@ -2,7 +2,7 @@ const express = require("express");
 const path = require("path");
 const fs = require("fs");
 const https = require("https");
-const { loadDB, saveDB, mergeDraws } = require("./db");
+const { loadDB, saveDB, mergeDraws, IS_VERCEL, getDataPath } = require("./db");
 const { TIRAGES_COMPLET, JOURS_NOMS, getTiragesJour, getNomsTiragesJour } = require("./horaires");
 const { genererCouverture, CONSTRAINTS } = require("./couverture");
 const { learnAndAdapt, loadLearnState, predictConvergence, DEFAULT_WEIGHTS, DRAW_CATEGORIES, getCategoryForType } = require("./apprentissage");
@@ -27,7 +27,7 @@ function loadOrTrainNN(db) {
     }
   } catch (e) { console.log("[NN] Erreur:", e.message); }
 }
-const HISTORY_PATH = path.join(__dirname, "historique_predictions.json");
+const HISTORY_PATH = getDataPath("historique_predictions.json");
 
 const MONTHS_FR = [
   "janvier","février","mars","avril","mai","juin",
@@ -77,7 +77,11 @@ function loadHistory() {
   return JSON.parse(fs.readFileSync(HISTORY_PATH, "utf8"));
 }
 function saveHistory(h) {
-  fs.writeFileSync(HISTORY_PATH, JSON.stringify(h, null, 2), "utf8");
+  try {
+    fs.writeFileSync(HISTORY_PATH, JSON.stringify(h, null, 2), "utf8");
+  } catch (e) {
+    if (!IS_VERCEL) throw e;
+  }
 }
 
 // ═══ SCORING 5 NUMÉROS (v3 — basé sur backtest réel) ═══
@@ -242,10 +246,12 @@ function scoringPaires(draws, typeFilter) {
 }
 
 // ═══ COMPARAISON PRÉDICTIONS vs RÉSULTATS ═══
-function comparerPredictionResultat(prediction, resultat) {
+function comparerPredictionResultat(prediction, resultat, machine) {
   const predNums = prediction;
   const resNums = resultat;
+  const machNums = machine || [];
   const matches = predNums.filter(n => resNums.includes(n));
+  const machineMatches = predNums.filter(n => !resNums.includes(n) && machNums.includes(n));
   const predSet = new Set(predNums);
   const resSet = new Set(resNums);
   const procheDe1 = [];
@@ -282,10 +288,12 @@ function comparerPredictionResultat(prediction, resultat) {
   return {
     nbExacts: matches.length,
     exacts: matches,
+    nbMachineExacts: machineMatches.length,
+    machineExacts: machineMatches,
     proches: procheDe1,
     memeDizaine,
     memeTerminaison,
-    score: matches.length * 20 + procheDe1.length * 8 + memeDizaine.length * 3 + memeTerminaison.length * 2,
+    score: matches.length * 20 + machineMatches.length * 10 + procheDe1.length * 8 + memeDizaine.length * 3 + memeTerminaison.length * 2,
     maxScore: 100,
   };
 }
@@ -406,11 +414,31 @@ function autoCompare(db) {
   for (const pred of pendingPreds) {
     const realDraw = todayDraws.find(d => d.type === pred.tirage);
     if (!realDraw) continue;
-    const comp = comparerPredictionResultat(pred.nums, realDraw.gagnants);
-    analyse.comparaisons.push({ tirage: pred.tirage, prediction: pred.nums, resultat: realDraw.gagnants, comp });
+    const comp = comparerPredictionResultat(pred.nums, realDraw.gagnants, realDraw.machine);
+
+    let neuralPred = null, neuralComp = null;
+    if (pred.allCombos) {
+      const nc = pred.allCombos.find(c => c.nom === "NEURAL");
+      if (nc && nc.nums) {
+        neuralPred = nc.nums;
+        neuralComp = comparerPredictionResultat(nc.nums, realDraw.gagnants, realDraw.machine);
+      }
+    }
+
+    analyse.comparaisons.push({
+      tirage: pred.tirage,
+      prediction: pred.nums,
+      resultat: realDraw.gagnants,
+      machine: realDraw.machine || [],
+      comp,
+      neuralPrediction: neuralPred,
+      neuralComp,
+    });
     pred.compared = true;
     pred.resultat = realDraw.gagnants;
+    pred.machine = realDraw.machine || [];
     pred.nbExacts = comp.nbExacts;
+    pred.nbMachineExacts = comp.nbMachineExacts;
 
     // ═══ AUTO-APPRENTISSAGE PAR PREDICTION (v5: global + par categorie) ═══
     try {
@@ -532,7 +560,7 @@ function autoSavePredictions(db) {
   }
 }
 
-setInterval(autoUpdate, 60000);
+if (!IS_VERCEL) setInterval(autoUpdate, 60000);
 
 // ═══ ROUTES API ═══
 app.use(express.static(path.join(__dirname, "public")));
@@ -680,18 +708,25 @@ app.post("/api/compare-now", async (req, res) => {
 app.get("/api/historique", (req, res) => {
   const history = loadHistory();
   const recent = history.analyses.slice(-14);
-  const stats = { totalPredictions: 0, totalExacts: 0, totalProches: 0, totalComparisons: 0, parTirage: {} };
+  const stats = { totalPredictions: 0, totalExacts: 0, totalProches: 0, totalComparisons: 0, totalMachineExacts: 0, neuralExacts: 0, neuralMachineExacts: 0, neuralComparisons: 0, parTirage: {} };
   for (const a of history.analyses) {
     for (const c of (a.comparaisons || [])) {
       if (!c.comp) continue;
       stats.totalComparisons++;
       stats.totalExacts += c.comp.nbExacts;
       stats.totalProches += c.comp.proches.length;
+      stats.totalMachineExacts += c.comp.nbMachineExacts || 0;
       stats.totalPredictions += 5;
-      if (!stats.parTirage[c.tirage]) stats.parTirage[c.tirage] = { total: 0, exacts: 0, proches: 0, count: 0 };
+      if (c.neuralComp) {
+        stats.neuralComparisons++;
+        stats.neuralExacts += c.neuralComp.nbExacts;
+        stats.neuralMachineExacts += c.neuralComp.nbMachineExacts || 0;
+      }
+      if (!stats.parTirage[c.tirage]) stats.parTirage[c.tirage] = { total: 0, exacts: 0, proches: 0, machine: 0, count: 0 };
       stats.parTirage[c.tirage].count++;
       stats.parTirage[c.tirage].exacts += c.comp.nbExacts;
       stats.parTirage[c.tirage].proches += c.comp.proches.length;
+      stats.parTirage[c.tirage].machine += c.comp.nbMachineExacts || 0;
       stats.parTirage[c.tirage].total += 5;
     }
   }
@@ -912,16 +947,25 @@ app.get("/api/semaine", (req, res) => {
   res.json(jours);
 });
 
-app.listen(PORT, () => {
-  console.log(`\n╔══════════════════════════════════════════════════╗`);
-  console.log(`║  LONACI DASHBOARD — http://localhost:${PORT}        ║`);
-  console.log(`║  Auto-update activé (toutes les minutes)         ║`);
-  console.log(`╚══════════════════════════════════════════════════╝\n`);
-  autoUpdate();
+if (IS_VERCEL) {
+  // Vercel serverless — charger le NN si dispo, pas de timers
   const db = loadDB();
-  // Backtest + sauvegarde auto au demarrage
-  try { learnAndAdapt(); } catch (e) { console.log("[LEARN] Erreur backtest:", e.message); }
-  // Charger ou entrainer le reseau de neurones
-  loadOrTrainNN(db);
-  try { autoSavePredictions(db); } catch (e) { console.log("[AUTO-SAVE] Erreur:", e.message); }
-});
+  try {
+    if (fs.existsSync(path.join(__dirname, "neural_model.json"))) {
+      neuralNet = NeuralNet.load(path.join(__dirname, "neural_model.json"));
+    }
+  } catch (e) {}
+  module.exports = app;
+} else {
+  app.listen(PORT, () => {
+    console.log(`\n╔══════════════════════════════════════════════════╗`);
+    console.log(`║  LONACI DASHBOARD — http://localhost:${PORT}        ║`);
+    console.log(`║  Auto-update activé (toutes les minutes)         ║`);
+    console.log(`╚══════════════════════════════════════════════════╝\n`);
+    autoUpdate();
+    const db = loadDB();
+    try { learnAndAdapt(); } catch (e) { console.log("[LEARN] Erreur backtest:", e.message); }
+    loadOrTrainNN(db);
+    try { autoSavePredictions(db); } catch (e) { console.log("[AUTO-SAVE] Erreur:", e.message); }
+  });
+}
