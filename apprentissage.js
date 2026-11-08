@@ -370,7 +370,7 @@ function backtestScore(draws, weights, nTest) {
 
 // ═══ PREDICTION PAR CONVERGENCE v5 ═══
 // todayDraws: tirages deja sortis aujourd'hui (optionnel, pour same-day boost)
-function predictConvergence(draws, typeFilter, jourSemaine, todayDraws) {
+function predictConvergence(draws, typeFilter, jourSemaine, todayDraws, nnScores) {
   const filtered = typeFilter ? draws.filter(d => d.type === typeFilter) : draws;
   if (filtered.length < 20) return null;
 
@@ -447,7 +447,7 @@ function predictConvergence(draws, typeFilter, jourSemaine, todayDraws) {
     }
   }
 
-  // ═══ SUPER COMBO: fusion par vote pondere de tous les combos ═══
+  // ═══ SUPER COMBO v2: fusion classique + NN ═══
   const comboWeights = state.comboPerf || {};
   const numScore = {};
   const numSources = {};
@@ -460,17 +460,32 @@ function predictConvergence(draws, typeFilter, jourSemaine, todayDraws) {
       numSources[n].push(sc.key);
     }
   }
+
+  // Integrer les scores du reseau neuronal (si disponibles)
+  if (nnScores && nnScores.length > 0) {
+    const nnWeight = comboWeights.NN || 1.0;
+    const maxProb = nnScores[0].prob || 1;
+    for (let i = 0; i < Math.min(20, nnScores.length); i++) {
+      const n = nnScores[i].num;
+      const normScore = (nnScores[i].prob / maxProb) * nnWeight * 1.2;
+      numScore[n] = (numScore[n] || 0) + normScore;
+      if (!numSources[n]) numSources[n] = [];
+      if (!numSources[n].includes("NN")) numSources[n].push("NN");
+    }
+  }
+
   const superCandidates = Object.entries(numScore)
     .map(([n, s]) => ({ num: parseInt(n), score: s, sources: numSources[parseInt(n)] || [] }))
     .sort((a, b) => b.score - a.score);
   const superNums = ajuster(superCandidates.slice(0, 5).map(c => c.num));
+  const hasNN = nnScores && nnScores.length > 0;
   const superDetail = superCandidates.slice(0, 5)
-    .map(c => `N${c.num}(${c.sources.length}strat)`).join(", ");
+    .map(c => `N${c.num}(${c.sources.length}strat${c.sources.includes("NN")?" +IA":""})`).join(", ");
 
-  // SUPER COMBO en premier, puis les combos individuels
+  // SUPER COMBO v2 en premier, puis les combos individuels
   const combos = [];
   combos.push({
-    nom: "SUPER COMBO",
+    nom: hasNN ? "SUPER COMBO v2" : "SUPER COMBO",
     nums: superNums,
     confiance: "MAXIMALE",
     detail: superDetail,

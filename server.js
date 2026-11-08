@@ -473,8 +473,9 @@ function autoCompare(db) {
           }
           // Ajuster poids des combos (pour SUPER COMBO)
           if (pred.allCombos && pred.allCombos.length > 0) {
-            if (!state.comboPerf) state.comboPerf = { CONV: 1.0, EQ: 1.0, COND: 1.0, MARKOV: 1.0, JOUR: 1.0 };
-            const comboKeyMap = { "CONVERGENCE": "CONV", "CONVERGENCE EQ": "EQ", "CONDITIONNEL+": "COND", "MARKOV+": "MARKOV", "JOUR+": "JOUR" };
+            if (!state.comboPerf) state.comboPerf = { CONV: 1.0, EQ: 1.0, COND: 1.0, MARKOV: 1.0, JOUR: 1.0, NN: 1.0 };
+            if (state.comboPerf.NN === undefined) state.comboPerf.NN = 1.0;
+            const comboKeyMap = { "CONVERGENCE": "CONV", "CONVERGENCE EQ": "EQ", "CONDITIONNEL+": "COND", "MARKOV+": "MARKOV", "JOUR+": "JOUR", "NEURAL": "NN" };
             for (const combo of pred.allCombos) {
               const key = comboKeyMap[combo.nom];
               if (!key || state.comboPerf[key] === undefined) continue;
@@ -527,18 +528,15 @@ function autoSavePredictions(db) {
     const exists = history.predictions.find(p => p.date === todayStr && p.tirage === t.nom);
     if (exists) continue;
 
-    // Generer la prediction avec tirages du jour
-    const conv = predictConvergence(db.draws, t.nom, jour, todayDraws);
+    // Calculer scores NN puis prediction convergence avec fusion
+    let nnScores = null;
+    if (neuralNet) { try { nnScores = predictNeural(neuralNet, db.draws, t.nom, jour, todayDraws); } catch (e) {} }
+    const conv = predictConvergence(db.draws, t.nom, jour, todayDraws, nnScores);
     if (!conv || !conv.combos || conv.combos.length === 0) continue;
 
-    // Ajouter combo NEURAL
-    if (neuralNet) {
-      try {
-        const nnScores = predictNeural(neuralNet, db.draws, t.nom, jour, todayDraws);
-        if (nnScores) {
-          conv.combos.push({ nom: "NEURAL", nums: nnScores.slice(0, 5).map(s => s.num).sort((a, b) => a - b), confiance: "IA", isNeural: true });
-        }
-      } catch (e) { /* silencieux */ }
+    // Ajouter combo NEURAL seul (pour comparaison)
+    if (nnScores) {
+      conv.combos.push({ nom: "NEURAL", nums: nnScores.slice(0, 5).map(s => s.num).sort((a, b) => a - b), confiance: "IA", isNeural: true });
     }
 
     history.predictions.push({
@@ -606,8 +604,12 @@ app.get("/api/predictions/:jour", (req, res) => {
   const todayStr = `${String(now.getDate()).padStart(2, "0")}/${String(now.getMonth() + 1).padStart(2, "0")}/${now.getFullYear()}`;
   const todayDraws = db.draws.filter(d => d.date === todayStr);
 
-  // Prediction par convergence (nouveau moteur)
-  const globalConv = predictConvergence(db.draws, null, jour, todayDraws);
+  // Scores NN globaux pour la fusion
+  let globalNN = null;
+  if (neuralNet) { try { globalNN = predictNeural(neuralNet, db.draws, null, jour, todayDraws); } catch (e) {} }
+
+  // Prediction par convergence + fusion NN (SUPER COMBO v2)
+  const globalConv = predictConvergence(db.draws, null, jour, todayDraws, globalNN);
 
   // Predictions classiques en backup
   const history = loadHistory();
@@ -616,21 +618,21 @@ app.get("/api/predictions/:jour", (req, res) => {
 
   const parTirage = [];
   for (const t of tiragesInfo) {
-    const convPred = predictConvergence(db.draws, t.nom, jour, todayDraws);
+    // Calculer scores NN pour ce tirage
+    let nnScores = null;
+    if (neuralNet) { try { nnScores = predictNeural(neuralNet, db.draws, t.nom, jour, todayDraws); } catch (e) {} }
+
+    // Convergence avec fusion NN integree (SUPER COMBO v2)
+    const convPred = predictConvergence(db.draws, t.nom, jour, todayDraws, nnScores);
     const classicPred = scoring5(db.draws, t.nom, weights, jour);
     const pair = scoringPaires(db.draws, t.nom);
 
-    // Ajouter combo NEURAL si NN disponible
+    // Ajouter combo NEURAL seul (pour comparaison)
     let pred = convPred || classicPred;
-    if (neuralNet && pred && pred.combos) {
-      try {
-        const nnScores = predictNeural(neuralNet, db.draws, t.nom, jour, todayDraws);
-        if (nnScores) {
-          const nnNums = nnScores.slice(0, 5).map(s => s.num).sort((a, b) => a - b);
-          const nnDetail = nnScores.slice(0, 5).map(s => "N" + s.num + "(" + (s.prob * 100).toFixed(0) + "%)").join(", ");
-          pred.combos.push({ nom: "NEURAL", nums: nnNums, confiance: "IA", detail: nnDetail, isNeural: true });
-        }
-      } catch (e) { /* silencieux */ }
+    if (nnScores && pred && pred.combos) {
+      const nnNums = nnScores.slice(0, 5).map(s => s.num).sort((a, b) => a - b);
+      const nnDetail = nnScores.slice(0, 5).map(s => "N" + s.num + "(" + (s.prob * 100).toFixed(0) + "%)").join(", ");
+      pred.combos.push({ nom: "NEURAL", nums: nnNums, confiance: "IA", detail: nnDetail, isNeural: true });
     }
 
     parTirage.push({
