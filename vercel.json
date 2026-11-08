@@ -1,7 +1,24 @@
 {
   "version": 2,
   "builds": [
-    { "src": "server.js", "use": "@vercel/node" }
+    {
+      "src": "server.js",
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": [
+          "lonaci_db.json",
+          "historique_predictions.json",
+          "apprentissage_state.json",
+          "neural_model.json",
+          "public/**",
+          "horaires.js",
+          "couverture.js",
+          "apprentissage.js",
+          "neural.js",
+          "db.js"
+        ]
+      }
+    }
   ],
   "routes": [
     { "src": "/(.*)", "dest": "server.js" }

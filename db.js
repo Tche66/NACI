@@ -4,14 +4,6 @@ const path = require("path");
 const IS_VERCEL = !!process.env.VERCEL;
 
 function getDataPath(filename) {
-  if (IS_VERCEL) {
-    const tmpPath = path.join("/tmp", filename);
-    const srcPath = path.join(__dirname, filename);
-    if (!fs.existsSync(tmpPath) && fs.existsSync(srcPath)) {
-      try { fs.copyFileSync(srcPath, tmpPath); } catch (e) {}
-    }
-    return tmpPath;
-  }
   return path.join(__dirname, filename);
 }
 
