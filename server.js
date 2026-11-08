@@ -21,7 +21,7 @@ function loadOrTrainNN(db) {
       console.log("[NN] Modele charge depuis " + MODEL_PATH);
     } else {
       console.log("[NN] Entrainement du reseau de neurones...");
-      neuralNet = trainNeural(db.draws, 5, 32);
+      neuralNet = trainNeural(db.draws, 5, 48, 24);
       neuralNet.save(MODEL_PATH);
       console.log("[NN] Modele entraine et sauvegarde.");
     }
@@ -502,7 +502,7 @@ function autoCompare(db) {
     if (neuralNet && history.analyses.length % 10 === 0) {
       try {
         console.log("[NN] Re-entrainement incremental...");
-        neuralNet = trainNeural(db.draws, 2, 32);
+        neuralNet = trainNeural(db.draws, 2, 48, 24);
         neuralNet.save(MODEL_PATH);
         console.log("[NN] Modele mis a jour.");
       } catch (e) { console.log("[NN] Erreur re-entrainement:", e.message); }
