@@ -105,6 +105,41 @@
     .grille-label{min-width:150px;font-size:12px;font-weight:600;color:var(--text2)}
     .grille-conf{font-size:10px;color:var(--text2);margin-left:auto;min-width:36px;text-align:right}
     @media(max-width:900px){.grid-2{grid-template-columns:1fr}.combo-name,.tirage-name,.grille-label{min-width:90px}header{flex-direction:column;gap:10px}}
+    @media(max-width:520px){
+      .container{padding:8px}
+      header{padding:12px 14px;border-radius:10px;margin-bottom:12px}
+      header h1{font-size:16px}
+      .header-right{width:100%;justify-content:space-between}
+      .btn{padding:6px 10px;font-size:11px}
+      .tabs{gap:1px;padding:2px;margin-bottom:12px}
+      .tab{padding:7px 10px;font-size:11px}
+      .card{padding:12px;margin-bottom:10px;border-radius:8px}
+      .card h2{font-size:14px;margin-bottom:10px}
+      .num{width:36px;height:36px;font-size:14px}
+      .num-small{width:28px;height:28px;font-size:11px}
+      .nums{gap:4px}
+      .combo-row{gap:5px;padding:6px 0;flex-wrap:wrap}
+      .combo-name{min-width:100%;font-size:11px;margin-bottom:2px}
+      .combo-conf{margin-left:0}
+      .super-paire{padding:10px 12px;gap:8px;flex-wrap:wrap}
+      .super-paire .num{width:40px;height:40px;font-size:16px}
+      .super-paire .meta{margin-left:0;width:100%;text-align:left;margin-top:4px}
+      .tirage-row{padding:8px 6px;gap:5px;flex-wrap:wrap}
+      .tirage-name{min-width:auto;font-size:11px}
+      .tirage-heure{font-size:9px;padding:2px 5px;min-width:36px}
+      .grille-line{gap:5px;flex-wrap:wrap}
+      .grille-label{min-width:100%;margin-bottom:2px}
+      .grille-conf{position:absolute;right:12px}
+      .jour-select{gap:3px}
+      .jour-btn{padding:5px 8px;font-size:10px}
+      .semaine-tirage{flex-wrap:wrap;gap:3px}
+      .semaine-tirage .name{min-width:auto;font-size:10px}
+      .analyse-card{padding:10px}
+      table{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch}
+      th,td{padding:5px 4px;font-size:10px;white-space:nowrap}
+      .freq-bar{min-width:40px}
+      .learn-badge{font-size:9px;padding:2px 6px}
+    }
   </style>
 </head>
 <body>
@@ -385,6 +420,51 @@ async function loadAnalyse(){
     h+='<div style="text-align:center;flex:1;min-width:80px"><div style="font-size:22px;font-weight:700">'+data.stats.neuralComparisons+'</div><div style="font-size:10px;color:var(--text2)">Compares IA</div></div>';
     h+='</div></div>';
   }
+
+  // Graphique evolution hebdomadaire
+  try{
+    const perf=await fetch('/api/performance').then(r=>r.json());
+    if(perf.byWeek&&perf.byWeek.length>1){
+      const weeks=perf.byWeek.slice(-12);
+      const maxAvg=Math.max(...weeks.map(w=>w.avg),0.5);
+      const eR=perf.eRandom||0.278;
+      h+='<div class="card"><h2>Evolution hebdomadaire</h2>';
+      h+='<div style="position:relative;height:160px;margin-bottom:8px;display:flex;align-items:flex-end;gap:3px">';
+      const barW=Math.max(20,Math.floor(100/weeks.length));
+      for(const w of weeks){
+        const pct=Math.max(2,(w.avg/maxAvg*100)).toFixed(0);
+        const col=w.avg>=eR*1.2?'var(--green)':w.avg>=eR?'var(--orange)':'var(--red)';
+        const dt=w.week.slice(5);
+        h+='<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px">';
+        h+='<span style="font-size:9px;color:var(--text);font-weight:700">'+w.avg.toFixed(2)+'</span>';
+        h+='<div style="width:100%;max-width:40px;height:'+pct+'%;background:'+col+';border-radius:4px 4px 0 0;min-height:4px;transition:height .3s"></div>';
+        h+='<span style="font-size:8px;color:var(--text2);white-space:nowrap">'+dt+'</span>';
+        h+='</div>';
+      }
+      h+='</div>';
+      h+='<div style="display:flex;justify-content:space-between;font-size:9px;color:var(--text2);border-top:1px solid var(--border);padding-top:6px">';
+      h+='<span>Hasard: '+eR.toFixed(3)+' exacts/pred</span>';
+      h+='<span>Lift global: x'+perf.lift+'</span>';
+      h+='</div>';
+      h+='</div>';
+
+      // Top tirages par performance
+      if(perf.byType&&perf.byType.length>0){
+        h+='<div class="card"><h2>Classement par tirage</h2>';
+        h+='<table><thead><tr><th style="text-align:left">Tirage</th><th>Cat.</th><th>Comp.</th><th>Exacts</th><th>Moy.</th><th>Lift</th></tr></thead><tbody>';
+        for(const t of perf.byType.slice(0,15)){
+          const lc=t.lift>=1.2?'var(--green)':t.lift>=1.0?'var(--orange)':'var(--red)';
+          h+='<tr><td style="text-align:left;font-weight:600;font-size:11px">'+t.tirage+'</td>';
+          h+='<td><span class="tag" style="background:rgba(68,138,255,.1);color:var(--blue)">'+t.category+'</span></td>';
+          h+='<td>'+t.total+'</td>';
+          h+='<td style="color:var(--green);font-weight:700">'+t.hits+'</td>';
+          h+='<td style="font-weight:700">'+t.avg.toFixed(3)+'</td>';
+          h+='<td style="color:'+lc+';font-weight:700">x'+t.lift+'</td></tr>';
+        }
+        h+='</tbody></table></div>';
+      }
+    }
+  }catch(e){}
 
   // Apprentissage v4
   h+='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">';
