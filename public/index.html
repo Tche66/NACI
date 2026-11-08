@@ -177,6 +177,7 @@ const JOURS=["Dimanche","Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi"];
 let cj5=new Date().getDay(),cjc=new Date().getDay();
 function showPage(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.getElementById('page-'+id).classList.add('active');document.querySelector(`[data-page="${id}"]`).classList.add('active');({predictions:()=>loadPredictions(cj5),grilles:()=>loadCouverture(cjc),semaine:loadSemaine,performance:loadAnalyse,donnees:loadDonnees})[id]()}
 function buildJourSelect(cid,cur,cb){const c=document.getElementById(cid);c.innerHTML='';for(let i=0;i<7;i++){const d=new Date();d.setDate(d.getDate()+i);const j=d.getDay();const l=i===0?"Aujourd'hui":i===1?"Demain":JOURS[j];const ds=`${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`;const b=document.createElement('button');b.className='jour-btn'+(j===cur?' active':'');b.textContent=`${l} ${ds}`;b.onclick=()=>{c.querySelectorAll('.jour-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');cb(j)};c.appendChild(b)}}
+function filterTiragePerf(btn,cat){btn.parentElement.querySelectorAll('.jour-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');document.querySelectorAll('#tirageRows tr').forEach(r=>{r.style.display=(cat==='all'||r.dataset.cat===cat)?'':'none'})}
 function nb(n,cls='num-red'){return`<div class="num ${cls}">${String(n).padStart(2,'0')}</div>`}
 function nbs(n,cls='num-red'){return`<div class="num num-small ${cls}">${String(n).padStart(2,'0')}</div>`}
 function typeTag(t){const c={standard:'tirage-type-standard',digital:'tirage-type-digital',special:'tirage-type-special'}[t]||'';return`<span class="tirage-type ${c}">${t}</span>`}
@@ -421,40 +422,67 @@ async function loadAnalyse(){
     h+='</div></div>';
   }
 
-  // Graphique evolution hebdomadaire
+  // Graphique + filtres par categorie
   try{
     const perf=await fetch('/api/performance').then(r=>r.json());
-    if(perf.byWeek&&perf.byWeek.length>1){
-      const weeks=perf.byWeek.slice(-12);
-      const maxAvg=Math.max(...weeks.map(w=>w.avg),0.5);
+    if(!perf.error){
       const eR=perf.eRandom||0.278;
-      h+='<div class="card"><h2>Evolution hebdomadaire</h2>';
-      h+='<div style="position:relative;height:160px;margin-bottom:8px;display:flex;align-items:flex-end;gap:3px">';
-      const barW=Math.max(20,Math.floor(100/weeks.length));
-      for(const w of weeks){
-        const pct=Math.max(2,(w.avg/maxAvg*100)).toFixed(0);
-        const col=w.avg>=eR*1.2?'var(--green)':w.avg>=eR?'var(--orange)':'var(--red)';
-        const dt=w.week.slice(5);
-        h+='<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px">';
-        h+='<span style="font-size:9px;color:var(--text);font-weight:700">'+w.avg.toFixed(2)+'</span>';
-        h+='<div style="width:100%;max-width:40px;height:'+pct+'%;background:'+col+';border-radius:4px 4px 0 0;min-height:4px;transition:height .3s"></div>';
-        h+='<span style="font-size:8px;color:var(--text2);white-space:nowrap">'+dt+'</span>';
+
+      // Filtres par categorie
+      if(perf.byCategory&&perf.byCategory.length>0){
+        const catNoms={digital:'Digital',matin:'Matin',midi:'Midi',aprem:'Apres-midi',soir:'Soir',afterwork:'Afterwork',weekend:'Weekend',global:'Autre'};
+        h+='<div class="card"><h2>Performance par categorie</h2>';
+        h+='<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">';
+        for(const c of perf.byCategory){
+          const lc=c.lift>=1.2?'var(--green)':c.lift>=1.0?'var(--orange)':'var(--red)';
+          const bg=c.lift>=1.2?'rgba(0,230,118,.12)':c.lift>=1.0?'rgba(255,171,64,.12)':'rgba(255,82,82,.12)';
+          h+='<div style="background:'+bg+';border:1px solid '+lc+';border-radius:8px;padding:10px 14px;text-align:center;min-width:80px;flex:1">';
+          h+='<div style="font-size:11px;font-weight:700;color:'+lc+';text-transform:uppercase">'+(catNoms[c.category]||c.category)+'</div>';
+          h+='<div style="font-size:20px;font-weight:800;color:'+lc+'">x'+c.lift+'</div>';
+          h+='<div style="font-size:9px;color:var(--text2)">'+c.hits+'/'+c.total+' exacts</div>';
+          h+='<div style="font-size:9px;color:var(--text2)">moy: '+c.avg.toFixed(3)+'</div>';
+          h+='</div>';
+        }
+        h+='</div></div>';
+      }
+
+      // Graphique evolution hebdomadaire
+      if(perf.byWeek&&perf.byWeek.length>1){
+        const weeks=perf.byWeek.slice(-12);
+        const maxAvg=Math.max(...weeks.map(w=>w.avg),0.01);
+        h+='<div class="card"><h2>Evolution hebdomadaire</h2>';
+        h+='<div style="display:flex;align-items:flex-end;gap:3px;height:180px;padding-top:20px">';
+        for(const w of weeks){
+          const barH=Math.max(4,Math.round(w.avg/maxAvg*130));
+          const col=w.avg>=eR*1.2?'var(--green)':w.avg>=eR?'var(--orange)':'var(--red)';
+          const dt=w.week.slice(5);
+          h+='<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%">';
+          h+='<span style="font-size:9px;color:var(--text);font-weight:700">'+w.avg.toFixed(2)+'</span>';
+          h+='<div style="width:70%;max-width:36px;height:'+barH+'px;background:'+col+';border-radius:4px 4px 0 0"></div>';
+          h+='<span style="font-size:8px;color:var(--text2);white-space:nowrap;margin-top:4px">'+dt+'</span>';
+          h+='</div>';
+        }
+        h+='</div>';
+        h+='<div style="display:flex;justify-content:space-between;font-size:9px;color:var(--text2);border-top:1px solid var(--border);padding-top:6px">';
+        h+='<span>Hasard: '+eR.toFixed(3)+' exacts/pred</span>';
+        h+='<span>Lift global: x'+perf.lift+'</span>';
+        h+='</div>';
         h+='</div>';
       }
-      h+='</div>';
-      h+='<div style="display:flex;justify-content:space-between;font-size:9px;color:var(--text2);border-top:1px solid var(--border);padding-top:6px">';
-      h+='<span>Hasard: '+eR.toFixed(3)+' exacts/pred</span>';
-      h+='<span>Lift global: x'+perf.lift+'</span>';
-      h+='</div>';
-      h+='</div>';
 
-      // Top tirages par performance
+      // Classement par tirage avec filtre categorie
       if(perf.byType&&perf.byType.length>0){
+        const cats=[...new Set(perf.byType.map(t=>t.category))];
+        const catNoms2={digital:'Digital',matin:'Matin',midi:'Midi',aprem:'Aprem',soir:'Soir',afterwork:'After.',weekend:'Week.'};
         h+='<div class="card"><h2>Classement par tirage</h2>';
-        h+='<table><thead><tr><th style="text-align:left">Tirage</th><th>Cat.</th><th>Comp.</th><th>Exacts</th><th>Moy.</th><th>Lift</th></tr></thead><tbody>';
-        for(const t of perf.byType.slice(0,15)){
+        h+='<div style="display:flex;gap:3px;flex-wrap:wrap;margin-bottom:10px">';
+        h+='<button class="jour-btn active" onclick="filterTiragePerf(this,\'all\')">Tous</button>';
+        for(const c of cats) h+='<button class="jour-btn" onclick="filterTiragePerf(this,\''+c+'\')">'+(catNoms2[c]||c)+'</button>';
+        h+='</div>';
+        h+='<table><thead><tr><th style="text-align:left">Tirage</th><th>Cat.</th><th>Comp.</th><th>Exacts</th><th>Moy.</th><th>Lift</th></tr></thead><tbody id="tirageRows">';
+        for(const t of perf.byType){
           const lc=t.lift>=1.2?'var(--green)':t.lift>=1.0?'var(--orange)':'var(--red)';
-          h+='<tr><td style="text-align:left;font-weight:600;font-size:11px">'+t.tirage+'</td>';
+          h+='<tr data-cat="'+t.category+'"><td style="text-align:left;font-weight:600;font-size:11px">'+t.tirage+'</td>';
           h+='<td><span class="tag" style="background:rgba(68,138,255,.1);color:var(--blue)">'+t.category+'</span></td>';
           h+='<td>'+t.total+'</td>';
           h+='<td style="color:var(--green);font-weight:700">'+t.hits+'</td>';
