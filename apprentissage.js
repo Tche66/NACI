@@ -11,11 +11,14 @@ const { loadDB, IS_VERCEL, getDataPath } = require("./db");
 const NUM_RANGE = 90;
 const LEARN_PATH = getDataPath("apprentissage_state.json");
 
-// Poids appris par backtest 24 mois (5429 tirages avec apprentissage continu)
+// Poids recalibres sur 15717 tirages (6 ans) — nov 2026
+// terminaisons et paires = meilleurs criteres recents (17.7%, 17.5% hit rate)
+// cycleOverdue et retard sous le hasard → desactives
 const DEFAULT_WEIGHTS = {
-  jourAffinity: 29.5, freqGlob: 29.2, markov2: 29.2, paires: 29.0,
-  terminaisons: 28.0, sameDayBoost: 20.0, conditionnel: 21.1, retard: 7.5,
-  antiRepet: 7.0, freqRecent: 6.9, momentum: 6.1, cycleOverdue: 3.4,
+  terminaisons: 30.0, paires: 30.0, markov2: 28.0, freqGlob: 27.0,
+  conditionnel: 20.0, sameDayBoost: 20.0, jourAffinity: 18.0,
+  antiRepet: 7.0, momentum: 5.0, freqRecent: 5.0,
+  retard: 0, cycleOverdue: 0,
 };
 
 const DRAW_CATEGORIES = {
@@ -52,7 +55,7 @@ function loadLearnState() {
     saveLearnState(state);
   }
   if (!state.categoryWeights) state.categoryWeights = {};
-  if (!state.comboPerf) state.comboPerf = { CONV: 1.0, EQ: 1.0, COND: 1.0, MARKOV: 1.0, JOUR: 1.0 };
+  if (!state.comboPerf) state.comboPerf = { CONV: 1.0, EQ: 1.0, COND: 1.0, MARKOV: 1.0, JOUR: 1.0, NN: 0.3 };
   if (state.version < 5) state.version = 5;
   return state;
 }
@@ -244,7 +247,8 @@ function convergenceScore(tops, weights) {
 
   for (const [critere, topList] of Object.entries(tops)) {
     if (!topList || critere.startsWith("_") || critere === "lastDrawNums") continue;
-    const w = weights[critere] || 10;
+    const w = critere in weights ? weights[critere] : 10;
+    if (w <= 0) continue;
     for (let rank = 0; rank < topList.length; rank++) {
       const n = topList[rank];
       const rankBonus = 1 - rank / topList.length;
@@ -482,6 +486,14 @@ function predictConvergence(draws, typeFilter, jourSemaine, todayDraws, nnScores
   const superDetail = superCandidates.slice(0, 5)
     .map(c => `N${c.num}(${c.sources.length}strat${c.sources.includes("NN")?" +IA":""})`).join(", ");
 
+  // Numeros classique top5 et IA top5 + en commun
+  const classicTop5 = ranked.slice(0, 5).map(r => r.num);
+  const nnTop5 = [];
+  if (nnScores && nnScores.length >= 5) {
+    for (let i = 0; i < 5; i++) nnTop5.push(nnScores[i].num);
+  }
+  const commonNums = classicTop5.filter(n => nnTop5.includes(n));
+
   // SUPER COMBO v2 en premier, puis les combos individuels
   const combos = [];
   combos.push({
@@ -490,6 +502,9 @@ function predictConvergence(draws, typeFilter, jourSemaine, todayDraws, nnScores
     confiance: "MAXIMALE",
     detail: superDetail,
     isSuper: true,
+    commonNums,
+    classicTop5,
+    nnTop5,
   });
   for (const sc of subCombos) {
     combos.push({ nom: sc.nom, nums: sc.nums, confiance: sc.confiance, detail: sc.detail });

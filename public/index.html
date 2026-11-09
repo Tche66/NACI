@@ -8,716 +8,1223 @@
     *{margin:0;padding:0;box-sizing:border-box}
     :root{--bg:#0f1117;--card:#1a1d27;--card2:#222533;--green:#00e676;--red:#ff5252;--blue:#448aff;--orange:#ffab40;--purple:#e040fb;--cyan:#18ffff;--text:#e8eaed;--text2:#9aa0a6;--border:#2d3140;--yellow:#ffd740}
     body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
-    .layout{display:flex;gap:0}
-    .container{flex:1;max-width:1200px;margin:0 auto;padding:16px;margin-right:290px}
-    .sidebar{position:fixed;right:0;top:0;width:280px;height:100vh;background:var(--card);border-left:1px solid var(--border);overflow-y:auto;padding:14px;z-index:100}
-    .sidebar h3{font-size:13px;color:var(--green);margin-bottom:10px;display:flex;align-items:center;gap:6px}
-    .sidebar .sid-date{font-size:10px;color:var(--text2);font-weight:400}
-    .sid-draw{padding:8px 0;border-bottom:1px solid var(--border)}
-    .sid-draw:last-child{border-bottom:none}
-    .sid-draw-name{font-size:11px;font-weight:600;margin-bottom:4px;display:flex;align-items:center;gap:6px}
+
+    /* Layout */
+    .container{max-width:720px;margin:0 auto;padding:16px}
+
+    /* Header */
+    header{background:linear-gradient(135deg,#1a3a1a,#0d2818);border:1px solid #2d5a2d;border-radius:14px;padding:16px 20px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+    header h1{font-size:18px;color:var(--green);display:flex;align-items:center;gap:8px}
+    header h1 .sub{color:var(--text2);font-size:11px;font-weight:400}
+    .hdr-actions{display:flex;gap:8px;align-items:center}
+    .btn{padding:8px 16px;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s}
+    .btn-green{background:var(--green);color:#000}.btn-green:hover{background:#69f0ae}
+    .btn:disabled{opacity:.5;cursor:wait}
+    .live-dot{width:8px;height:8px;border-radius:50%;background:var(--green);display:inline-block;animation:pulse 2s infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+    /* Tabs */
+    .tabs{display:flex;gap:2px;margin-bottom:16px;background:var(--card);border-radius:10px;padding:3px;border:1px solid var(--border)}
+    .tab{flex:1;padding:10px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;color:var(--text2);transition:all .2s;border:none;background:none;text-align:center}
+    .tab:hover{color:var(--text)}.tab.active{background:var(--green);color:#000}
+
+    /* Cards */
+    .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px}
+    .card-title{font-size:14px;font-weight:700;color:var(--green);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+    .card-sub{font-size:11px;color:var(--text2);margin-bottom:12px}
+
+    /* Number balls */
+    .nums{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+    .n{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800}
+    .ns{width:32px;height:32px;font-size:13px;font-weight:700;border-radius:50%;display:flex;align-items:center;justify-content:center}
+    .n-grn{background:linear-gradient(135deg,#2e7d32,#43a047);color:#fff;box-shadow:0 3px 12px rgba(67,160,71,.35)}
+    .n-red{background:linear-gradient(135deg,#c62828,#e53935);color:#fff;box-shadow:0 3px 10px rgba(229,57,53,.3)}
+    .n-blu{background:linear-gradient(135deg,#1565c0,#1e88e5);color:#fff}
+    .n-ora{background:linear-gradient(135deg,#ef6c00,#fb8c00);color:#fff}
+    .n-pur{background:linear-gradient(135deg,#7b1fa2,#9c27b0);color:#fff}
+    .n-hit{background:linear-gradient(135deg,#00c853,#69f0ae);color:#000;box-shadow:0 3px 10px rgba(0,200,83,.4)}
+    .n-close{background:linear-gradient(135deg,#ff8f00,#ffc107);color:#000}
+    .n-miss{background:var(--card2);color:var(--text2);border:1px solid var(--border)}
+
+    /* Main combo */
+    .hero-combo{text-align:center;padding:24px 16px;border-color:var(--green)}
+    .hero-combo .label{color:var(--green);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+    .hero-combo .meta{font-size:11px;color:var(--text2);margin-top:10px}
+
+    /* Pair chip */
+    .pair-chip{display:inline-flex;align-items:center;gap:6px;background:var(--card2);padding:8px 14px;border-radius:10px}
+    .pair-chip .sep{color:var(--text2);font-size:16px}
+    .pair-chip .votes{color:var(--text2);font-size:10px;margin-left:4px}
+
+    /* Tirage row */
+    .trow{display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid var(--border)}
+    .trow:last-child{border-bottom:none}
+    .trow-time{background:var(--card2);padding:3px 8px;border-radius:5px;font-size:10px;font-weight:700;color:var(--cyan);min-width:42px;text-align:center}
+    .trow-name{font-weight:600;font-size:12px;min-width:110px}
+    .trow .nums{gap:3px;justify-content:flex-start}
+
+    /* Jour select */
+    .jsel{display:flex;gap:4px;margin-bottom:14px;flex-wrap:wrap}
+    .jbtn{padding:7px 12px;border-radius:7px;border:1px solid var(--border);background:var(--card2);color:var(--text);font-size:11px;font-weight:500;cursor:pointer;transition:all .2s}
+    .jbtn:hover{border-color:var(--green);color:var(--green)}
+    .jbtn.active{background:var(--green);color:#000;border-color:var(--green);font-weight:700}
+
+    /* Week cards */
+    .wday{background:var(--card2);border-radius:8px;padding:12px;text-align:center;min-width:90px;flex:1}
+    .wday.today{border:2px solid var(--green)}
+    .wday .d-name{font-size:10px;color:var(--text2)}
+    .wday .d-date{font-size:15px;font-weight:700;margin:2px 0}
+    .wday .d-perf{font-size:14px;font-weight:800}
+
+    /* Stats */
+    .stat-box{background:var(--card2);border-radius:8px;padding:14px;text-align:center;flex:1;min-width:100px}
+    .stat-box .val{font-size:28px;font-weight:800}
+    .stat-box .lbl{font-size:10px;color:var(--text2);margin-top:2px}
+    .cat-chip{border-radius:8px;padding:10px 14px;text-align:center;flex:1;min-width:80px}
+    .cat-chip .cat-name{font-size:10px;font-weight:700;text-transform:uppercase}
+    .cat-chip .cat-val{font-size:20px;font-weight:800}
+    .cat-chip .cat-sub{font-size:9px;color:var(--text2)}
+
+    /* Chart */
+    .chart-wrap{overflow-x:auto;margin:8px 0}
+
+    /* Compare blocks */
+    .cmp-block{background:var(--card2);border-radius:8px;padding:12px;margin-bottom:8px}
+    .cmp-header{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+    .cmp-header .date{font-weight:700;font-size:12px}.cmp-header .tirage{color:var(--text2);font-size:11px}
+    .cmp-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:4px 0}
+    .cmp-row .lbl{font-size:10px;color:var(--text2);min-width:60px}
+    .cmp-result{font-size:11px;margin-left:auto;white-space:nowrap}
+    .cmp-result .g{color:var(--green);font-weight:700}.cmp-result .p{color:var(--yellow)}
+
+    /* Collapsible */
+    .collapse-btn{display:flex;justify-content:space-between;align-items:center;cursor:pointer;width:100%}
+    .collapse-btn .arrow{color:var(--text2);font-size:16px;transition:transform .2s}
+    .collapse-content{display:none;margin-top:10px}
+    .collapse-content.open{display:block}
+
+    /* Sidebar */
+    .sidebar{position:fixed;right:0;top:0;width:260px;height:100vh;background:var(--card);border-left:1px solid var(--border);overflow-y:auto;padding:14px;z-index:100}
+    .sidebar h3{font-size:12px;color:var(--green);margin-bottom:8px}
+    .sid-date{font-size:10px;color:var(--text2);font-weight:400}
+    .sid-draw{padding:6px 0;border-bottom:1px solid var(--border)}.sid-draw:last-child{border-bottom:none}
+    .sid-draw-name{font-size:11px;font-weight:600;margin-bottom:3px;display:flex;align-items:center;gap:5px}
     .sid-draw-name .h{font-size:9px;color:var(--cyan);font-weight:700}
     .sid-nums{display:flex;gap:3px;flex-wrap:wrap}
-    .sid-num{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}
+    .sid-n{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700}
     .sid-g{background:linear-gradient(135deg,#2e7d32,#43a047);color:#fff}
     .sid-m{background:var(--card2);color:var(--orange);border:1px solid var(--orange)}
     .sid-empty{text-align:center;color:var(--text2);font-size:11px;padding:20px 0}
-    .sid-refresh{width:100%;padding:6px;border:none;border-radius:6px;background:var(--card2);color:var(--green);font-size:10px;font-weight:600;cursor:pointer;margin-top:8px;transition:background .2s}
-    .sid-refresh:hover{background:var(--border)}
-    .sid-count{background:var(--card2);padding:6px 10px;border-radius:6px;margin-bottom:10px;text-align:center;font-size:11px;color:var(--text2)}
+    .sid-count{background:var(--card2);padding:6px;border-radius:6px;margin-bottom:8px;text-align:center;font-size:11px;color:var(--text2)}
     .sid-count b{color:var(--green);font-size:14px}
-    @media(max-width:1100px){.container{margin-right:0}.sidebar{display:none}}
-    header{background:linear-gradient(135deg,#1a3a1a,#0d2818);border:1px solid #2d5a2d;border-radius:14px;padding:18px 24px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
-    header h1{font-size:20px;color:var(--green)} header h1 span{color:var(--text2);font-size:12px;font-weight:400;display:block;margin-top:2px}
-    .header-right{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-    .status{font-size:11px;color:var(--text2)} .status b{color:var(--green)}
-    .btn{padding:7px 14px;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s}
-    .btn-green{background:var(--green);color:#000} .btn-green:hover{background:#69f0ae}
-    .btn-blue{background:var(--blue);color:#fff} .btn-orange{background:var(--orange);color:#000}
-    .btn:disabled{opacity:.5;cursor:wait}
-    .auto-badge{background:var(--green);color:#000;padding:2px 7px;border-radius:10px;font-size:9px;font-weight:700;animation:pulse 2s infinite}
-    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
-    .tabs{display:flex;gap:3px;margin-bottom:20px;background:var(--card);border-radius:10px;padding:3px;border:1px solid var(--border);overflow-x:auto}
-    .tab{padding:9px 18px;border-radius:7px;font-size:13px;font-weight:500;cursor:pointer;color:var(--text2);transition:all .2s;white-space:nowrap;border:none;background:none}
-    .tab:hover{color:var(--text);background:var(--card2)} .tab.active{background:var(--green);color:#000;font-weight:700}
-    .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px}
-    .card h2{font-size:16px;margin-bottom:14px;color:var(--green);display:flex;align-items:center;gap:8px}
-    .nums{display:flex;gap:6px;flex-wrap:wrap}
-    .num{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800}
-    .num-red{background:linear-gradient(135deg,#c62828,#e53935);color:#fff;box-shadow:0 3px 10px rgba(229,57,53,.3)}
-    .num-blue{background:linear-gradient(135deg,#1565c0,#1e88e5);color:#fff;box-shadow:0 3px 10px rgba(30,136,229,.3)}
-    .num-orange{background:linear-gradient(135deg,#ef6c00,#fb8c00);color:#fff;box-shadow:0 3px 10px rgba(251,140,0,.3)}
-    .num-purple{background:linear-gradient(135deg,#7b1fa2,#9c27b0);color:#fff;box-shadow:0 3px 10px rgba(156,39,176,.3)}
-    .num-green{background:linear-gradient(135deg,#2e7d32,#43a047);color:#fff;box-shadow:0 3px 10px rgba(67,160,71,.3)}
-    .num-small{width:34px;height:34px;font-size:13px}
-    .num-match{background:linear-gradient(135deg,#00c853,#69f0ae);color:#000;box-shadow:0 3px 10px rgba(0,200,83,.4)}
-    .num-machine{background:linear-gradient(135deg,#00838f,#00acc1);color:#fff;box-shadow:0 3px 10px rgba(0,172,193,.4)}
-    .num-close{background:linear-gradient(135deg,#ff8f00,#ffc107);color:#000;box-shadow:0 3px 10px rgba(255,193,7,.4)}
-    .num-miss{background:var(--card2);color:var(--text2);border:1px solid var(--border)}
-    .super-paire{display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,#1a1a2e,#16213e);border:2px solid var(--orange);border-radius:10px;padding:14px 20px;margin:6px 0}
-    .super-paire .label{color:var(--orange);font-weight:700;font-size:12px;min-width:55px}
-    .super-paire .num{width:50px;height:50px;font-size:20px} .super-paire .sep{color:var(--text2);font-size:20px}
-    .super-paire .meta{margin-left:auto;color:var(--text2);font-size:11px;text-align:right}
-    table{width:100%;border-collapse:collapse}
-    th{padding:7px 8px;text-align:center;font-size:10px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;border-bottom:2px solid var(--border)}
-    td{padding:7px 8px;text-align:center;font-size:12px;border-bottom:1px solid var(--border)}
-    tr:hover td{background:var(--card2)}
-    .tag{padding:2px 7px;border-radius:16px;font-size:10px;font-weight:600}
-    .tag-hot{background:rgba(255,82,82,.15);color:var(--red)} .tag-warm{background:rgba(255,171,64,.15);color:var(--orange)} .tag-cold{background:rgba(68,138,255,.15);color:var(--blue)}
-    .tag-high{background:rgba(0,230,118,.15);color:var(--green)} .tag-mid{background:rgba(255,171,64,.15);color:var(--orange)}
-    .combo-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border)} .combo-row:last-child{border-bottom:none}
-    .combo-row.combo-super{background:linear-gradient(135deg,rgba(0,230,118,.08),rgba(0,200,83,.04));border:1px solid rgba(0,230,118,.3);border-radius:8px;padding:10px 12px;margin:4px 0}
-    .combo-row.combo-neural{background:linear-gradient(135deg,rgba(156,39,176,.08),rgba(224,64,251,.04));border:1px solid rgba(224,64,251,.3);border-radius:8px;padding:10px 12px;margin:4px 0}
-    .combo-name{min-width:140px;font-weight:600;font-size:12px;color:var(--text2)} .combo-conf{margin-left:auto}
-    .tag-super{background:rgba(0,230,118,.2);color:var(--green);font-weight:700}
-    .tag-neural{background:rgba(224,64,251,.2);color:var(--purple);font-weight:700}
-    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-    .tirage-row{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--border);border-radius:6px;transition:background .2s}
-    .tirage-row:hover{background:var(--card2)}
-    .tirage-name{min-width:120px;font-weight:600;font-size:12px}
-    .tirage-heure{background:var(--card2);padding:2px 7px;border-radius:5px;font-size:10px;font-weight:700;color:var(--cyan);min-width:44px;text-align:center}
-    .tirage-type{font-size:9px;padding:2px 5px;border-radius:4px;font-weight:600}
-    .tirage-type-standard{background:rgba(0,230,118,.1);color:var(--green)}
-    .tirage-type-digital{background:rgba(68,138,255,.1);color:var(--blue)}
-    .tirage-type-special{background:rgba(224,64,251,.1);color:var(--purple)}
-    .tirage-data{color:var(--text2);font-size:10px;margin-left:auto}
-    .jour-select{display:flex;gap:4px;margin-bottom:16px;flex-wrap:wrap}
-    .jour-btn{padding:7px 12px;border-radius:7px;border:1px solid var(--border);background:var(--card2);color:var(--text);font-size:11px;font-weight:500;cursor:pointer;transition:all .2s}
-    .jour-btn:hover{border-color:var(--green);color:var(--green)} .jour-btn.active{background:var(--green);color:#000;border-color:var(--green);font-weight:700}
+    .sid-refresh{width:100%;padding:6px;border:none;border-radius:6px;background:var(--card2);color:var(--green);font-size:10px;font-weight:600;cursor:pointer;margin-top:6px}
+
+    /* Page */
+    .page{display:none}.page.active{display:block}
+
+    /* Loading */
     .loading{text-align:center;padding:40px;color:var(--text2)}
-    .spinner{display:inline-block;width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--green);border-radius:50%;animation:spin .8s linear infinite;margin-bottom:8px}
+    .spinner{display:inline-block;width:28px;height:28px;border:3px solid var(--border);border-top-color:var(--green);border-radius:50%;animation:spin .8s linear infinite}
     @keyframes spin{to{transform:rotate(360deg)}}
-    .semaine-jour{background:var(--card2);border-radius:8px;padding:12px;margin-bottom:8px;border-left:4px solid var(--green)}
-    .semaine-jour h3{color:var(--green);margin-bottom:6px;font-size:13px}
-    .semaine-tirage{display:flex;align-items:center;gap:5px;padding:3px 0;font-size:11px}
-    .semaine-tirage .name{min-width:120px;color:var(--text2);font-weight:500} .semaine-tirage .heure{color:var(--cyan);font-size:10px;font-weight:700;min-width:40px}
-    .freq-bar{height:4px;border-radius:2px;background:var(--border);position:relative;min-width:60px}
-    .freq-bar-fill{height:100%;border-radius:2px;position:absolute;left:0;top:0}
-    .analyse-card{background:linear-gradient(135deg,#1a1a2e,#16213e);border:1px solid var(--blue);border-radius:10px;padding:16px;margin-bottom:10px}
-    .analyse-card h3{color:var(--blue);margin-bottom:10px;font-size:14px}
-    .score-big{font-size:32px;font-weight:800;text-align:center;padding:12px}
-    .score-bar{height:6px;border-radius:3px;background:var(--border);overflow:hidden;margin:6px 0}
-    .score-bar-fill{height:100%;border-radius:3px;transition:width .5s}
-    .learn-badge{background:rgba(224,64,251,.15);color:var(--purple);padding:3px 8px;border-radius:6px;font-size:10px;font-weight:600;display:inline-flex;align-items:center;gap:4px}
-    .page{display:none} .page.active{display:block}
-    .grille-line{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border)}
-    .grille-line:last-child{border-bottom:none}
-    .grille-label{min-width:150px;font-size:12px;font-weight:600;color:var(--text2)}
-    .grille-conf{font-size:10px;color:var(--text2);margin-left:auto;min-width:36px;text-align:right}
-    @media(max-width:900px){.grid-2{grid-template-columns:1fr}.combo-name,.tirage-name,.grille-label{min-width:90px}header{flex-direction:column;gap:10px}}
+
+    /* Toast */
+    .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--card);border:1px solid var(--green);color:var(--green);padding:10px 20px;border-radius:8px;font-size:12px;font-weight:600;z-index:999;opacity:0;transition:opacity .3s}
+    .toast.show{opacity:1}
+
+    @media(min-width:1000px){.container{margin-right:270px}}
+    @media(max-width:999px){.sidebar{display:none}}
     @media(max-width:520px){
       .container{padding:8px}
-      header{padding:12px 14px;border-radius:10px;margin-bottom:12px}
-      header h1{font-size:16px}
-      .header-right{width:100%;justify-content:space-between}
-      .btn{padding:6px 10px;font-size:11px}
-      .tabs{gap:1px;padding:2px;margin-bottom:12px}
-      .tab{padding:7px 10px;font-size:11px}
-      .card{padding:12px;margin-bottom:10px;border-radius:8px}
-      .card h2{font-size:14px;margin-bottom:10px}
-      .num{width:36px;height:36px;font-size:14px}
-      .num-small{width:28px;height:28px;font-size:11px}
-      .nums{gap:4px}
-      .combo-row{gap:5px;padding:6px 0;flex-wrap:wrap}
-      .combo-name{min-width:100%;font-size:11px;margin-bottom:2px}
-      .combo-conf{margin-left:0}
-      .super-paire{padding:10px 12px;gap:8px;flex-wrap:wrap}
-      .super-paire .num{width:40px;height:40px;font-size:16px}
-      .super-paire .meta{margin-left:0;width:100%;text-align:left;margin-top:4px}
-      .tirage-row{padding:8px 6px;gap:5px;flex-wrap:wrap}
-      .tirage-name{min-width:auto;font-size:11px}
-      .tirage-heure{font-size:9px;padding:2px 5px;min-width:36px}
-      .grille-line{gap:5px;flex-wrap:wrap}
-      .grille-label{min-width:100%;margin-bottom:2px}
-      .grille-conf{position:absolute;right:12px}
-      .jour-select{gap:3px}
-      .jour-btn{padding:5px 8px;font-size:10px}
-      .semaine-tirage{flex-wrap:wrap;gap:3px}
-      .semaine-tirage .name{min-width:auto;font-size:10px}
-      .analyse-card{padding:10px}
-      table{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch}
-      th,td{padding:5px 4px;font-size:10px;white-space:nowrap}
-      .freq-bar{min-width:40px}
-      .learn-badge{font-size:9px;padding:2px 6px}
+      header{padding:12px;border-radius:10px;margin-bottom:10px}
+      header h1{font-size:15px}
+      .tab{padding:8px 4px;font-size:12px}
+      .card{padding:12px;margin-bottom:10px}
+      .n{width:40px;height:40px;font-size:16px}
+      .ns{width:28px;height:28px;font-size:11px}
+      .hero-combo{padding:16px 10px}
+      .trow{gap:5px;flex-wrap:wrap}
+      .trow-name{min-width:auto;font-size:11px}
+      .stat-box .val{font-size:22px}
+      .wday{min-width:70px;padding:8px}
+      .wday .d-date{font-size:13px}
+      .jsel{gap:3px}.jbtn{padding:5px 8px;font-size:10px}
     }
   </style>
 </head>
 <body>
+
 <div class="sidebar" id="sidebar">
   <h3>Resultats du jour <span class="sid-date" id="sidDate"></span></h3>
   <div id="sidContent"><div class="sid-empty">Chargement...</div></div>
   <button class="sid-refresh" onclick="loadSidebar()">Rafraichir</button>
 </div>
+
 <div class="container">
   <header>
-    <h1>LONACI Loto Bonheur <span style="font-size:10px;color:var(--purple);background:rgba(224,64,251,.15);padding:2px 6px;border-radius:4px;vertical-align:middle;margin-left:6px">v5 + IA</span> <span id="dbStatus">Chargement...</span></h1>
-    <div class="header-right">
-      <span class="auto-badge">AUTO</span>
-      <div class="status" id="statusInfo"></div>
-      <button class="btn btn-green" id="btnUpdate" onclick="updateDB()">MAJ</button>
-      <button class="btn btn-orange" onclick="compareNow()">Comparer</button>
-      <button class="btn" style="background:var(--purple);color:#fff" onclick="trainNN()">Entrainer IA</button>
+    <h1>Loto Bonheur <span class="sub" id="dbStatus">...</span></h1>
+    <div class="hdr-actions">
+      <span class="live-dot"></span>
+      <span style="font-size:10px;color:var(--text2)" id="statusTime"></span>
+      <button class="btn btn-green" id="btnUpdate" onclick="actualiser()">Actualiser</button>
     </div>
   </header>
+
   <div class="tabs">
-    <button class="tab active" data-page="predictions" onclick="showPage('predictions')">Predictions</button>
-    <button class="tab" data-page="grilles" onclick="showPage('grilles')">Grilles</button>
+    <button class="tab active" data-page="jouer" onclick="showPage('jouer')">Jouer</button>
     <button class="tab" data-page="semaine" onclick="showPage('semaine')">Semaine</button>
-    <button class="tab" data-page="performance" onclick="showPage('performance')">Performance</button>
-    <button class="tab" data-page="donnees" onclick="showPage('donnees')">Donnees</button>
+    <button class="tab" data-page="suivi" onclick="showPage('suivi')">Suivi</button>
+    <button class="tab" data-page="backtest" onclick="showPage('backtest')">Backtest</button>
   </div>
-  <div class="page active" id="page-predictions"><div class="jour-select" id="jourSelect5"></div><div id="predContent"><div class="loading"><div class="spinner"></div><br>Chargement...</div></div></div>
-  <div class="page" id="page-grilles"><div class="jour-select" id="jourSelectCouv"></div><div id="couvContent"><div class="loading"><div class="spinner"></div><br>Chargement...</div></div></div>
-  <div class="page" id="page-semaine"><div id="semaineContent"><div class="loading"><div class="spinner"></div><br>Chargement...</div></div></div>
-  <div class="page" id="page-performance"><div id="analyseContent"><div class="loading"><div class="spinner"></div><br>Chargement...</div></div></div>
-  <div class="page" id="page-donnees"><div id="donneesContent"><div class="loading"><div class="spinner"></div><br>Chargement...</div></div></div>
+
+  <div class="page active" id="page-jouer">
+    <div class="jsel" id="jourSelect"></div>
+    <div id="jouerContent"><div class="loading"><div class="spinner"></div></div></div>
+  </div>
+  <div class="page" id="page-semaine">
+    <div id="semaineContent"><div class="loading"><div class="spinner"></div></div></div>
+  </div>
+  <div class="page" id="page-suivi">
+    <div id="suiviContent"><div class="loading"><div class="spinner"></div></div></div>
+  </div>
+  <div class="page" id="page-backtest">
+    <div id="backtestContent"></div>
+  </div>
 </div>
+
+<div class="toast" id="toast"></div>
+
 <script>
-const JOURS=["Dimanche","Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi"];
-let cj5=new Date().getDay(),cjc=new Date().getDay();
-function showPage(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.getElementById('page-'+id).classList.add('active');document.querySelector(`[data-page="${id}"]`).classList.add('active');({predictions:()=>loadPredictions(cj5),grilles:()=>loadCouverture(cjc),semaine:loadSemaine,performance:loadAnalyse,donnees:loadDonnees})[id]()}
-function buildJourSelect(cid,cur,cb){const c=document.getElementById(cid);c.innerHTML='';for(let i=0;i<7;i++){const d=new Date();d.setDate(d.getDate()+i);const j=d.getDay();const l=i===0?"Aujourd'hui":i===1?"Demain":JOURS[j];const ds=`${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`;const b=document.createElement('button');b.className='jour-btn'+(j===cur?' active':'');b.textContent=`${l} ${ds}`;b.onclick=()=>{c.querySelectorAll('.jour-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');cb(j)};c.appendChild(b)}}
-function filterTiragePerf(btn,cat){btn.parentElement.querySelectorAll('.jour-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');document.querySelectorAll('#tirageRows tr').forEach(r=>{r.style.display=(cat==='all'||r.dataset.cat===cat)?'':'none'})}
-function nb(n,cls='num-red'){return`<div class="num ${cls}">${String(n).padStart(2,'0')}</div>`}
-function nbs(n,cls='num-red'){return`<div class="num num-small ${cls}">${String(n).padStart(2,'0')}</div>`}
-function typeTag(t){const c={standard:'tirage-type-standard',digital:'tirage-type-digital',special:'tirage-type-special'}[t]||'';return`<span class="tirage-type ${c}">${t}</span>`}
+var JOURS=["Dimanche","Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi"];
+var currentJour=new Date().getDay();
 
-async function loadStatus(){try{const r=await fetch('/api/status').then(r=>r.json());document.getElementById('dbStatus').innerHTML=`${(r.nbTirages||0).toLocaleString()} tirages | ${r.nbAnalyses||0} analyses`;const d=r.lastUpdate?new Date(r.lastUpdate):null;document.getElementById('statusInfo').innerHTML=d?`MAJ: ${d.toLocaleDateString('fr')} ${d.toLocaleTimeString('fr',{hour:'2-digit',minute:'2-digit'})}`:''}catch(e){document.getElementById('dbStatus').innerHTML='Erreur connexion'}}
-async function updateDB(){const b=document.getElementById('btnUpdate');b.disabled=true;b.textContent='...';const r=await fetch('/api/update',{method:'POST'}).then(r=>r.json());b.disabled=false;b.textContent='MAJ';if(r.success){alert(`+${r.newDraws} tirages. Total: ${r.total}`);loadStatus();showPage(document.querySelector('.tab.active').dataset.page)}else alert('Erreur: '+r.error)}
-async function compareNow(){const r=await fetch('/api/compare-now',{method:'POST'}).then(r=>r.json());if(r.success){let msg=`+${r.newDraws} tirages\n`;if(r.analyses.length>0){const a=r.analyses[r.analyses.length-1];const total=a.comparaisons.reduce((s,c)=>s+c.comp.nbExacts,0);msg+=`${a.comparaisons.length} compares, ${total} exacts`}else msg+='Pas de comparaison dispo.';alert(msg);loadStatus();showPage(document.querySelector('.tab.active').dataset.page)}else alert('Erreur: '+r.error)}
-async function trainNN(){if(!confirm('Re-entrainer le reseau de neurones ? (prend ~30s)'))return;const r=await fetch('/api/train-nn',{method:'POST'}).then(r=>r.json());alert(r.success?r.message:'Erreur: '+r.error);showPage(document.querySelector('.tab.active').dataset.page)}
+function showPage(id){
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active')});
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  document.getElementById('page-'+id).classList.add('active');
+  document.querySelector('[data-page="'+id+'"]').classList.add('active');
+  if(id==='jouer')loadJouer(currentJour);
+  else if(id==='semaine')loadSemaine();
+  else if(id==='suivi')loadSuivi();
+  else if(id==='backtest')loadBacktest();
+}
 
-// ═══ PREDICTIONS ═══
-async function loadPredictions(jour){
-  cj5=jour;buildJourSelect('jourSelect5',jour,loadPredictions);
-  const el=document.getElementById('predContent');el.innerHTML='<div class="loading"><div class="spinner"></div><br>Calcul...</div>';
-  let data;try{data=await fetch(`/api/predictions/${jour}`).then(r=>r.json())}catch(e){el.innerHTML='<div class="card" style="color:var(--red)">Erreur serveur</div>';return}
-  if(data.error){el.innerHTML=`<div class="card">${data.error}</div>`;return}
-  let h='';
-  if(data.weights){h+=`<div style="margin-bottom:12px"><span class="learn-badge">APPRENTISSAGE ACTIF — ${data.weights.totalCompared} comparaisons</span></div>`}
+function N(n,cls){return '<div class="n '+cls+'">'+String(n).padStart(2,'0')+'</div>'}
+function Ns(n,cls){return '<div class="ns '+cls+'">'+String(n).padStart(2,'0')+'</div>'}
 
-  // Combos globaux
-  h+='<div class="card"><h2>Combinaisons — '+data.jourNom+'</h2>';
-  for(const c of data.global.combos){const isS=c.isSuper||c.confiance==='MAXIMALE';const isN=c.isNeural||c.confiance==='IA';const rowCls=isS?'combo-row combo-super':isN?'combo-row combo-neural':'combo-row';const numCls=isS?'num-green':isN?'num-purple':c.confiance==='HAUTE'?'num-red':'num-orange';const tagCls=isS?'tag tag-super':isN?'tag tag-neural':c.confiance==='HAUTE'?'tag tag-high':'tag tag-mid';const label=isS?c.confiance:isN?'RESEAU NEURONAL':c.confiance;h+='<div class="'+rowCls+'"><div class="combo-name"'+(isS?' style="color:var(--green);font-size:14px"':isN?' style="color:var(--purple);font-size:13px"':'')+'>'+c.nom+'</div><div class="nums">';for(const n of c.nums)h+=nb(n,numCls);h+='</div><span style="color:var(--text2);font-size:11px;margin-left:6px">'+c.nums.reduce((a,b)=>a+b,0)+'</span><div class="combo-conf"><span class="'+tagCls+'">'+label+'</span></div></div>'}
-  h+='</div>';
+function buildJourSelect(cur,cb){
+  var c=document.getElementById('jourSelect');c.innerHTML='';
+  for(var i=0;i<7;i++){
+    var d=new Date();d.setDate(d.getDate()+i);
+    var j=d.getDay();
+    var label=i===0?"Aujourd'hui":i===1?"Demain":JOURS[j];
+    var ds=String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0');
+    var b=document.createElement('button');
+    b.className='jbtn'+(j===cur?' active':'');
+    b.textContent=label+' '+ds;
+    b.setAttribute('data-jour',j);
+    b.onclick=function(){
+      var jj=parseInt(this.getAttribute('data-jour'));
+      c.querySelectorAll('.jbtn').forEach(function(x){x.classList.remove('active')});
+      this.classList.add('active');
+      cb(jj);
+    };
+    c.appendChild(b);
+  }
+}
 
-  // Paires du jour
-  try{
-    const pData=await fetch(`/api/paires/${jour}`).then(r=>r.json());
-    if(pData.superPaire1){
-      h+='<div class="card"><h2>Super Paires — '+data.jourNom+'</h2>';
-      if(pData.superPaire1){h+='<div class="super-paire"><div class="label">PAIRE 1</div>'+nb(pData.superPaire1.a,'num-red')+'<div class="sep">—</div>'+nb(pData.superPaire1.b,'num-red')+'<div class="meta">'+pData.superPaire1.votes+' votes</div></div>'}
-      if(pData.superPaire2){h+='<div class="super-paire" style="border-color:var(--purple)"><div class="label" style="color:var(--purple)">PAIRE 2</div>'+nb(pData.superPaire2.a,'num-purple')+'<div class="sep">—</div>'+nb(pData.superPaire2.b,'num-purple')+'<div class="meta">'+pData.superPaire2.votes+' votes</div></div>'}
+function perfColor(pct){return pct>=6.5?'var(--green)':pct>=5.5?'var(--orange)':'var(--red)'}
+
+function showToast(msg){
+  var t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(function(){t.classList.remove('show')},3000);
+}
+
+function toggleCollapse(id){
+  var el=document.getElementById(id);
+  var arrow=document.getElementById('arrow-'+id);
+  var open=el.classList.toggle('open');
+  arrow.textContent=open?String.fromCharCode(8722):'+';
+}
+
+// ═══ HEADER ═══
+function loadStatus(){
+  fetch('/api/status').then(function(r){return r.json()}).then(function(r){
+    document.getElementById('dbStatus').textContent=(r.nbTirages||0).toLocaleString()+' tirages';
+    var d=r.lastUpdate?new Date(r.lastUpdate):null;
+    document.getElementById('statusTime').textContent=d?d.toLocaleTimeString('fr',{hour:'2-digit',minute:'2-digit'}):'';
+  }).catch(function(){document.getElementById('dbStatus').textContent='Hors ligne'});
+}
+
+function actualiser(){
+  var b=document.getElementById('btnUpdate');
+  b.disabled=true;b.textContent='...';
+  fetch('/api/compare-now',{method:'POST'}).then(function(r){return r.json()}).then(function(r){
+    b.disabled=false;b.textContent='Actualiser';
+    if(r.success){
+      showToast(r.newDraws>0?'+'+r.newDraws+' nouveaux resultats':'Deja a jour');
+      loadStatus();loadSidebar();
+      showPage(document.querySelector('.tab.active').dataset.page);
+    }
+  }).catch(function(){b.disabled=false;b.textContent='Actualiser';showToast('Erreur connexion')});
+}
+
+// ═══ PAGE: JOUER ═══
+function loadJouer(jour){
+  currentJour=jour;
+  buildJourSelect(jour,loadJouer);
+  var el=document.getElementById('jouerContent');
+  el.innerHTML='<div class="loading"><div class="spinner"></div></div>';
+
+  Promise.all([
+    fetch('/api/predictions/'+jour).then(function(r){return r.json()}),
+    fetch('/api/paires/'+jour).then(function(r){return r.json()}).catch(function(){return null})
+  ]).then(function(results){
+    var data=results[0],pData=results[1];
+    if(data.error){el.innerHTML='<div class="card">'+data.error+'</div>';return}
+
+    var h='';
+    var superC=null,neuralC=null,otherC=[];
+    for(var i=0;i<data.global.combos.length;i++){
+      var c=data.global.combos[i];
+      if(c.isSuper||c.confiance==='MAXIMALE'){superC=c}
+      else if(c.isNeural||c.confiance==='IA'){neuralC=c}
+      else{otherC.push(c)}
+    }
+
+    // CONSEIL DU JOUR
+    var jourQuality={0:{lbl:'TRES BON',col:'var(--green)',icon:'&#9733;'},1:{lbl:'EXCELLENT',col:'var(--green)',icon:'&#9733;&#9733;'},2:{lbl:'EXCELLENT',col:'var(--green)',icon:'&#9733;&#9733;'},3:{lbl:'FAIBLE',col:'var(--red)',icon:'&#9888;'},4:{lbl:'NEUTRE',col:'var(--orange)',icon:''},5:{lbl:'BON',col:'var(--green)',icon:'&#9733;'},6:{lbl:'FAIBLE',col:'var(--red)',icon:'&#9888;'}};
+    var topTirages={0:['Benediction','Prestige','Awale'],1:['Akwaba','Monday Special'],2:['Sika','Lucky Tuesday'],3:['Midweek','Baraka'],4:['Fortune Thursday'],5:['Friday Bonanza'],6:['Special Weekend 3h','Diamant']};
+    var eviterTirages={0:['Espoir'],1:['Premiere Heure'],2:['Emergence'],3:['Premiere Heure'],4:['Privilege'],5:['Solution'],6:['Moaye','National']};
+    var jq=jourQuality[jour]||{lbl:'',col:'var(--text2)',icon:''};
+    var tops=topTirages[jour]||[];
+    var eviter=eviterTirages[jour]||[];
+
+    h+='<div class="card" style="border-color:'+jq.col+';background:linear-gradient(135deg,rgba(0,0,0,0),rgba(0,0,0,.2))">';
+    h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">';
+    h+='<div class="card-title" style="margin:0;color:'+jq.col+'">'+jq.icon+' '+JOURS[jour]+' : '+jq.lbl+'</div>';
+    h+='</div>';
+    h+='<div style="display:flex;gap:8px;flex-wrap:wrap;font-size:11px">';
+    // Pari recommande
+    h+='<div style="background:var(--card2);padding:8px 12px;border-radius:6px;flex:1;min-width:140px">';
+    h+='<div style="color:var(--cyan);font-weight:700;font-size:10px;margin-bottom:3px">PARI RECOMMANDE</div>';
+    h+='<div style="color:var(--text);font-weight:600">Chance 4+ Double Chance</div>';
+    h+='<div style="color:var(--text2);font-size:9px">4 nums, gagne a 2+ bons (gagnants+machine)</div>';
+    h+='<div style="color:var(--yellow);font-size:9px;margin-top:2px">ROI +951% sur 6 mois de backtest</div>';
+    h+='</div>';
+    // Tirages a cibler
+    if(tops.length>0){
+      h+='<div style="background:var(--card2);padding:8px 12px;border-radius:6px;flex:1;min-width:140px">';
+      h+='<div style="color:var(--green);font-weight:700;font-size:10px;margin-bottom:3px">A CIBLER</div>';
+      h+='<div style="color:var(--text)">'+tops.join(', ')+'</div>';
       h+='</div>';
     }
-  }catch(e){}
+    // Tirages a eviter
+    if(eviter.length>0){
+      h+='<div style="background:var(--card2);padding:8px 12px;border-radius:6px;flex:1;min-width:140px">';
+      h+='<div style="color:var(--red);font-weight:700;font-size:10px;margin-bottom:3px">EVITER</div>';
+      h+='<div style="color:var(--text2)">'+eviter.join(', ')+'</div>';
+      h+='</div>';
+    }
+    h+='</div>';
+    // Mini-guide mises
+    h+='<div style="margin-top:8px;padding:8px 12px;background:rgba(68,138,255,.06);border:1px solid rgba(68,138,255,.15);border-radius:6px;font-size:10px;color:var(--text2)">';
+    if(jq.lbl==='EXCELLENT'||jq.lbl==='TRES BON'){
+      h+='<b style="color:var(--blue)">Conseil :</b> Bon jour. <b style="color:var(--text)">Chance 4+ Double Chance</b> : prends les <b>4 premiers numeros</b> Bot + 4 premiers IA. Mise 100F chaque = 200F/tirage.';
+    }else if(jq.lbl==='BON'||jq.lbl==='NEUTRE'){
+      h+='<b style="color:var(--blue)">Conseil :</b> Jour moyen. <b style="color:var(--text)">Chance 4+ DC</b> Bot seul (100F) sur les tirages recommandes.';
+    }else{
+      h+='<b style="color:var(--blue)">Conseil :</b> Jour faible. <b style="color:var(--text)">Evite</b> ou 100F sur Digital 23h en Chance 4+ DC.';
+    }
+    h+='</div>';
+    h+='</div>';
 
-  // Par tirage
-  h+='<div class="card"><h2>Par tirage</h2>';
-  for(const t of data.parTirage){
-    h+='<div class="tirage-row"><div class="tirage-heure">'+t.heure+'</div>'+typeTag(t.type)+'<div class="tirage-name">'+t.tirage+'</div>';
-    if(t.prediction){const sc=t.prediction.combos.find(c=>c.isSuper||c.confiance==='MAXIMALE');const nc=t.prediction.combos.find(c=>c.isNeural||c.confiance==='IA');const mainC=sc||t.prediction.combos[0];h+='<div class="nums">';for(const n of mainC.nums)h+=nbs(n,sc?'num-green':'num-blue');h+='</div>';
-      if(nc){h+='<div style="margin-left:4px;display:flex;gap:2px;align-items:center"><span style="color:var(--purple);font-size:8px;font-weight:700;margin-right:1px">IA:</span>';for(const n of nc.nums)h+=nbs(n,'num-purple');h+='</div>'}
-      if(t.paire){h+='<div style="margin-left:4px;display:flex;gap:2px;align-items:center"><span style="color:var(--text2);font-size:9px;margin-right:2px">P:</span>'+nbs(t.paire.p1.a,'num-orange')+nbs(t.paire.p1.b,'num-orange')+'</div>'}
-    }else h+='<span style="color:var(--text2);font-size:11px">—</span>';
-    h+='</div>'
-  }
-  h+='</div>';
+    // COMBO FUSION — la seule mise recommandee
+    if(superC){
+      // Detecter les numeros en commun (classique + IA)
+      var cNums=superC.classicTop5||[];
+      var nNums=superC.nnTop5||[];
+      var common=superC.commonNums||[];
 
-  // Sauvegarder
-  h+='<div style="text-align:center;margin:14px 0"><button class="btn btn-green" onclick="savePredictions('+jour+')">Sauvegarder les predictions</button></div>';
-  el.innerHTML=h;
-  window._lastPredData=data;
+      h+='<div class="card hero-combo">';
+      h+='<div class="label">&#127919; A jouer — Combo Fusion</div>';
+      h+='<div style="font-size:10px;color:var(--text2);margin-bottom:8px">Les 5 meilleurs numeros (classique + IA combines)</div>';
+      h+='<div class="nums" style="gap:10px;margin:12px 0">';
+      for(var i=0;i<superC.nums.length;i++){
+        var isCommon=common.indexOf(superC.nums[i])>=0;
+        var isNN=nNums.indexOf(superC.nums[i])>=0&&cNums.indexOf(superC.nums[i])<0;
+        h+=N(superC.nums[i],isCommon?'n-hit':isNN?'n-pur':'n-grn');
+      }
+      h+='</div>';
+      h+='<div class="meta">Somme: '+superC.nums.reduce(function(a,b){return a+b},0)+' &middot; '+JOURS[jour]+'</div>';
+      if(common.length>0){
+        h+='<div style="margin-top:6px;font-size:10px;color:var(--yellow)">&#9733; '+common.length+' numero'+(common.length>1?'s':'')+' en commun classique + IA = confiance max</div>';
+      }
+      h+='</div>';
+
+      // DETAIL: d'ou viennent les numeros
+      h+='<div class="card" style="padding:12px">';
+      h+='<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">';
+      // Classique
+      h+='<div style="flex:1;min-width:140px;text-align:center">';
+      h+='<div style="font-size:10px;color:var(--green);font-weight:700;margin-bottom:4px">CLASSIQUE</div>';
+      h+='<div class="nums" style="gap:4px;justify-content:center">';
+      for(var i=0;i<cNums.length;i++) h+=Ns(cNums[i],'n-grn ns');
+      h+='</div></div>';
+      // VS
+      h+='<div style="color:var(--text2);font-size:12px;font-weight:700">+</div>';
+      // IA
+      h+='<div style="flex:1;min-width:140px;text-align:center">';
+      h+='<div style="font-size:10px;color:var(--purple);font-weight:700;margin-bottom:4px">IA NEURAL</div>';
+      h+='<div class="nums" style="gap:4px;justify-content:center">';
+      for(var i=0;i<nNums.length;i++) h+=Ns(nNums[i],'n-pur ns');
+      h+='</div></div>';
+      // = Fusion
+      h+='<div style="color:var(--text2);font-size:12px;font-weight:700">=</div>';
+      h+='<div style="flex:1;min-width:140px;text-align:center">';
+      h+='<div style="font-size:10px;color:var(--cyan);font-weight:700;margin-bottom:4px">FUSION</div>';
+      h+='<div class="nums" style="gap:4px;justify-content:center">';
+      for(var i=0;i<superC.nums.length;i++) h+=Ns(superC.nums[i],'n-grn ns');
+      h+='</div></div>';
+      h+='</div>';
+      // Conseil Double Chance
+      h+='<div style="margin-top:10px;padding:8px 10px;background:rgba(255,171,64,.06);border:1px solid rgba(255,171,64,.2);border-radius:6px;font-size:10px;color:var(--text)">';
+      h+='<b style="color:var(--orange)">&#128161; Double Chance :</b> Si ton tirage a des numeros machine, joue en <b>Double Chance</b> — tes numeros sont compares aux gagnants ET aux numeros machine (10 cibles au lieu de 5). Tes chances doublent !';
+      h+='</div>';
+      h+='</div>';
+    }
+
+    // PAIRES
+    if(pData&&(pData.superPaire1||pData.superPaire2)){
+      h+='<div class="card"><div class="card-title">Paires du jour</div>';
+      h+='<div class="card-sub">Numeros qui sortent souvent ensemble</div>';
+      h+='<div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">';
+      if(pData.superPaire1){
+        h+='<div class="pair-chip">'+Ns(pData.superPaire1.a,'n-red ns')+'<span class="sep">+</span>'+Ns(pData.superPaire1.b,'n-red ns')+'<span class="votes">'+pData.superPaire1.votes+' fois</span></div>';
+      }
+      if(pData.superPaire2){
+        h+='<div class="pair-chip">'+Ns(pData.superPaire2.a,'n-pur ns')+'<span class="sep">+</span>'+Ns(pData.superPaire2.b,'n-pur ns')+'<span class="votes">'+pData.superPaire2.votes+' fois</span></div>';
+      }
+      h+='</div></div>';
+    }
+
+    // TIRAGES DU JOUR
+    h+='<div class="card"><div class="card-title">Tirages du '+JOURS[jour]+'</div>';
+    h+='<div class="card-sub"><span style="color:var(--green)">&#9679;</span> Classique &nbsp; <span style="color:var(--purple)">&#9679;</span> IA Neural</div>';
+    for(var i=0;i<data.parTirage.length;i++){
+      var t=data.parTirage[i];
+      if(!t.prediction)continue;
+      var sc=null,nnC=null,mainC=t.prediction.combos[0];
+      for(var j=0;j<t.prediction.combos.length;j++){
+        if(t.prediction.combos[j].isSuper||t.prediction.combos[j].confiance==='MAXIMALE'){sc=t.prediction.combos[j];mainC=sc}
+        if(t.prediction.combos[j].isNeural||t.prediction.combos[j].confiance==='IA'){nnC=t.prediction.combos[j]}
+      }
+      h+='<div style="padding:8px 0;border-bottom:1px solid var(--border)">';
+      // Ligne classique
+      h+='<div class="trow" style="border:none;padding:2px 0">';
+      h+='<span class="trow-time">'+t.heure+'</span>';
+      h+='<span class="trow-name">'+t.tirage+'</span>';
+      h+='<div class="nums" style="gap:3px;justify-content:flex-start">';
+      for(var k=0;k<mainC.nums.length;k++) h+=Ns(mainC.nums[k],sc?'n-grn ns':'n-blu ns');
+      h+='</div></div>';
+      // Ligne IA Neural
+      if(nnC){
+        h+='<div class="trow" style="border:none;padding:2px 0;padding-left:50px">';
+        h+='<span style="font-size:9px;color:var(--purple);font-weight:700;min-width:110px">IA</span>';
+        h+='<div class="nums" style="gap:3px;justify-content:flex-start">';
+        for(var k=0;k<nnC.nums.length;k++) h+=Ns(nnC.nums[k],'n-pur ns');
+        h+='</div></div>';
+      }
+      h+='</div>';
+    }
+    h+='</div>';
+
+    // AUTRES STRATEGIES
+    if(otherC.length>0){
+      h+='<div class="card" style="padding-bottom:8px">';
+      h+='<div class="collapse-btn" onclick="toggleCollapse(\'moreStrats\')">';
+      h+='<div class="card-title" style="margin:0">Autres combinaisons ('+otherC.length+')</div>';
+      h+='<span class="arrow" id="arrow-moreStrats">+</span></div>';
+      h+='<div class="collapse-content" id="moreStrats">';
+      for(var i=0;i<otherC.length;i++){
+        var c=otherC[i];
+        h+='<div class="trow"><span class="trow-name" style="color:var(--text2)">'+c.nom+'</span><div class="nums" style="gap:3px;justify-content:flex-start">';
+        for(var k=0;k<c.nums.length;k++) h+=Ns(c.nums[k],'n-blu ns');
+        h+='</div></div>';
+      }
+      h+='</div></div>';
+    }
+
+    // SAUVEGARDER
+    h+='<div style="text-align:center;margin:16px 0"><button class="btn btn-green" style="padding:12px 32px;font-size:14px" onclick="savePredictions('+jour+')">Sauvegarder mes numeros</button></div>';
+
+    el.innerHTML=h;
+    window._lastPredData=data;
+
+  }).catch(function(){el.innerHTML='<div class="card" style="color:var(--red)">Erreur de connexion</div>'});
 }
-async function savePredictions(jour){
+
+function savePredictions(jour){
   if(!window._lastPredData)return;
-  const now=new Date();const ds=now.toLocaleDateString('fr-FR');
-  const preds=[];
-  for(const t of window._lastPredData.parTirage){if(t.prediction)preds.push({date:ds,tirage:t.tirage,heure:t.heure,nums:t.prediction.combos[0].nums})}
-  const r=await fetch('/api/save-predictions',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({predictions:preds})}).then(r=>r.json());
-  if(r.success)alert(`${r.saved} predictions sauvegardees !`);
+  var now=new Date();var ds=now.toLocaleDateString('fr-FR');
+  var preds=[];
+  for(var i=0;i<window._lastPredData.parTirage.length;i++){
+    var t=window._lastPredData.parTirage[i];
+    if(t.prediction)preds.push({date:ds,tirage:t.tirage,heure:t.heure,nums:t.prediction.combos[0].nums});
+  }
+  fetch('/api/save-predictions',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({predictions:preds})}).then(function(r){return r.json()}).then(function(r){
+    if(r.success) showToast(r.saved+' predictions sauvegardees');
+  });
 }
 
-// ═══ GRILLES COUVERTURE ═══
-async function loadCouverture(jour){
-  cjc=jour;buildJourSelect('jourSelectCouv',jour,loadCouverture);
-  const el=document.getElementById('couvContent');el.innerHTML='<div class="loading"><div class="spinner"></div><br>Calcul...</div>';
-  let data;try{data=await fetch('/api/couverture/'+jour).then(r=>r.json())}catch(e){el.innerHTML='<div class="card" style="color:var(--red)">Erreur serveur</div>';return}
-  if(data.error){el.innerHTML='<div class="card">'+data.error+'</div>';return}
-  let h='';
+// ═══ PAGE: SEMAINE ═══
+function loadSemaine(){
+  var el=document.getElementById('semaineContent');
+  el.innerHTML='<div class="loading"><div class="spinner"></div></div>';
+  fetch('/api/semaine').then(function(r){return r.json()}).then(function(data){
+    if(data.error){el.innerHTML='<div class="card">'+data.error+'</div>';return}
+    var h='';
 
-  // Zones chaudes resumees
-  if(data.global&&data.global.plages){
-    const p=data.global.plages;
-    h+='<div class="card" style="border-color:var(--cyan)"><h2 style="color:var(--cyan)">Zones chaudes — '+data.jourNom+'</h2>';
-    h+='<div style="display:flex;flex-wrap:wrap;gap:10px">';
-    h+='<div style="background:var(--card2);padding:10px 14px;border-radius:8px;flex:1;min-width:140px"><div style="color:var(--text2);font-size:10px;margin-bottom:4px">DIZAINES</div>';
-    for(const d of p.dizainesTop3)h+='<span style="display:inline-block;background:rgba(0,230,118,.12);color:var(--green);padding:2px 8px;border-radius:5px;margin:1px;font-weight:700;font-size:12px">'+d+'</span>';
+    // VUE SEMAINE
+    h+='<div class="card"><div class="card-title">7 prochains jours</div>';
+    h+='<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">';
+    for(var i=0;i<data.length;i++){
+      var j=data[i];var pc=perfColor(j.perf);
+      h+='<div class="wday'+(i===0?' today':'')+'">';
+      h+='<div class="d-name">'+(i===0?"Auj.":j.jour.slice(0,3))+'</div>';
+      h+='<div class="d-date">'+j.date+'</div>';
+      h+='<div class="d-perf" style="color:'+pc+'">'+j.perf+'%</div>';
+      h+='</div>';
+    }
     h+='</div>';
-    h+='<div style="background:var(--card2);padding:10px 14px;border-radius:8px;flex:1;min-width:140px"><div style="color:var(--text2);font-size:10px;margin-bottom:4px">SOMME</div><div style="font-size:16px;font-weight:700;color:var(--orange)">'+p.sommeZone[0]+' — '+p.sommeZone[1]+'</div></div>';
-    h+='<div style="background:var(--card2);padding:10px 14px;border-radius:8px;flex:1;min-width:140px"><div style="color:var(--text2);font-size:10px;margin-bottom:4px">PAIR/IMPAIR</div><div style="font-size:16px;font-weight:700;color:var(--purple)">'+p.pairImpair+'</div></div>';
+    h+='<div class="card-sub" style="text-align:center;margin:0">Taux de reussite du bot par jour</div>';
     h+='</div>';
-    // Momentum + Overdue en ligne
-    if((p.momentumNums&&p.momentumNums.length>0)||(p.overdueNums&&p.overdueNums.length>0)){
-      h+='<div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:10px">';
-      if(p.momentumNums&&p.momentumNums.length>0){
-        h+='<div style="background:var(--card2);padding:10px 14px;border-radius:8px;flex:1"><div style="color:var(--text2);font-size:10px;margin-bottom:4px">MOMENTUM</div><div class="nums">';
-        for(const n of p.momentumNums.slice(0,8))h+=nbs(n,'num-red');
+
+    // DETAIL PAR JOUR
+    for(var i=0;i<data.length;i++){
+      var j=data[i];var isToday=i===0;var pc=perfColor(j.perf);
+      h+='<div class="card"'+(isToday?' style="border-color:var(--green)"':'')+'>';
+      h+='<div class="card-title">'+j.jour+' '+j.date;
+      h+=' <span style="font-size:11px;color:'+pc+';font-weight:700;margin-left:6px">'+j.perf+'%</span>';
+      if(isToday)h+=' <span style="font-size:9px;background:var(--green);color:#000;padding:2px 6px;border-radius:4px;margin-left:4px">AUJOURD\'HUI</span>';
+      h+='</div>';
+
+      // Tirages recommandes
+      var top=[];
+      for(var k=0;k<j.predictions.length;k++){if(j.predictions[k].isTop&&j.predictions[k].combo)top.push(j.predictions[k])}
+      if(top.length>0){
+        h+='<div style="background:rgba(0,230,118,.04);border:1px solid rgba(0,230,118,.2);border-radius:8px;padding:10px;margin-bottom:10px">';
+        h+='<div style="color:var(--green);font-size:10px;font-weight:700;margin-bottom:6px">A PRIVILEGIER</div>';
+        for(var k=0;k<top.length;k++){
+          var t=top[k];
+          h+='<div class="trow" style="border:none;padding:4px 0">';
+          h+='<span class="trow-time">'+t.heure+'</span>';
+          h+='<span class="trow-name">'+t.tirage+'</span>';
+          h+='<div class="nums" style="gap:3px;justify-content:flex-start">';
+          for(var m=0;m<t.combo.length;m++) h+=Ns(t.combo[m],'n-grn ns');
+          h+='</div></div>';
+        }
+        h+='</div>';
+      }
+
+      // Autres tirages
+      var others=[];
+      for(var k=0;k<j.predictions.length;k++){if(j.predictions[k].combo&&!j.predictions[k].isTop)others.push(j.predictions[k])}
+      if(others.length>6&&!isToday){
+        h+='<div class="collapse-btn" onclick="toggleCollapse(\'day'+i+'\')">';
+        h+='<span style="font-size:11px;color:var(--text2)">'+others.length+' autres tirages</span>';
+        h+='<span class="arrow" id="arrow-day'+i+'">+</span></div>';
+        h+='<div class="collapse-content" id="day'+i+'">';
+      }
+      for(var k=0;k<others.length;k++){
+        var t=others[k];
+        h+='<div class="trow" style="padding:5px 0">';
+        h+='<span class="trow-time">'+t.heure+'</span>';
+        h+='<span class="trow-name" style="color:var(--text2)">'+t.tirage+'</span>';
+        h+='<div class="nums" style="gap:3px;justify-content:flex-start">';
+        for(var m=0;m<t.combo.length;m++) h+=Ns(t.combo[m],'n-blu ns');
         h+='</div></div>';
       }
-      if(p.overdueNums&&p.overdueNums.length>0){
-        h+='<div style="background:var(--card2);padding:10px 14px;border-radius:8px;flex:1"><div style="color:var(--text2);font-size:10px;margin-bottom:4px">OVERDUE</div><div class="nums" style="gap:10px">';
-        for(const o of p.overdueNums.slice(0,5))h+='<div style="display:flex;align-items:center;gap:3px">'+nbs(o.num,'num-orange')+'<span style="font-size:9px;color:var(--orange)">'+o.ratio.toFixed(1)+'x</span></div>';
-        h+='</div></div>';
-      }
+      if(others.length>6&&!isToday) h+='</div>';
       h+='</div>';
     }
-    h+='</div>';
-  }
 
-  // Grilles globales
-  if(data.global&&data.global.grilles){
-    h+='<div class="card"><h2>'+data.global.grilles.length+' grilles de couverture</h2>';
-    for(const g of data.global.grilles){
-      h+='<div class="grille-line"><div class="grille-label" style="color:'+(g.confiance>=80?'var(--green)':g.confiance>=65?'var(--orange)':'var(--blue)')+'">'+g.nom+'</div><div class="nums">';
-      for(const n of g.nums)h+=nbs(n,g.confiance>=80?'num-red':g.confiance>=65?'num-orange':'num-blue');
-      h+='</div><div class="grille-conf">'+g.confiance+'%</div></div>';
-    }
-    h+='</div>';
-  }
-
-  // Par tirage — compact
-  h+='<div class="card"><h2>Par tirage</h2>';
-  for(const t of data.parTirage){
-    if(!t.couverture||!t.couverture.grilles)continue;
-    h+='<div style="margin-bottom:14px"><div style="display:flex;align-items:center;gap:6px;margin-bottom:6px"><span class="tirage-heure">'+t.heure+'</span>'+typeTag(t.type)+'<span style="font-weight:600;font-size:13px">'+t.tirage+'</span></div>';
-    for(const g of t.couverture.grilles.slice(0,3)){
-      h+='<div style="display:flex;align-items:center;gap:6px;padding:3px 0"><span style="min-width:130px;font-size:11px;color:var(--text2)">'+g.nom+'</span><div class="nums">';
-      for(const n of g.nums)h+=nbs(n,g.confiance>=80?'num-red':g.confiance>=65?'num-orange':'num-blue');
-      h+='</div><span style="font-size:9px;color:var(--text2);margin-left:auto">'+g.confiance+'%</span></div>';
-    }
-    h+='</div>';
-  }
-  h+='</div>';
-  el.innerHTML=h;
+    el.innerHTML=h;
+  }).catch(function(){el.innerHTML='<div class="card" style="color:var(--red)">Erreur serveur</div>'});
 }
 
-// ═══ SEMAINE ═══
-async function loadSemaine(){
-  const el=document.getElementById('semaineContent');
-  el.innerHTML='<div class="loading"><div class="spinner"></div><br>Calcul semaine...</div>';
-  let data;
-  try{data=await fetch('/api/semaine').then(r=>r.json())}catch(e){el.innerHTML='<div class="card" style="color:var(--red)">Erreur serveur</div>';return}
-  if(data.error){el.innerHTML=`<div class="card">${data.error}</div>`;return}
+// ═══ PAGE: SUIVI ═══
+function loadSuivi(){
+  var el=document.getElementById('suiviContent');
+  el.innerHTML='<div class="loading"><div class="spinner"></div></div>';
 
-  let h='';
+  Promise.all([
+    fetch('/api/historique').then(function(r){return r.json()}),
+    fetch('/api/performance').then(function(r){return r.json()}).catch(function(){return null})
+  ]).then(function(results){
+    var hist=results[0],perf=results[1];
+    var h='';
+    var pctExact=hist.stats.totalPredictions>0?(hist.stats.totalExacts/hist.stats.totalPredictions*100).toFixed(1):'0';
+    var hasard='5.6';
 
-  // Resume de la semaine
-  h+='<div class="card" style="border-color:var(--green)"><h2 style="color:var(--green)">7 prochains jours</h2>';
-  h+='<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">';
-  for(const j of data){
-    const perfColor=j.perf>=6.5?'var(--green)':j.perf>=5.5?'var(--orange)':'var(--red)';
-    const isToday=data.indexOf(j)===0;
-    h+='<div style="background:var(--card2);padding:10px 14px;border-radius:8px;text-align:center;min-width:110px;flex:1;'+(isToday?'border:2px solid var(--green)':'')+'">';
-    h+='<div style="font-size:11px;color:var(--text2)">'+(isToday?'AUJOURD\'HUI':j.jour)+'</div>';
-    h+='<div style="font-size:16px;font-weight:700">'+j.date+'</div>';
-    h+='<div style="font-size:13px;font-weight:800;color:'+perfColor+'">'+j.perf+'%</div>';
-    h+='<div style="font-size:9px;color:var(--text2)">perf. bot</div>';
-    h+='</div>';
-  }
-  h+='</div></div>';
+    // STATS PRINCIPALES
+    h+='<div class="card"><div class="card-title">Resultats du bot</div>';
+    h+='<div style="display:flex;flex-wrap:wrap;gap:8px">';
+    h+='<div class="stat-box"><div class="val" style="color:var(--green)">'+pctExact+'%</div><div class="lbl">Taux de reussite</div></div>';
+    h+='<div class="stat-box"><div class="val" style="color:var(--text2)">'+hasard+'%</div><div class="lbl">Hasard (base)</div></div>';
+    h+='<div class="stat-box"><div class="val" style="color:var(--green)">'+hist.stats.totalExacts+'</div><div class="lbl">Numeros trouves</div></div>';
+    h+='<div class="stat-box"><div class="val">'+hist.stats.totalComparisons+'</div><div class="lbl">Tirages compares</div></div>';
+    h+='</div></div>';
 
-  // Detail par jour
-  for(const j of data){
-    const isToday=data.indexOf(j)===0;
-    const perfColor=j.perf>=6.5?'var(--green)':j.perf>=5.5?'var(--orange)':'var(--red)';
-
-    h+='<div class="card" style="'+(isToday?'border-color:var(--green)':'')+'"><h2>';
-    h+=j.jour+' '+j.date;
-    h+=' <span style="font-size:12px;color:'+perfColor+';margin-left:8px">'+j.perf+'% perf</span>';
-    if(isToday) h+=' <span style="font-size:10px;background:var(--green);color:#000;padding:2px 6px;border-radius:4px;margin-left:6px">AUJOURD\'HUI</span>';
-    h+='</h2>';
-
-    // Tirages recommandes en premier
-    const top=j.predictions.filter(t=>t.isTop&&t.combo);
-    if(top.length>0){
-      h+='<div style="background:linear-gradient(135deg,#1a2a1a,#0d1f0d);border:1px solid #2d5a2d;border-radius:8px;padding:12px;margin-bottom:12px">';
-      h+='<div style="color:var(--green);font-size:11px;font-weight:700;margin-bottom:8px">TIRAGES RECOMMANDES</div>';
-      for(const t of top){
-        h+='<div style="display:flex;align-items:center;gap:6px;padding:4px 0">';
-        h+='<span class="tirage-heure">'+t.heure+'</span>';
-        h+='<span style="font-weight:600;font-size:12px;min-width:120px">'+t.tirage+'</span>';
-        h+='<div class="nums">';
-        for(const n of t.combo) h+=nbs(n,'num-green');
+    // PAR CATEGORIE
+    if(perf&&perf.byCategory&&perf.byCategory.length>0){
+      var catNoms={digital:'Digital',matin:'Matin',midi:'Midi',aprem:'Apres-midi',soir:'Soir',afterwork:'Afterwork',weekend:'Weekend'};
+      h+='<div class="card"><div class="card-title">Par type de tirage</div>';
+      h+='<div class="card-sub">Ou le bot performe le mieux</div>';
+      h+='<div style="display:flex;gap:6px;flex-wrap:wrap">';
+      for(var i=0;i<perf.byCategory.length;i++){
+        var c=perf.byCategory[i];
+        var lf=parseFloat(c.lift);
+        var lc=lf>=1.15?'var(--green)':lf>=1.05?'var(--orange)':'var(--red)';
+        var bg=lf>=1.15?'rgba(0,230,118,.08)':lf>=1.05?'rgba(255,171,64,.08)':'rgba(255,82,82,.08)';
+        var pctVsH=((lf-1)*100).toFixed(0);
+        h+='<div class="cat-chip" style="background:'+bg+';border:1px solid '+lc+'">';
+        h+='<div class="cat-name" style="color:'+lc+'">'+(catNoms[c.category]||c.category)+'</div>';
+        h+='<div class="cat-val" style="color:'+lc+'">'+(parseInt(pctVsH)>=0?'+':'')+pctVsH+'%</div>';
+        h+='<div class="cat-sub">'+c.hits+' trouves</div>';
         h+='</div>';
-        if(t.paire1){h+='<div style="margin-left:4px;display:flex;gap:2px;align-items:center"><span style="color:var(--text2);font-size:9px">P:</span>'+nbs(t.paire1.a,'num-orange')+nbs(t.paire1.b,'num-orange')+'</div>'}
-        h+='</div>';
-        // Combos alternatifs
-        if(t.combos&&t.combos.length>1){
-          for(const co of t.combos.slice(1,3)){
-            h+='<div style="display:flex;align-items:center;gap:6px;padding:2px 0;padding-left:44px">';
-            h+='<span style="font-size:10px;color:var(--text2);min-width:120px">'+co.nom+'</span>';
-            h+='<div class="nums">';
-            for(const n of co.nums) h+=nbs(n,'num-blue');
-            h+='</div>';
-            h+='</div>';
-          }
-        }
       }
-      h+='</div>';
+      h+='</div></div>';
     }
 
-    // Tous les tirages
-    h+='<div style="margin-top:8px">';
-    for(const t of j.predictions){
-      const isFav=t.isTop;
-      h+='<div class="semaine-tirage" style="'+(isFav?'background:rgba(0,230,118,.04);border-radius:4px;padding:3px 6px':'')+'">';
-      h+='<div class="heure">'+t.heure+'</div>';
-      h+='<div class="name" style="'+(isFav?'color:var(--green)':'')+'">'+t.tirage+(isFav?' *':'')+'</div>';
-      if(t.combo){
-        h+='<div class="nums">';
-        for(const n of t.combo) h+=nbs(n,isFav?'num-green':'num-blue');
-        h+='</div>';
-        if(t.paire1){h+='<div style="margin-left:4px;display:flex;gap:2px;align-items:center"><span style="color:var(--text2);font-size:9px">P:</span>'+nbs(t.paire1.a,'num-orange')+nbs(t.paire1.b,'num-orange')+'</div>'}
-      }else h+='<span style="color:var(--text2);font-size:10px">—</span>';
-      h+='</div>';
-    }
-    h+='</div>';
-    h+='</div>';
-  }
-
-  h+='<div style="text-align:center;margin:10px 0;color:var(--text2);font-size:10px"><b style="color:var(--green)">Vert</b> = tirages recommandes (meilleur taux backtest) | <b style="color:var(--blue)">Bleu</b> = standard | <b style="color:var(--orange)">Orange</b> = paires</div>';
-  el.innerHTML=h;
-}
-
-// ═══ PERFORMANCE ═══
-async function loadAnalyse(){
-  const el=document.getElementById('analyseContent');el.innerHTML='<div class="loading"><div class="spinner"></div><br>Chargement...</div>';
-  const data=await fetch('/api/historique').then(r=>r.json());
-  let h='';
-  const pctExact=data.stats.totalPredictions>0?(data.stats.totalExacts/data.stats.totalPredictions*100).toFixed(1):0;
-  const pctProche=data.stats.totalPredictions>0?((data.stats.totalExacts+data.stats.totalProches)/data.stats.totalPredictions*100).toFixed(1):0;
-
-  // Stats compactes
-  h+='<div class="card"><h2>Performance</h2>';
-  h+='<div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px">';
-  h+='<div style="background:var(--card2);padding:14px;border-radius:8px;text-align:center;flex:1;min-width:100px"><div style="font-size:28px;font-weight:800;color:var(--green)">'+pctExact+'%</div><div style="font-size:10px;color:var(--text2)">Taux exact</div></div>';
-  h+='<div style="background:var(--card2);padding:14px;border-radius:8px;text-align:center;flex:1;min-width:100px"><div style="font-size:28px;font-weight:800;color:var(--cyan)">'+pctProche+'%</div><div style="font-size:10px;color:var(--text2)">Exacts + proches</div></div>';
-  h+='<div style="background:var(--card2);padding:14px;border-radius:8px;text-align:center;flex:1;min-width:80px"><div style="font-size:22px;font-weight:700;color:var(--green)">'+data.stats.totalExacts+'</div><div style="font-size:10px;color:var(--text2)">Gagnants</div></div>';
-  h+='<div style="background:var(--card2);padding:14px;border-radius:8px;text-align:center;flex:1;min-width:80px"><div style="font-size:22px;font-weight:700;color:#00acc1">'+(data.stats.totalMachineExacts||0)+'</div><div style="font-size:10px;color:var(--text2)">Machine</div></div>';
-  h+='<div style="background:var(--card2);padding:14px;border-radius:8px;text-align:center;flex:1;min-width:80px"><div style="font-size:22px;font-weight:700;color:var(--cyan)">'+data.stats.totalProches+'</div><div style="font-size:10px;color:var(--text2)">Proches</div></div>';
-  h+='<div style="background:var(--card2);padding:14px;border-radius:8px;text-align:center;flex:1;min-width:80px"><div style="font-size:22px;font-weight:700">'+data.stats.totalComparisons+'</div><div style="font-size:10px;color:var(--text2)">Compares</div></div>';
-  h+='</div>';
-
-  // Placeholder pour tracking IA vs Classique (rempli apres fetch /api/performance)
-  h+='<div id="iaVsClassicSlot"></div>';
-
-  // Graphique + filtres par categorie
-  try{
-    const perf=await fetch('/api/performance').then(r=>r.json());
-    if(!perf.error){
-      const eR=perf.eRandom||0.278;
-
-      // ═══ TRACKING IA vs CLASSIQUE ═══
-      if(perf.vsIA&&perf.vsIA.nnTotal>0){
-        const v=perf.vsIA;
-        let ih='<div class="card" style="border-color:var(--purple)"><h2 style="color:var(--purple)">Classique vs IA Neural</h2>';
-        // Tableau comparatif
-        ih+='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">';
-        // Classique
-        ih+='<div style="flex:1;min-width:140px;background:linear-gradient(135deg,rgba(0,230,118,.06),rgba(0,200,83,.02));border:1px solid rgba(0,230,118,.3);border-radius:8px;padding:12px;text-align:center">';
-        ih+='<div style="font-size:11px;font-weight:700;color:var(--green);margin-bottom:6px">CLASSIQUE</div>';
-        ih+='<div style="font-size:24px;font-weight:800;color:var(--green)">x'+perf.lift+'</div>';
-        ih+='<div style="font-size:10px;color:var(--text2)">moy: '+perf.avgHits.toFixed(3)+' / pred</div>';
-        ih+='<div style="font-size:10px;color:var(--text2)">'+perf.totalHits+' exacts / '+perf.total+'</div>';
-        ih+='</div>';
-        // VS
-        ih+='<div style="display:flex;flex-direction:column;justify-content:center;align-items:center;min-width:60px">';
-        ih+='<div style="font-size:18px;font-weight:800;color:var(--text2)">VS</div>';
-        const winner=v.classicWins>v.nnWins?'CLASSIQUE':v.nnWins>v.classicWins?'IA':'EGAL';
-        const winCol=winner==='CLASSIQUE'?'var(--green)':winner==='IA'?'var(--purple)':'var(--text2)';
-        ih+='<div style="font-size:9px;color:'+winCol+';font-weight:700;margin-top:4px">'+winner+'</div>';
-        ih+='</div>';
-        // IA
-        ih+='<div style="flex:1;min-width:140px;background:linear-gradient(135deg,rgba(156,39,176,.06),rgba(224,64,251,.02));border:1px solid rgba(224,64,251,.3);border-radius:8px;padding:12px;text-align:center">';
-        ih+='<div style="font-size:11px;font-weight:700;color:var(--purple);margin-bottom:6px">IA NEURAL</div>';
-        ih+='<div style="font-size:24px;font-weight:800;color:var(--purple)">x'+v.nnLift+'</div>';
-        ih+='<div style="font-size:10px;color:var(--text2)">moy: '+v.nnAvg.toFixed(3)+' / pred</div>';
-        ih+='<div style="font-size:10px;color:var(--text2)">'+v.nnHits+' exacts / '+v.nnTotal+'</div>';
-        ih+='</div>';
-        ih+='</div>';
-        // Head-to-head bar
-        const totalDuels=v.classicWins+v.nnWins+v.ties;
-        if(totalDuels>0){
-          const cPct=(v.classicWins/totalDuels*100).toFixed(0);
-          const nPct=(v.nnWins/totalDuels*100).toFixed(0);
-          const tPct=(v.ties/totalDuels*100).toFixed(0);
-          ih+='<div style="margin-bottom:10px"><div style="font-size:10px;color:var(--text2);margin-bottom:4px">Duels directs ('+totalDuels+' tirages)</div>';
-          ih+='<div style="display:flex;height:24px;border-radius:6px;overflow:hidden;font-size:10px;font-weight:700">';
-          if(v.classicWins>0)ih+='<div style="width:'+cPct+'%;background:var(--green);color:#000;display:flex;align-items:center;justify-content:center">'+v.classicWins+'</div>';
-          if(v.ties>0)ih+='<div style="width:'+tPct+'%;background:var(--card2);color:var(--text2);display:flex;align-items:center;justify-content:center">'+v.ties+'</div>';
-          if(v.nnWins>0)ih+='<div style="width:'+nPct+'%;background:var(--purple);color:#fff;display:flex;align-items:center;justify-content:center">'+v.nnWins+'</div>';
-          ih+='</div>';
-          ih+='<div style="display:flex;justify-content:space-between;font-size:9px;color:var(--text2);margin-top:2px"><span>Classique: '+cPct+'%</span><span>Egal: '+tPct+'%</span><span>IA: '+nPct+'%</span></div>';
-          ih+='</div>';
-        }
-        // Double courbe si assez de data
-        if(perf.byWeek&&perf.byWeek.length>1&&v.nnByWeek&&v.nnByWeek.length>1){
-          const allWeeks=[...new Set([...perf.byWeek.map(w=>w.week),...v.nnByWeek.map(w=>w.week)])].sort().slice(-12);
-          const cMap=Object.fromEntries(perf.byWeek.map(w=>[w.week,w.avg]));
-          const nMap=Object.fromEntries(v.nnByWeek.map(w=>[w.week,w.avg]));
-          const maxA=Math.max(...allWeeks.map(w=>Math.max(cMap[w]||0,nMap[w]||0)),eR*1.5);
-          const minA=0;const range=maxA-minA||0.1;
-          const W=600,H=180,pL=40,pR=10,pT=15,pB=25;
-          const cW=W-pL-pR,cH=H-pT-pB;
-          const cPts=[],nPts=[];
-          for(let i=0;i<allWeeks.length;i++){
-            const x=pL+i*(cW/(allWeeks.length-1||1));
-            if(cMap[allWeeks[i]]!==undefined)cPts.push({x,y:pT+cH-(cMap[allWeeks[i]]-minA)/range*cH,v:cMap[allWeeks[i]]});
-            if(nMap[allWeeks[i]]!==undefined)nPts.push({x,y:pT+cH-(nMap[allWeeks[i]]-minA)/range*cH,v:nMap[allWeeks[i]]});
-          }
-          const refY=pT+cH-(eR-minA)/range*cH;
-          ih+='<div style="font-size:11px;color:var(--text2);margin-bottom:4px">Evolution hebdomadaire</div>';
-          ih+='<div style="overflow-x:auto"><svg viewBox="0 0 '+W+' '+H+'" style="width:100%;max-width:600px;height:auto">';
-          // Grille
-          for(let i=0;i<=3;i++){const gy=pT+i*cH/3;ih+='<line x1="'+pL+'" y1="'+gy+'" x2="'+(W-pR)+'" y2="'+gy+'" stroke="#2d3140" stroke-width="0.5"/>'}
-          // Ref hasard
-          if(refY>=pT&&refY<=pT+cH)ih+='<line x1="'+pL+'" y1="'+refY+'" x2="'+(W-pR)+'" y2="'+refY+'" stroke="#ff5252" stroke-width="0.8" stroke-dasharray="3,3"/>';
-          // Ligne classique (vert)
-          if(cPts.length>1){ih+='<polyline points="'+cPts.map(p=>p.x+','+p.y).join(' ')+'" fill="none" stroke="#00e676" stroke-width="2.5" stroke-linejoin="round"/>';for(const p of cPts)ih+='<circle cx="'+p.x+'" cy="'+p.y+'" r="3" fill="#00e676" stroke="#0f1117" stroke-width="1"/>'}
-          // Ligne IA (violet)
-          if(nPts.length>1){ih+='<polyline points="'+nPts.map(p=>p.x+','+p.y).join(' ')+'" fill="none" stroke="#e040fb" stroke-width="2.5" stroke-linejoin="round" stroke-dasharray="6,3"/>';for(const p of nPts)ih+='<circle cx="'+p.x+'" cy="'+p.y+'" r="3" fill="#e040fb" stroke="#0f1117" stroke-width="1"/>'}
-          // Labels X
-          for(let i=0;i<allWeeks.length;i++){const x=pL+i*(cW/(allWeeks.length-1||1));ih+='<text x="'+x+'" y="'+(H-4)+'" fill="#9aa0a6" font-size="7" text-anchor="middle">'+allWeeks[i].slice(5)+'</text>'}
-          ih+='</svg></div>';
-          ih+='<div style="display:flex;gap:14px;font-size:9px;color:var(--text2);margin-top:4px">';
-          ih+='<span><span style="color:#00e676">━━</span> Classique</span>';
-          ih+='<span><span style="color:#e040fb">╌╌</span> IA Neural</span>';
-          ih+='<span><span style="color:#ff5252">---</span> Hasard</span>';
-          ih+='</div>';
-        }
-        ih+='</div>';
-        document.getElementById('iaVsClassicSlot').innerHTML=ih;
+    // GRAPHIQUE HEBDO
+    if(perf&&perf.byWeek&&perf.byWeek.length>1){
+      var eR=perf.eRandom||0.278;
+      var weeks=perf.byWeek.slice(-12);
+      var maxAvg=0,minAvg=999;
+      for(var i=0;i<weeks.length;i++){if(weeks[i].avg>maxAvg)maxAvg=weeks[i].avg;if(weeks[i].avg<minAvg)minAvg=weeks[i].avg}
+      maxAvg=Math.max(maxAvg,eR*1.5);minAvg=Math.min(minAvg,0);
+      var range=maxAvg-minAvg||0.1;
+      var W=600,H=180,pL=38,pR=8,pT=16,pB=24;
+      var cW=W-pL-pR,cH=H-pT-pB;
+      var pts=[];
+      for(var i=0;i<weeks.length;i++){
+        pts.push({x:pL+i*(cW/(weeks.length-1||1)),y:pT+cH-(weeks[i].avg-minAvg)/range*cH,avg:weeks[i].avg,dt:weeks[i].week.slice(5)});
       }
+      var refY=pT+cH-(eR-minAvg)/range*cH;
 
-      // Filtres par categorie
-      if(perf.byCategory&&perf.byCategory.length>0){
-        const catNoms={digital:'Digital',matin:'Matin',midi:'Midi',aprem:'Apres-midi',soir:'Soir',afterwork:'Afterwork',weekend:'Weekend',global:'Autre'};
-        h+='<div class="card"><h2>Performance par categorie</h2>';
-        h+='<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">';
-        for(const c of perf.byCategory){
-          const lc=c.lift>=1.2?'var(--green)':c.lift>=1.0?'var(--orange)':'var(--red)';
-          const bg=c.lift>=1.2?'rgba(0,230,118,.12)':c.lift>=1.0?'rgba(255,171,64,.12)':'rgba(255,82,82,.12)';
-          h+='<div style="background:'+bg+';border:1px solid '+lc+';border-radius:8px;padding:10px 14px;text-align:center;min-width:80px;flex:1">';
-          h+='<div style="font-size:11px;font-weight:700;color:'+lc+';text-transform:uppercase">'+(catNoms[c.category]||c.category)+'</div>';
-          h+='<div style="font-size:20px;font-weight:800;color:'+lc+'">x'+c.lift+'</div>';
-          h+='<div style="font-size:9px;color:var(--text2)">'+c.hits+'/'+c.total+' exacts</div>';
-          h+='<div style="font-size:9px;color:var(--text2)">moy: '+c.avg.toFixed(3)+'</div>';
+      h+='<div class="card"><div class="card-title">Evolution semaine par semaine</div>';
+      h+='<div class="chart-wrap"><svg viewBox="0 0 '+W+' '+H+'" style="width:100%;max-width:600px;height:auto">';
+      for(var i=0;i<=3;i++){var gy=pT+i*cH/3;h+='<line x1="'+pL+'" y1="'+gy+'" x2="'+(W-pR)+'" y2="'+gy+'" stroke="#2d3140" stroke-width="0.5"/>'}
+      if(refY>=pT&&refY<=pT+cH) h+='<line x1="'+pL+'" y1="'+refY+'" x2="'+(W-pR)+'" y2="'+refY+'" stroke="#ff5252" stroke-width="0.8" stroke-dasharray="4,3"/>';
+      var area='M'+pts[0].x+','+pts[0].y;for(var i=1;i<pts.length;i++)area+=' L'+pts[i].x+','+pts[i].y;
+      area+=' L'+pts[pts.length-1].x+','+(pT+cH)+' L'+pts[0].x+','+(pT+cH)+' Z';
+      h+='<path d="'+area+'" fill="url(#grd)" opacity="0.3"/>';
+      h+='<defs><linearGradient id="grd" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#00e676"/><stop offset="100%" stop-color="#00e676" stop-opacity="0"/></linearGradient></defs>';
+      h+='<polyline points="'+pts.map(function(p){return p.x+','+p.y}).join(' ')+'" fill="none" stroke="#00e676" stroke-width="2.5" stroke-linejoin="round"/>';
+      for(var i=0;i<pts.length;i++){
+        var col=pts[i].avg>=eR*1.15?'#00e676':pts[i].avg>=eR?'#ffab40':'#ff5252';
+        h+='<circle cx="'+pts[i].x+'" cy="'+pts[i].y+'" r="3.5" fill="'+col+'" stroke="#0f1117" stroke-width="1.5"/>';
+        h+='<text x="'+pts[i].x+'" y="'+(pT+cH+14)+'" fill="#9aa0a6" font-size="7" text-anchor="middle">'+pts[i].dt+'</text>';
+      }
+      h+='</svg></div>';
+      h+='<div style="display:flex;justify-content:space-between;font-size:9px;color:var(--text2);margin-top:4px">';
+      h+='<span><span style="color:#ff5252">---</span> Hasard: '+hasard+'%</span>';
+      h+='<span><span style="color:#00e676">&#9679;</span> Bot: '+(perf.avgHits*100/5).toFixed(1)+'%</span>';
+      h+='</div></div>';
+    }
+
+    // COMPARAISONS RECENTES (5 derniers jours, detail complet)
+    if(hist.allAnalyses&&hist.allAnalyses.length>0){
+      var recentDays=hist.allAnalyses.slice(-5).reverse();
+      h+='<div class="card"><div class="card-title">Derniers resultats</div>';
+      h+='<div class="card-sub"><span style="color:var(--green)">&#9679;</span> Gagnant <span style="color:var(--orange)">&#9679;</span> Machine <span style="color:var(--yellow)">&#9679;</span> Proche <span style="color:var(--text2)">&#9679;</span> Manque <span style="color:var(--purple)">&#9679;</span> IA</div>';
+      for(var di=0;di<recentDays.length;di++){
+        var a=recentDays[di];
+        h+='<div style="margin-bottom:10px">';
+        h+='<div style="font-weight:700;font-size:12px;color:var(--cyan);margin-bottom:6px;padding:4px 0;border-bottom:2px solid var(--border)">'+a.date+'</div>';
+        for(var ci=0;ci<a.comparaisons.length;ci++){
+          var c=a.comparaisons[ci];
+          if(!c.comp)continue;
+          var mach=c.machine||[];
+          h+='<div class="cmp-block">';
+          h+='<div class="cmp-header"><span class="tirage" style="color:var(--text);font-weight:600">'+c.tirage+'</span></div>';
+          // Classique
+          h+='<div class="cmp-row"><span class="lbl">Predit</span><div class="nums" style="gap:3px;justify-content:flex-start">';
+          for(var ni=0;ni<c.prediction.length;ni++){
+            var n=c.prediction[ni];
+            var isExact=c.resultat.indexOf(n)>=0;
+            var isMachine=!isExact&&mach.indexOf(n)>=0;
+            var isClose=false;
+            if(!isExact&&!isMachine){for(var ri=0;ri<c.resultat.length;ri++){if(Math.abs(c.resultat[ri]-n)<=2){isClose=true;break}}}
+            h+=Ns(n,isExact?'n-hit ns':isMachine?'n-ora ns':isClose?'n-close ns':'n-miss ns');
+          }
+          h+='</div><div class="cmp-result"><span class="g">'+c.comp.nbExacts+'g</span>';
+          if((c.comp.nbMachineExacts||0)>0) h+='<span style="color:var(--cyan)"> +'+c.comp.nbMachineExacts+'m</span>';
+          if(c.comp.proches.length>0) h+='<span class="p"> +'+c.comp.proches.length+'p</span>';
+          h+='</div></div>';
+          // IA
+          if(c.neuralPrediction&&c.neuralComp){
+            h+='<div class="cmp-row"><span class="lbl" style="color:var(--purple)">IA</span><div class="nums" style="gap:3px;justify-content:flex-start">';
+            for(var ni=0;ni<c.neuralPrediction.length;ni++){
+              var n=c.neuralPrediction[ni];
+              var isExact=c.resultat.indexOf(n)>=0;
+              var isMachine=!isExact&&mach.indexOf(n)>=0;
+              var isClose=false;
+              if(!isExact&&!isMachine){for(var ri=0;ri<c.resultat.length;ri++){if(Math.abs(c.resultat[ri]-n)<=2){isClose=true;break}}}
+              h+=Ns(n,isExact?'n-hit ns':isMachine?'n-ora ns':isClose?'n-close ns':'n-miss ns');
+            }
+            h+='</div><div class="cmp-result"><span class="g">'+c.neuralComp.nbExacts+'g</span>';
+            if((c.neuralComp.nbMachineExacts||0)>0) h+='<span style="color:var(--cyan)"> +'+c.neuralComp.nbMachineExacts+'m</span>';
+            if(c.neuralComp.proches.length>0) h+='<span class="p"> +'+c.neuralComp.proches.length+'p</span>';
+            h+='</div></div>';
+          }
+          // Resultat
+          h+='<div class="cmp-row"><span class="lbl">Sorti</span><div class="nums" style="gap:3px;justify-content:flex-start">';
+          for(var ni=0;ni<c.resultat.length;ni++) h+=Ns(c.resultat[ni],'n-grn ns');
+          if(mach.length>0){
+            h+='<span style="color:var(--text2);font-size:9px;margin:0 3px">|</span>';
+            for(var ni=0;ni<mach.length;ni++) h+=Ns(mach[ni],'n-ora ns');
+          }
+          h+='</div></div>';
           h+='</div>';
         }
-        h+='</div></div>';
-      }
-
-      // Graphique ligne evolution hebdomadaire
-      if(perf.byWeek&&perf.byWeek.length>1){
-        const weeks=perf.byWeek.slice(-12);
-        const maxAvg=Math.max(...weeks.map(w=>w.avg),eR*1.5);
-        const minAvg=Math.min(...weeks.map(w=>w.avg),0);
-        const range=maxAvg-minAvg||0.1;
-        const W=600,H=200,padL=40,padR=10,padT=20,padB=30;
-        const cW=W-padL-padR,cH=H-padT-padB;
-        const pts=weeks.map((w,i)=>({x:padL+i*(cW/(weeks.length-1||1)),y:padT+cH-(w.avg-minAvg)/range*cH,avg:w.avg,dt:w.week.slice(5)}));
-        const refY=padT+cH-(eR-minAvg)/range*cH;
-        h+='<div class="card"><h2>Evolution hebdomadaire</h2>';
-        h+='<div style="overflow-x:auto"><svg viewBox="0 0 '+W+' '+H+'" style="width:100%;max-width:600px;height:auto">';
-        // Grille horizontale
-        for(let i=0;i<=4;i++){const gy=padT+i*cH/4;const val=(maxAvg-i*range/4).toFixed(2);h+='<line x1="'+padL+'" y1="'+gy+'" x2="'+(W-padR)+'" y2="'+gy+'" stroke="#2d3140" stroke-width="0.5"/>';h+='<text x="'+(padL-4)+'" y="'+(gy+3)+'" fill="#9aa0a6" font-size="8" text-anchor="end">'+val+'</text>'}
-        // Ligne hasard
-        if(refY>=padT&&refY<=padT+cH){h+='<line x1="'+padL+'" y1="'+refY+'" x2="'+(W-padR)+'" y2="'+refY+'" stroke="#ff5252" stroke-width="1" stroke-dasharray="4,3"/>';h+='<text x="'+(W-padR+2)+'" y="'+(refY+3)+'" fill="#ff5252" font-size="7">hasard</text>'}
-        // Zone sous la courbe
-        let area='M'+pts[0].x+','+pts[0].y;for(let i=1;i<pts.length;i++)area+=' L'+pts[i].x+','+pts[i].y;area+=' L'+pts[pts.length-1].x+','+(padT+cH)+' L'+pts[0].x+','+(padT+cH)+' Z';
-        h+='<path d="'+area+'" fill="url(#grad)" opacity="0.3"/>';
-        h+='<defs><linearGradient id="grad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#00e676"/><stop offset="100%" stop-color="#00e676" stop-opacity="0"/></linearGradient></defs>';
-        // Ligne principale
-        let line='M'+pts[0].x+','+pts[0].y;for(let i=1;i<pts.length;i++)line+=' L'+pts[i].x+','+pts[i].y;
-        h+='<polyline points="'+pts.map(p=>p.x+','+p.y).join(' ')+'" fill="none" stroke="#00e676" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>';
-        // Points + labels
-        for(const p of pts){const col=p.avg>=eR*1.2?'#00e676':p.avg>=eR?'#ffab40':'#ff5252';h+='<circle cx="'+p.x+'" cy="'+p.y+'" r="4" fill="'+col+'" stroke="#0f1117" stroke-width="1.5"/>';h+='<text x="'+p.x+'" y="'+(padT+cH+14)+'" fill="#9aa0a6" font-size="7" text-anchor="middle">'+p.dt+'</text>';h+='<text x="'+p.x+'" y="'+(p.y-8)+'" fill="#e8eaed" font-size="7" text-anchor="middle" font-weight="700">'+p.avg.toFixed(2)+'</text>'}
-        h+='</svg></div>';
-        h+='<div style="display:flex;justify-content:space-between;font-size:9px;color:var(--text2);margin-top:6px">';
-        h+='<span><span style="color:#ff5252">---</span> Hasard: '+eR.toFixed(3)+'</span>';
-        h+='<span><span style="color:#00e676">&#9679;</span> Bot: moy '+perf.avgHits.toFixed(3)+' | Lift x'+perf.lift+'</span>';
-        h+='</div>';
-        h+='</div>';
-      }
-
-      // Classement par tirage avec filtre categorie
-      if(perf.byType&&perf.byType.length>0){
-        const cats=[...new Set(perf.byType.map(t=>t.category))];
-        const catNoms2={digital:'Digital',matin:'Matin',midi:'Midi',aprem:'Aprem',soir:'Soir',afterwork:'After.',weekend:'Week.'};
-        h+='<div class="card"><h2>Classement par tirage</h2>';
-        h+='<div style="display:flex;gap:3px;flex-wrap:wrap;margin-bottom:10px">';
-        h+='<button class="jour-btn active" onclick="filterTiragePerf(this,\'all\')">Tous</button>';
-        for(const c of cats) h+='<button class="jour-btn" onclick="filterTiragePerf(this,\''+c+'\')">'+(catNoms2[c]||c)+'</button>';
-        h+='</div>';
-        h+='<table><thead><tr><th style="text-align:left">Tirage</th><th>Cat.</th><th>Comp.</th><th>Exacts</th><th>Moy.</th><th>Lift</th></tr></thead><tbody id="tirageRows">';
-        for(const t of perf.byType){
-          const lc=t.lift>=1.2?'var(--green)':t.lift>=1.0?'var(--orange)':'var(--red)';
-          h+='<tr data-cat="'+t.category+'"><td style="text-align:left;font-weight:600;font-size:11px">'+t.tirage+'</td>';
-          h+='<td><span class="tag" style="background:rgba(68,138,255,.1);color:var(--blue)">'+t.category+'</span></td>';
-          h+='<td>'+t.total+'</td>';
-          h+='<td style="color:var(--green);font-weight:700">'+t.hits+'</td>';
-          h+='<td style="font-weight:700">'+t.avg.toFixed(3)+'</td>';
-          h+='<td style="color:'+lc+';font-weight:700">x'+t.lift+'</td></tr>';
-        }
-        h+='</tbody></table></div>';
-      }
-    }
-  }catch(e){}
-
-  // Apprentissage v4
-  h+='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">';
-  if(data.learning) h+='<span class="learn-badge">APPRENTISSAGE ACTIF — '+data.learning.totalCompared+' comparaisons</span>';
-  if(data.autoSavedCount) h+='<span class="learn-badge" style="background:rgba(0,230,118,.15);color:var(--green)">'+data.autoSavedCount+' predictions auto-sauvegardees</span>';
-  if(data.lastBacktest) h+='<span class="learn-badge" style="background:rgba(68,138,255,.15);color:var(--blue)">Backtest: '+new Date(data.lastBacktest).toLocaleDateString("fr")+'</span>';
-  h+='</div>';
-
-  // Poids v4 en temps reel
-  if(data.v4Weights){
-    h+='<div style="margin-bottom:12px;font-size:12px;color:var(--text2)">Poids appris par le bot (ajustes a chaque comparaison) :</div>';
-    h+='<table><thead><tr><th>Critere</th><th>Poids</th><th>Barre</th></tr></thead><tbody>';
-    const noms={markov2:'Markov',jourAffinity:'Jour',freqGlob:'Freq. globale',paires:'Paires',terminaisons:'Terminaisons',conditionnel:'Conditionnel',momentum:'Momentum',freqRecent:'Freq. recente',retard:'Retard',cycleOverdue:'Cycles',antiRepet:'Anti-repet.'};
-    const sorted=Object.entries(data.v4Weights).sort((a,b)=>b[1]-a[1]);
-    const maxW=sorted[0]?sorted[0][1]:1;
-    for(const [k,v] of sorted){
-      const pct=(v/maxW*100).toFixed(0);
-      const color=v>=15?'var(--green)':v>=10?'var(--orange)':v>=5?'var(--blue)':'var(--text2)';
-      h+=`<tr><td style="text-align:left;font-weight:600">${noms[k]||k}</td><td style="font-weight:700;color:${color}">${typeof v==='number'?v.toFixed(1):v}</td><td><div class="freq-bar" style="min-width:120px"><div class="freq-bar-fill" style="width:${pct}%;background:${color}"></div></div></td></tr>`;
-    }
-    h+='</tbody></table>';
-  }
-
-  // Ancien tableau de comparaison (si dispo)
-  if(data.learning){
-    h+='<div style="margin-top:14px;font-size:11px;color:var(--text2)">Ajustements recents ('+data.learning.totalCompared+' comparaisons) :</div>';
-    h+='<table><thead><tr><th>Critere</th><th>Base</th><th>Ajust.</th><th>Actuel</th></tr></thead><tbody>';
-    const base={jourAffinity:29.5,freqGlob:29.2,markov2:29.2,paires:29,terminaisons:28,conditionnel:21.1,retard:7.5,freqRecent:6.9,momentum:6.1,cycleOverdue:3.4};
-    const noms2={markov2:'Markov',jourAffinity:'Jour',freqGlob:'Freq.',paires:'Paires',terminaisons:'Term.',conditionnel:'Cond.',momentum:'Mom.',freqRecent:'Rec.',retard:'Ret.',cycleOverdue:'Cyc.'};
-    for(const k of Object.keys(base)){const adj=data.learning.critereScores[k]||0;const cur=data.learning.adjusted[k];if(cur===undefined)continue;const color=adj>0?'var(--green)':adj<0?'var(--red)':'var(--text2)';h+=`<tr><td style="text-align:left;font-size:11px">${noms2[k]||k}</td><td style="font-size:11px">${base[k]}</td><td style="color:${color};font-weight:700;font-size:11px">${adj>0?'+':''}${adj}</td><td style="font-weight:700;font-size:11px">${cur}</td></tr>`}
-    h+='</tbody></table>';
-  }
-  h+='</div>';
-
-  // Dernieres comparaisons
-  if(data.recent.length>0){
-    h+='<div class="card"><h2>Dernieres comparaisons</h2>';
-    h+='<div style="margin-bottom:12px;padding:8px 12px;background:var(--card2);border-radius:8px;font-size:10px;color:var(--text2);display:flex;gap:12px;flex-wrap:wrap;align-items:center">';
-    h+='<span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:linear-gradient(135deg,#00c853,#69f0ae);vertical-align:middle"></span> Gagnant</span>';
-    h+='<span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:linear-gradient(135deg,#00838f,#00acc1);vertical-align:middle"></span> Machine</span>';
-    h+='<span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:linear-gradient(135deg,#ff8f00,#ffc107);vertical-align:middle"></span> Proche (+/-2)</span>';
-    h+='<span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--card2);border:1px solid var(--border);vertical-align:middle"></span> Manque</span>';
-    h+='<span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:linear-gradient(135deg,#7b1fa2,#9c27b0);vertical-align:middle"></span> IA Neural</span>';
-    h+='</div>';
-    for(const a of data.recent.reverse().slice(0,5)){
-      h+=`<div class="analyse-card"><h3>${a.date}</h3>`;
-      for(const c of a.comparaisons){
-        const mach=c.machine||[];
-        h+=`<div style="padding:6px 0;border-bottom:1px solid var(--border)">`;
-        h+=`<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap"><span style="font-weight:600;font-size:12px;min-width:120px">${c.tirage}</span><div class="nums">`;
-        for(const n of c.prediction){const isExact=c.resultat.includes(n);const isMachine=!isExact&&mach.includes(n);const isClose=!isExact&&!isMachine&&c.resultat.some(r=>Math.abs(r-n)<=2);h+=nbs(n,isExact?'num-match':isMachine?'num-machine':isClose?'num-close':'num-miss')}
-        h+=`</div><span style="color:var(--text2);font-size:10px">vs</span><div class="nums">`;
-        for(const n of c.resultat)h+=nbs(n,'num-green');
-        if(mach.length>0){h+=`<span style="color:var(--text2);font-size:9px;margin:0 2px">|</span>`;for(const n of mach)h+=nbs(n,'num-orange')}
-        h+=`</div><span style="font-size:11px;margin-left:auto"><span style="color:var(--green);font-weight:700">${c.comp.nbExacts}g</span>`;
-        if((c.comp.nbMachineExacts||0)>0)h+=`<span style="color:#00acc1;font-weight:700"> +${c.comp.nbMachineExacts}m</span>`;
-        if(c.comp.proches.length>0)h+=`<span style="color:var(--yellow)"> +${c.comp.proches.length}p</span>`;
-        h+='</span></div>';
-        if(c.neuralPrediction&&c.neuralComp){
-          h+=`<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:4px 0;margin-top:2px"><span style="font-size:10px;color:var(--purple);font-weight:700;min-width:120px">IA Neural</span><div class="nums">`;
-          for(const n of c.neuralPrediction){const isExact=c.resultat.includes(n);const isMachine=!isExact&&mach.includes(n);const isClose=!isExact&&!isMachine&&c.resultat.some(r=>Math.abs(r-n)<=2);h+=nbs(n,isExact?'num-match':isMachine?'num-machine':isClose?'num-close':'num-miss')}
-          h+=`</div><span style="font-size:11px;margin-left:auto"><span style="color:var(--green);font-weight:700">${c.neuralComp.nbExacts}g</span>`;
-          if((c.neuralComp.nbMachineExacts||0)>0)h+=`<span style="color:#00acc1;font-weight:700"> +${c.neuralComp.nbMachineExacts}m</span>`;
-          if(c.neuralComp.proches.length>0)h+=`<span style="color:var(--yellow)"> +${c.neuralComp.proches.length}p</span>`;
-          h+='</span></div>';
-        }
         h+='</div>';
       }
       h+='</div>';
     }
+
+    // LEGENDE
+    h+='<div style="text-align:center;font-size:10px;color:var(--text2);margin:12px 0;line-height:2">';
+    h+='<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:linear-gradient(135deg,#00c853,#69f0ae);vertical-align:middle"></span> Gagnant &nbsp; ';
+    h+='<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:linear-gradient(135deg,#ef6c00,#fb8c00);vertical-align:middle"></span> Machine &nbsp; ';
+    h+='<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:linear-gradient(135deg,#ff8f00,#ffc107);vertical-align:middle"></span> Proche (+/-2) &nbsp; ';
+    h+='<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--card2);border:1px solid var(--border);vertical-align:middle"></span> Manque &nbsp; ';
+    h+='<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:linear-gradient(135deg,#7b1fa2,#9c27b0);vertical-align:middle"></span> IA Neural';
     h+='</div>';
-  }
-  el.innerHTML=h;
-}
 
-// ═══ DONNEES (Freq + Distribution + Resultats) ═══
-async function loadDonnees(){
-  const el=document.getElementById('donneesContent');el.innerHTML='<div class="loading"><div class="spinner"></div><br>Chargement...</div>';
-  let h='';
-
-  // Frequences
-  try{
-    const freq=await fetch('/api/frequence').then(r=>r.json());
-    if(!freq.error){
-      const mf=freq[0].freq;
-      h+='<div class="card"><h2>Frequences (90 numeros)</h2><table><thead><tr><th>#</th><th>N</th><th>Freq</th><th></th><th>Recent</th><th>Ecart</th><th></th></tr></thead><tbody>';
-      for(let i=0;i<freq.length;i++){const d=freq[i];const tc=d.temp==='CHAUD'?'tag-hot':d.temp==='TIEDE'?'tag-warm':'tag-cold';const bc=d.temp==='CHAUD'?'var(--red)':d.temp==='TIEDE'?'var(--orange)':'var(--blue)';const bw=(d.freq/mf*100).toFixed(0);h+=`<tr><td>${i+1}</td><td style="font-weight:700">${d.num}</td><td>${d.freq}</td><td><div class="freq-bar"><div class="freq-bar-fill" style="width:${bw}%;background:${bc}"></div></div></td><td>${d.freqRecent}</td><td>${d.ecart>0?'+':''}${d.ecart}%</td><td><span class="tag ${tc}">${d.temp}</span></td></tr>`}
-      h+='</tbody></table></div>';
+    // MEILLEURS JOURS
+    h+='<div class="card"><div class="card-title" style="color:var(--cyan)">Meilleurs jours pour jouer</div>';
+    h+='<div class="card-sub">Base sur 2000 tirages recents du bot</div>';
+    var jourData=[{j:"Lundi",pct:"7.1",lift:"1.28",star:2},{j:"Mardi",pct:"6.9",lift:"1.25",star:2},{j:"Dimanche",pct:"6.4",lift:"1.15",star:1},{j:"Vendredi",pct:"6.1",lift:"1.11",star:1},{j:"Jeudi",pct:"5.7",lift:"1.02",star:0},{j:"Samedi",pct:"5.3",lift:"0.96",star:-1},{j:"Mercredi",pct:"5.3",lift:"0.95",star:-1}];
+    h+='<div style="display:flex;flex-direction:column;gap:4px">';
+    for(var ji=0;ji<jourData.length;ji++){
+      var jd=jourData[ji];
+      var jc=jd.star>=2?'var(--green)':jd.star>=1?'var(--cyan)':jd.star===0?'var(--orange)':'var(--red)';
+      var jlbl=jd.star>=2?'EXCELLENT':jd.star>=1?'BON':jd.star===0?'NEUTRE':'EVITER';
+      var barW=Math.round(parseFloat(jd.pct)/10.4*100);
+      h+='<div style="display:flex;align-items:center;gap:8px;padding:6px 0'+(ji<jourData.length-1?';border-bottom:1px solid var(--border)':'')+'">';
+      h+='<span style="min-width:75px;font-weight:600;font-size:12px">'+jd.j+'</span>';
+      h+='<div style="flex:1;height:6px;background:var(--card2);border-radius:3px;overflow:hidden"><div style="width:'+barW+'%;height:100%;background:'+jc+';border-radius:3px"></div></div>';
+      h+='<span style="min-width:40px;text-align:right;font-weight:700;font-size:12px;color:'+jc+'">'+jd.pct+'%</span>';
+      h+='<span style="min-width:65px;text-align:right;font-size:10px;color:'+jc+';font-weight:600">'+jlbl+'</span>';
+      h+='</div>';
     }
-  }catch(e){}
+    h+='</div></div>';
 
-  // Distribution
-  try{
-    const dist=await fetch('/api/distribution').then(r=>r.json());
-    if(!dist.error){
-      h+='<div class="grid-2">';
-      h+='<div class="card"><h2>Sommes</h2><div style="text-align:center;margin-bottom:10px"><div style="font-size:28px;font-weight:800;color:var(--green)">'+dist.avgSomme+'</div><div style="color:var(--text2);font-size:11px">Moyenne ('+dist.minSomme+' — '+dist.maxSomme+')</div></div></div>';
-      h+='<div class="card"><h2>Pair/Impair</h2><table><thead><tr><th>Distrib.</th><th>Freq</th><th>%</th></tr></thead><tbody>';
-      const tp=dist.pairImpair.reduce((a,b)=>a+b[1],0);
-      for(const[k,v]of dist.pairImpair)h+=`<tr><td style="font-weight:600">${k}</td><td>${v}</td><td>${(v/tp*100).toFixed(1)}%</td></tr>`;
+    // TOP TIRAGES + A EVITER
+    h+='<div style="display:flex;gap:10px;flex-wrap:wrap">';
+    // Top tirages
+    h+='<div class="card" style="flex:1;min-width:250px"><div class="card-title" style="color:var(--green)">Top tirages</div>';
+    var topT=[{n:"Akwaba",p:"10.4",j:"Lun 15h55"},{n:"Friday Bonanza",p:"9.2",j:"Ven 18h30"},{n:"Digital 23h",p:"8.9",j:"Tous 22h58"},{n:"Sika",p:"8.1",j:"Mar 15h55"},{n:"Midweek",p:"7.2",j:"Mer 18h30"},{n:"Digital Reveil 7h",p:"6.8",j:"Tous 06h58"},{n:"Digital 21h",p:"6.7",j:"Tous 20h58"}];
+    for(var ti=0;ti<topT.length;ti++){
+      var t=topT[ti];
+      h+='<div style="display:flex;align-items:center;gap:6px;padding:4px 0;font-size:11px'+(ti<topT.length-1?';border-bottom:1px solid var(--border)':'')+'">';
+      h+='<span style="color:var(--green);font-weight:800;min-width:16px">'+(ti+1)+'</span>';
+      h+='<span style="font-weight:600;flex:1">'+t.n+'</span>';
+      h+='<span style="color:var(--text2);font-size:9px">'+t.j+'</span>';
+      h+='<span style="color:var(--green);font-weight:700;min-width:40px;text-align:right">'+t.p+'%</span>';
+      h+='</div>';
+    }
+    h+='</div>';
+    // A eviter
+    h+='<div class="card" style="flex:1;min-width:250px"><div class="card-title" style="color:var(--red)">A eviter</div>';
+    var worstT=[{n:"Solution",p:"1.5",j:"Ven 12h55"},{n:"Premiere Heure",p:"2.2",j:"Mer 09h55"},{n:"Moaye",p:"2.2",j:"Sam 15h55"},{n:"Espoir",p:"2.4",j:"Dim 18h30"},{n:"Etoile",p:"3.6",j:"Lun 12h55"},{n:"Emergence",p:"3.7",j:"Mar 12h55"},{n:"National",p:"3.8",j:"Sam 18h30"}];
+    for(var ti=0;ti<worstT.length;ti++){
+      var t=worstT[ti];
+      h+='<div style="display:flex;align-items:center;gap:6px;padding:4px 0;font-size:11px'+(ti<worstT.length-1?';border-bottom:1px solid var(--border)':'')+'">';
+      h+='<span style="color:var(--red);font-weight:800;min-width:16px">&#10005;</span>';
+      h+='<span style="font-weight:600;flex:1;color:var(--text2)">'+t.n+'</span>';
+      h+='<span style="color:var(--text2);font-size:9px">'+t.j+'</span>';
+      h+='<span style="color:var(--red);font-weight:700;min-width:40px;text-align:right">'+t.p+'%</span>';
+      h+='</div>';
+    }
+    h+='</div></div>';
+
+    // MEILLEURS CRENEAUX HORAIRES
+    h+='<div class="card"><div class="card-title" style="color:var(--orange)">Meilleurs creneaux</div>';
+    var creneaux=[{h:"Digital (soir/nuit)",p:"6.7",lift:"x1.21",col:"var(--green)"},{h:"Apres-midi (16h)",p:"6.2",lift:"x1.12",col:"var(--green)"},{h:"Soir (18-19h)",p:"6.2",lift:"x1.11",col:"var(--green)"},{h:"Afterwork (18h)",p:"5.9",lift:"x1.07",col:"var(--orange)"},{h:"Weekend nuit",p:"5.5",lift:"x0.98",col:"var(--text2)"},{h:"Matin (10h)",p:"5.1",lift:"x0.91",col:"var(--red)"},{h:"Midi (13h)",p:"4.4",lift:"x0.80",col:"var(--red)"}];
+    h+='<div style="display:flex;flex-wrap:wrap;gap:6px">';
+    for(var ci=0;ci<creneaux.length;ci++){
+      var cr=creneaux[ci];
+      var bg=cr.col==='var(--green)'?'rgba(0,230,118,.06)':cr.col==='var(--red)'?'rgba(255,82,82,.06)':'rgba(255,171,64,.06)';
+      h+='<div style="background:'+bg+';border:1px solid '+cr.col+';border-radius:8px;padding:8px 12px;flex:1;min-width:130px;text-align:center">';
+      h+='<div style="font-size:10px;font-weight:700;color:'+cr.col+'">'+cr.h+'</div>';
+      h+='<div style="font-size:18px;font-weight:800;color:'+cr.col+'">'+cr.p+'%</div>';
+      h+='</div>';
+    }
+    h+='</div></div>';
+
+    // GUIDE STRATEGIQUE
+    h+='<div class="card" style="border-color:var(--blue)">';
+    h+='<div class="card-title" style="color:var(--blue)">Guide strategique</div>';
+    // Classement des paris (backtest 6 mois)
+    h+='<div style="margin-bottom:14px">';
+    h+='<div style="color:var(--cyan);font-size:11px;font-weight:700;margin-bottom:6px">CLASSEMENT DES PARIS (backtest 6 mois, 100F/pari, Double Chance)</div>';
+    h+='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:11px"><thead><tr><th style="text-align:left">Pari</th><th>Nums</th><th>Gains</th><th style="color:var(--green)">Profit</th><th>ROI</th></tr></thead><tbody>';
+    var paris=[{n:"Chance 4+ DC",k:4,g:"572 000F",p:"+517 600F",r:"+951%",top:true},{n:"Chance 5+ DC",k:5,g:"167 000F",p:"+112 600F",r:"+207%"},{n:"Chance 3+ DC",k:3,g:"144 500F",p:"+90 100F",r:"+166%"},{n:"3N DC",k:3,g:"100 000F",p:"+45 600F",r:"+84%"},{n:"2N DC",k:2,g:"96 000F",p:"+41 600F",r:"+76%"},{n:"Tous Standard",k:0,g:"—",p:"PERDANT",r:"-12% a -100%",bad:true}];
+    for(var pi=0;pi<paris.length;pi++){
+      var p=paris[pi];
+      var bg=p.top?'background:rgba(0,230,118,.06)':p.bad?'background:rgba(255,82,82,.06)':'';
+      h+='<tr style="'+bg+'"><td style="text-align:left;font-weight:'+(p.top?'800':'500')+'">'+p.n+(p.top?' &#9733;':'')+'</td>';
+      h+='<td style="text-align:center">'+p.k+'</td>';
+      h+='<td style="text-align:center">'+p.g+'</td>';
+      h+='<td style="text-align:center;color:'+(p.bad?'var(--red)':'var(--green)')+';font-weight:700">'+p.p+'</td>';
+      h+='<td style="text-align:center;color:'+(p.bad?'var(--red)':'var(--green)')+';font-weight:700">'+p.r+'</td></tr>';
+    }
+    h+='</tbody></table></div></div>';
+    // Grille des gains Chance 4+ DC
+    h+='<div style="margin-bottom:14px;padding:10px;background:rgba(0,230,118,.04);border:1px solid rgba(0,230,118,.15);border-radius:8px">';
+    h+='<div style="color:var(--green);font-size:11px;font-weight:700;margin-bottom:4px">CHANCE 4+ DOUBLE CHANCE — Le meilleur pari</div>';
+    h+='<div style="font-size:11px;color:var(--text);line-height:1.6">';
+    h+='Tu choisis <b>4 numeros</b>, compares aux gagnants + machine (10 cibles) :<br>';
+    h+='<span style="color:var(--orange)">&#8226; 2/4 bons = <b>1 500F</b></span> pour 100F (x15)<br>';
+    h+='<span style="color:var(--green)">&#8226; 3/4 bons = <b>15 000F</b></span> pour 100F (x150)<br>';
+    h+='<span style="color:var(--cyan)">&#8226; 4/4 bons = <b>500 000F</b></span> pour 100F (x5000)<br>';
+    h+='Sur 6 mois : <b>31 gains</b> sur 544 paris = <b>+517 600F profit</b> (ROI +951%)';
+    h+='</div></div>';
+    // Autres options
+    h+='<div style="margin-bottom:14px;padding:10px;background:var(--card2);border-radius:8px">';
+    h+='<div style="font-size:11px;color:var(--text);line-height:1.6">';
+    h+='<b style="color:var(--orange)">Chance 5+ DC</b> (5 nums) : gagne a 2+ bons. ROI +207%. Plus de gains (56) mais plus petits.<br>';
+    h+='<b style="color:var(--cyan)">Chance 3+ DC</b> (3 nums) : gagne a 2+ bons. ROI +166%. Moins de gains (20) mais gros coups.<br>';
+    h+='<b style="color:var(--red)">Standard (sans DC)</b> : TOUJOURS perdant. Ne jamais jouer sans Double Chance.';
+    h+='</div></div>';
+    // Regles d'or
+    h+='<div style="margin-bottom:6px;color:var(--yellow);font-size:11px;font-weight:700">REGLES D\'OR</div>';
+    var regles=[
+      {icon:"&#128176;",txt:"<b>Budget fixe par jour</b> : 600F les bons jours (Lun, Mar, Dim), 200F max les mauvais (Mer, Sam)"},
+      {icon:"&#127919;",txt:"<b>Chance 4+ Double Chance</b> : prends les 4 premiers numeros du Bot + 4 de l'IA. Jamais en Standard !"},
+      {icon:"&#9201;",txt:"<b>Cible les meilleurs tirages</b> : Digital 23h (tous les jours), Sika (Mar), Prestige (Dim), Baraka (Mer)"},
+      {icon:"&#9940;",txt:"<b>Evite</b> : Monday Special (seul perdant), Solution, Emergence, les tirages du midi"},
+      {icon:"&#128202;",txt:"<b>Sauvegarde chaque jour</b> : le bot s'ameliore a chaque comparaison avec les resultats"},
+      {icon:"&#128274;",txt:"<b>Ne depasse jamais ton budget</b> : meme avec +951% de ROI, le loto reste un jeu de hasard"}
+    ];
+    h+='<div style="display:flex;flex-direction:column;gap:6px">';
+    for(var ri=0;ri<regles.length;ri++){
+      var r=regles[ri];
+      h+='<div style="display:flex;gap:8px;align-items:flex-start;font-size:11px;color:var(--text);line-height:1.5">';
+      h+='<span style="font-size:14px;min-width:20px">'+r.icon+'</span>';
+      h+='<span>'+r.txt+'</span>';
+      h+='</div>';
+    }
+    h+='</div>';
+    // Budget recommande
+    h+='<div style="margin-top:12px;padding:10px;background:var(--card2);border-radius:8px">';
+    h+='<div style="color:var(--blue);font-size:11px;font-weight:700;margin-bottom:6px">BUDGET RECOMMANDE PAR JOUR</div>';
+    h+='<div style="display:flex;gap:6px;flex-wrap:wrap">';
+    var budgets=[{j:"Lundi",b:"1000F",col:"var(--green)"},{j:"Mardi",b:"1000F",col:"var(--green)"},{j:"Dimanche",b:"500F",col:"var(--cyan)"},{j:"Vendredi",b:"500F",col:"var(--cyan)"},{j:"Jeudi",b:"200F",col:"var(--orange)"},{j:"Mercredi",b:"100F",col:"var(--red)"},{j:"Samedi",b:"100F",col:"var(--red)"}];
+    for(var bi=0;bi<budgets.length;bi++){
+      var bu=budgets[bi];
+      h+='<div style="text-align:center;padding:4px 8px;border-radius:4px;border:1px solid '+bu.col+';font-size:10px;min-width:70px">';
+      h+='<div style="color:var(--text2)">'+bu.j+'</div>';
+      h+='<div style="color:'+bu.col+';font-weight:700">'+bu.b+'</div>';
+      h+='</div>';
+    }
+    h+='</div></div>';
+    h+='</div>';
+
+    // HISTORIQUE COMPLET — tout en bas
+    if(hist.dailySummary&&hist.dailySummary.length>0){
+      var ds=hist.dailySummary.slice().reverse();
+      h+='<div class="card"><div class="card-title" style="color:var(--text2)">Historique complet ('+ds.length+' jours)</div>';
+      h+='<div class="card-sub">Depuis le '+ds[ds.length-1].date+' — clique sur une ligne pour le detail</div>';
+      h+='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse">';
+      h+='<thead><tr><th style="text-align:left">Date</th><th>Comp.</th><th>Gagnants</th><th>Machine</th><th>Proches</th><th>Taux</th><th>IA</th></tr></thead><tbody>';
+      for(var di=0;di<ds.length;di++){
+        var d=ds[di];
+        var tc=d.taux>=8?'var(--green)':d.taux>=5?'var(--orange)':'var(--red)';
+        h+='<tr style="cursor:pointer" onclick="toggleCollapse(\'hfull-'+di+'\')">';
+        h+='<td style="text-align:left;font-weight:600;font-size:11px">'+d.date+'</td>';
+        h+='<td>'+d.comparaisons+'</td>';
+        h+='<td style="color:var(--green);font-weight:700">'+d.exacts+'</td>';
+        h+='<td style="color:var(--orange)">'+d.machine+'</td>';
+        h+='<td style="color:var(--yellow)">'+d.proches+'</td>';
+        h+='<td style="color:'+tc+';font-weight:700">'+d.taux+'%</td>';
+        h+='<td style="color:var(--purple)">'+(d.nnComps>0?d.nnExacts+'g':'—')+'</td>';
+        h+='</tr>';
+        h+='<tr><td colspan="7" style="padding:0;border:none"><div class="collapse-content" id="hfull-'+di+'" style="margin:0;padding:0">';
+        if(hist.allAnalyses){
+          var dayA=[];
+          for(var ai=0;ai<hist.allAnalyses.length;ai++){if(hist.allAnalyses[ai].date===d.date)dayA.push(hist.allAnalyses[ai])}
+          for(var ai=0;ai<dayA.length;ai++){
+            for(var ci=0;ci<dayA[ai].comparaisons.length;ci++){
+              var c=dayA[ai].comparaisons[ci];if(!c.comp)continue;
+              var mc=c.machine||[];
+              h+='<div class="cmp-block" style="margin:4px 0"><div class="cmp-header"><span class="tirage" style="color:var(--text);font-weight:600">'+c.tirage+'</span></div>';
+              h+='<div class="cmp-row"><span class="lbl">Predit</span><div class="nums" style="gap:3px;justify-content:flex-start">';
+              for(var ni=0;ni<c.prediction.length;ni++){var n=c.prediction[ni];var ex=c.resultat.indexOf(n)>=0;var ma=!ex&&mc.indexOf(n)>=0;var cl=false;if(!ex&&!ma){for(var ri=0;ri<c.resultat.length;ri++){if(Math.abs(c.resultat[ri]-n)<=2){cl=true;break}}}h+=Ns(n,ex?'n-hit ns':ma?'n-ora ns':cl?'n-close ns':'n-miss ns')}
+              h+='</div><div class="cmp-result"><span class="g">'+c.comp.nbExacts+'g</span>';
+              if((c.comp.nbMachineExacts||0)>0)h+='<span style="color:var(--cyan)"> +'+c.comp.nbMachineExacts+'m</span>';
+              if(c.comp.proches.length>0)h+='<span class="p"> +'+c.comp.proches.length+'p</span>';
+              h+='</div></div>';
+              if(c.neuralPrediction&&c.neuralComp){
+                h+='<div class="cmp-row"><span class="lbl" style="color:var(--purple)">IA</span><div class="nums" style="gap:3px;justify-content:flex-start">';
+                for(var ni=0;ni<c.neuralPrediction.length;ni++){var n=c.neuralPrediction[ni];var ex=c.resultat.indexOf(n)>=0;var ma=!ex&&mc.indexOf(n)>=0;var cl=false;if(!ex&&!ma){for(var ri=0;ri<c.resultat.length;ri++){if(Math.abs(c.resultat[ri]-n)<=2){cl=true;break}}}h+=Ns(n,ex?'n-hit ns':ma?'n-ora ns':cl?'n-close ns':'n-miss ns')}
+                h+='</div><div class="cmp-result"><span class="g">'+c.neuralComp.nbExacts+'g</span>';
+                if((c.neuralComp.nbMachineExacts||0)>0)h+='<span style="color:var(--cyan)"> +'+c.neuralComp.nbMachineExacts+'m</span>';
+                if(c.neuralComp.proches.length>0)h+='<span class="p"> +'+c.neuralComp.proches.length+'p</span>';
+                h+='</div></div>';
+              }
+              h+='<div class="cmp-row"><span class="lbl">Sorti</span><div class="nums" style="gap:3px;justify-content:flex-start">';
+              for(var ni=0;ni<c.resultat.length;ni++)h+=Ns(c.resultat[ni],'n-grn ns');
+              if(mc.length>0){h+='<span style="color:var(--text2);font-size:9px;margin:0 3px">|</span>';for(var ni=0;ni<mc.length;ni++)h+=Ns(mc[ni],'n-ora ns')}
+              h+='</div></div></div>';
+            }
+          }
+        }
+        h+='</div></td></tr>';
+      }
       h+='</tbody></table></div></div>';
     }
-  }catch(e){}
 
-  // Resultats
-  try{
-    const res=await fetch('/api/resultats').then(r=>r.json());
-    h+='<div class="card"><h2>50 derniers tirages</h2><table><thead><tr><th>Date</th><th>Tirage</th><th>G1</th><th>G2</th><th>G3</th><th>G4</th><th>G5</th></tr></thead><tbody>';
-    for(const d of res.slice(0,50)){h+=`<tr><td style="font-size:11px">${d.date}</td><td style="text-align:left;font-weight:500;font-size:11px">${d.type}</td>`;for(const n of d.gagnants)h+=`<td style="color:var(--green);font-weight:700">${String(n).padStart(2,'0')}</td>`;h+='</tr>'}
-    h+='</tbody></table></div>';
-  }catch(e){}
+    el.innerHTML=h;
+  }).catch(function(){el.innerHTML='<div class="card" style="color:var(--red)">Erreur serveur</div>'});
+}
+
+// ═══ BACKTEST ═══
+var btRunning=false;
+function loadBacktest(){
+  var el=document.getElementById('backtestContent');
+  if(btRunning)return;
+  var h='';
+
+  // FORMULAIRE
+  h+='<div class="card"><div class="card-title">Simuler une strategie</div>';
+  h+='<div class="card-sub">Teste tes paris sur les donnees passees pour voir combien tu aurais gagne</div>';
+  h+='<div style="display:flex;flex-wrap:wrap;gap:10px">';
+  // Periode
+  h+='<div style="flex:1;min-width:140px"><label style="font-size:10px;color:var(--text2);display:block;margin-bottom:4px">Periode (mois)</label>';
+  h+='<select id="bt-periode" style="width:100%;padding:8px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:6px;font-size:12px">';
+  h+='<option value="1">1 mois</option><option value="3">3 mois</option><option value="6" selected>6 mois</option><option value="12">12 mois</option><option value="24">24 mois</option>';
+  h+='</select></div>';
+  // Mise
+  h+='<div style="flex:1;min-width:140px"><label style="font-size:10px;color:var(--text2);display:block;margin-bottom:4px">Mise par pari (FCFA)</label>';
+  h+='<select id="bt-mise" style="width:100%;padding:8px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:6px;font-size:12px">';
+  h+='<option value="100" selected>100F</option><option value="200">200F</option><option value="500">500F</option><option value="1000">1 000F</option>';
+  h+='</select></div>';
+  // Mode de pari
+  h+='<div style="flex:1;min-width:140px"><label style="font-size:10px;color:var(--text2);display:block;margin-bottom:4px">Type de pari</label>';
+  h+='<select id="bt-mode" style="width:100%;padding:8px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:6px;font-size:12px">';
+  h+='<option value="ch4dc" selected>Chance 4+ Dbl Chance (RECOMMANDE)</option>';
+  h+='<option value="ch5dc">Chance 5+ Dbl Chance</option>';
+  h+='<option value="ch3dc">Chance 3+ Dbl Chance</option>';
+  h+='<option value="2ndc">2N Dbl Chance</option>';
+  h+='<option value="3ndc">3N Dbl Chance</option>';
+  h+='<option value="ch4">Chance 4+ Standard</option>';
+  h+='<option value="ch5">Chance 5+ Standard</option>';
+  h+='<option value="ch3">Chance 3+ Standard</option>';
+  h+='<option value="2n">2N Standard</option>';
+  h+='<option value="3n">3N Standard</option>';
+  h+='<option value="1n">1N Standard</option>';
+  h+='<option value="1ndc">1N Dbl Chance</option>';
+  h+='</select></div>';
+  // Source
+  h+='<div style="flex:1;min-width:140px"><label style="font-size:10px;color:var(--text2);display:block;margin-bottom:4px">Predictions</label>';
+  h+='<select id="bt-source" style="width:100%;padding:8px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:6px;font-size:12px">';
+  h+='<option value="both" selected>Bot + IA (2 paris)</option><option value="bot">Bot seul</option><option value="ia">IA seule</option>';
+  h+='</select></div>';
+  h+='</div>';
+  // Tirages
+  h+='<div style="margin-top:10px"><label style="font-size:10px;color:var(--text2);display:block;margin-bottom:4px">Tirages (vide = tous, ou selectionne)</label>';
+  h+='<div id="bt-tirages" style="display:flex;flex-wrap:wrap;gap:4px">';
+  var allTirages=["Akwaba","Sika","Baraka","Midweek","Friday Bonanza","Monday Special","Lucky Tuesday","Fortune Thursday","Benediction","Prestige","Awale","Digital 23h","Digital 21h","Digital Reveil 7h","Special Weekend 3h","Diamant","Afterwork"];
+  for(var ti=0;ti<allTirages.length;ti++){
+    h+='<label style="display:flex;align-items:center;gap:3px;font-size:10px;background:var(--card2);padding:4px 8px;border-radius:4px;cursor:pointer"><input type="checkbox" value="'+allTirages[ti]+'" style="accent-color:var(--green)">'+allTirages[ti]+'</label>';
+  }
+  h+='</div></div>';
+  // Boutons
+  h+='<div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">';
+  h+='<button class="btn btn-green" style="padding:10px 24px;font-size:13px" onclick="runBacktest()">Lancer le backtest</button>';
+  h+='<button class="btn" style="background:var(--purple);color:#fff;padding:10px 24px" onclick="runTrainLearn()">Entrainer le bot</button>';
+  h+='<button class="btn" style="background:var(--blue);color:#fff;padding:10px 24px" onclick="runTrainNN()">Entrainer l\'IA</button>';
+  h+='</div>';
+  h+='</div>';
+
+  // Zone resultats
+  h+='<div id="bt-results"></div>';
 
   el.innerHTML=h;
 }
 
-// ═══ SIDEBAR RESULTATS DU JOUR ═══
-async function loadSidebar(){
-  const el=document.getElementById('sidContent');
-  try{
-    const data=await fetch('/api/resultats-jour').then(r=>r.json());
-    document.getElementById('sidDate').textContent=data.date+' — '+data.jourNom;
-    if(!data.tirages||data.tirages.length===0){
-      el.innerHTML='<div class="sid-empty">Aucun resultat encore aujourd\'hui</div>';
-      return;
+function runBacktest(){
+  if(btRunning)return;
+  var checked=document.querySelectorAll('#bt-tirages input:checked');
+  var tirages=[];
+  for(var i=0;i<checked.length;i++)tirages.push(checked[i].value);
+  var params={
+    periode:parseInt(document.getElementById('bt-periode').value),
+    mise:parseInt(document.getElementById('bt-mise').value),
+    mode:document.getElementById('bt-mode').value,
+    source:document.getElementById('bt-source').value,
+    tirages:tirages
+  };
+  var el=document.getElementById('bt-results');
+  el.innerHTML='<div class="loading"><div class="spinner"></div><br>Backtest en cours... (peut prendre 1-2 min)</div>';
+  btRunning=true;
+
+  fetch('/api/backtest-custom',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(params)}).then(function(r){return r.json()}).then(function(data){
+    btRunning=false;
+    if(data.error){el.innerHTML='<div class="card" style="color:var(--red)">Erreur: '+data.error+'</div>';return}
+    renderBtResults(data);
+  }).catch(function(e){btRunning=false;el.innerHTML='<div class="card" style="color:var(--red)">Erreur connexion</div>'});
+}
+
+function renderBtResults(data){
+  var el=document.getElementById('bt-results');
+  var s=data.summary;
+  var p=data.params;
+  var h='';
+
+  // BILAN
+  var profitCol=s.profit>=0?'var(--green)':'var(--red)';
+  h+='<div class="card" style="border-color:'+profitCol+'">';
+  h+='<div class="card-title" style="color:'+profitCol+'">Bilan : '+(s.profit>=0?'+':'')+s.profit.toLocaleString()+'F (ROI '+(s.roi>=0?'+':'')+s.roi+'%)</div>';
+  h+='<div class="card-sub">'+p.periode+' mois | '+s.totalPlays+' tirages | Mode: '+p.mode+' | Source: '+p.source+' | Mise: '+p.mise+'F</div>';
+  h+='<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px">';
+  h+='<div class="stat-box"><div class="val" style="color:var(--green)">'+s.totalGain.toLocaleString()+'F</div><div class="lbl">Gains totaux</div></div>';
+  h+='<div class="stat-box"><div class="val" style="color:var(--red)">'+s.totalDep.toLocaleString()+'F</div><div class="lbl">Depense</div></div>';
+  h+='<div class="stat-box"><div class="val" style="color:'+profitCol+'">'+(s.profit>=0?'+':'')+s.roi+'%</div><div class="lbl">ROI</div></div>';
+  h+='<div class="stat-box"><div class="val">'+data.totalWins+'</div><div class="lbl">Tirages gagnants</div></div>';
+  h+='</div>';
+
+  // Gains Bot vs IA
+  if(p.source==='both'){
+    h+='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">';
+    h+='<div style="flex:1;min-width:120px;background:rgba(0,230,118,.06);border:1px solid var(--green);border-radius:8px;padding:10px;text-align:center">';
+    h+='<div style="font-size:10px;color:var(--green);font-weight:700">BOT</div>';
+    h+='<div style="font-size:18px;font-weight:800;color:var(--green)">'+s.totalGainBot.toLocaleString()+'F</div></div>';
+    h+='<div style="flex:1;min-width:120px;background:rgba(224,64,251,.06);border:1px solid var(--purple);border-radius:8px;padding:10px;text-align:center">';
+    h+='<div style="font-size:10px;color:var(--purple);font-weight:700">IA</div>';
+    h+='<div style="font-size:18px;font-weight:800;color:var(--purple)">'+s.totalGainIA.toLocaleString()+'F</div></div>';
+    h+='</div>';
+  }
+  h+='</div>';
+
+  // DISTRIBUTION DES MATCHS
+  h+='<div class="card"><div class="card-title">Distribution des matchs</div>';
+  var labels=["0 bon","1 bon","2 bons","3 bons","4 bons","5 bons"];
+  var colors=["var(--red)","var(--orange)","var(--yellow)","var(--green)","var(--cyan)","var(--purple)"];
+  if(p.source!=='ia'&&data.hitDist.bot){
+    var totalBot=data.hitDist.bot.reduce(function(a,b){return a+b},0);
+    h+='<div style="margin-bottom:8px;font-size:11px;color:var(--green);font-weight:700">Bot classique</div>';
+    h+='<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px">';
+    for(var i=0;i<6;i++){
+      var pct=totalBot>0?(data.hitDist.bot[i]/totalBot*100).toFixed(1):'0';
+      h+='<div style="text-align:center;flex:1;min-width:50px;background:var(--card2);padding:6px;border-radius:6px">';
+      h+='<div style="font-size:16px;font-weight:800;color:'+colors[i]+'">'+data.hitDist.bot[i]+'</div>';
+      h+='<div style="font-size:9px;color:var(--text2)">'+labels[i]+'</div>';
+      h+='<div style="font-size:9px;color:var(--text2)">'+pct+'%</div>';
+      h+='</div>';
     }
-    let h='<div class="sid-count"><b>'+data.tirages.length+'</b> tirages sortis</div>';
-    for(const d of data.tirages){
+    h+='</div>';
+  }
+  if(p.source!=='bot'&&data.hitDist.ia){
+    var totalIA=data.hitDist.ia.reduce(function(a,b){return a+b},0);
+    if(totalIA>0){
+      h+='<div style="margin-bottom:8px;font-size:11px;color:var(--purple);font-weight:700">IA Neural</div>';
+      h+='<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px">';
+      for(var i=0;i<6;i++){
+        var pct=(data.hitDist.ia[i]/totalIA*100).toFixed(1);
+        h+='<div style="text-align:center;flex:1;min-width:50px;background:var(--card2);padding:6px;border-radius:6px">';
+        h+='<div style="font-size:16px;font-weight:800;color:'+colors[i]+'">'+data.hitDist.ia[i]+'</div>';
+        h+='<div style="font-size:9px;color:var(--text2)">'+labels[i]+'</div>';
+        h+='<div style="font-size:9px;color:var(--text2)">'+pct+'%</div>';
+        h+='</div>';
+      }
+      h+='</div>';
+    }
+  }
+  h+='</div>';
+
+  // PAR MOIS
+  if(data.monthly&&data.monthly.length>0){
+    h+='<div class="card"><div class="card-title">Par mois</div>';
+    // Graphique barres
+    var maxGain=0;
+    for(var i=0;i<data.monthly.length;i++){var g=data.monthly[i].gain;if(g>maxGain)maxGain=g}
+    h+='<div style="display:flex;gap:4px;align-items:flex-end;height:120px;margin-bottom:10px;padding:0 4px">';
+    for(var i=0;i<data.monthly.length;i++){
+      var m=data.monthly[i];
+      var barH=maxGain>0?Math.max(4,Math.round(m.gain/maxGain*100)):4;
+      var col=m.profit>=0?'var(--green)':'var(--red)';
+      h+='<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%">';
+      h+='<div style="font-size:8px;color:'+col+';font-weight:700;margin-bottom:2px">'+(m.profit>=0?'+':'')+m.profit.toLocaleString()+'</div>';
+      h+='<div style="width:100%;max-width:40px;height:'+barH+'px;background:'+col+';border-radius:3px 3px 0 0"></div>';
+      h+='<div style="font-size:8px;color:var(--text2);margin-top:2px">'+m.mois.slice(0,2)+'</div>';
+      h+='</div>';
+    }
+    h+='</div>';
+    // Tableau
+    h+='<div style="overflow-x:auto"><table style="width:100%"><thead><tr><th style="text-align:left">Mois</th><th>Tirages</th><th>Depense</th><th>Gains</th><th>Profit</th></tr></thead><tbody>';
+    for(var i=0;i<data.monthly.length;i++){
+      var m=data.monthly[i];
+      var col=m.profit>=0?'var(--green)':'var(--red)';
+      h+='<tr><td style="text-align:left;font-weight:600;font-size:11px">'+m.mois+'</td>';
+      h+='<td>'+m.plays+'</td>';
+      h+='<td style="font-size:11px">'+m.dep.toLocaleString()+'F</td>';
+      h+='<td style="color:var(--green);font-weight:700;font-size:11px">'+m.gain.toLocaleString()+'F</td>';
+      h+='<td style="color:'+col+';font-weight:700;font-size:11px">'+(m.profit>=0?'+':'')+m.profit.toLocaleString()+'F</td></tr>';
+    }
+    h+='</tbody></table></div></div>';
+  }
+
+  // PAR TIRAGE
+  if(data.perDraw&&data.perDraw.length>0){
+    h+='<div class="card"><div class="card-title">Par tirage</div>';
+    h+='<div style="overflow-x:auto"><table style="width:100%"><thead><tr><th style="text-align:left">Tirage</th><th>Joue</th><th>Gagnants</th><th>Gains</th><th>ROI</th></tr></thead><tbody>';
+    for(var i=0;i<data.perDraw.length;i++){
+      var d=data.perDraw[i];
+      var col=d.roi>=0?'var(--green)':'var(--red)';
+      h+='<tr><td style="text-align:left;font-weight:600;font-size:11px">'+d.tirage+'</td>';
+      h+='<td>'+d.plays+'</td>';
+      h+='<td style="color:var(--green)">'+d.wins+'</td>';
+      h+='<td style="font-size:11px">'+d.gain.toLocaleString()+'F</td>';
+      h+='<td style="color:'+col+';font-weight:700">'+(d.roi>=0?'+':'')+d.roi+'%</td></tr>';
+    }
+    h+='</tbody></table></div></div>';
+  }
+
+  // TIRAGES GAGNANTS
+  if(data.wins&&data.wins.length>0){
+    h+='<div class="card"><div class="card-title">Tirages gagnants ('+data.totalWins+')</div>';
+    for(var i=0;i<data.wins.length;i++){
+      var w=data.wins[i];
+      var src=w.botGain>0&&w.iaGain>0?'Bot+IA':w.botGain>0?'Bot':'IA';
+      var srcCol=w.botGain>0&&w.iaGain>0?'var(--cyan)':w.botGain>0?'var(--green)':'var(--purple)';
+      h+='<div class="cmp-block">';
+      h+='<div class="cmp-header"><span class="date">'+w.date+'</span><span class="tirage">'+w.tirage+'</span>';
+      h+='<span style="margin-left:auto;font-weight:700;color:'+srcCol+'">'+src+' +'+w.gainTotal.toLocaleString()+'F</span></div>';
+      // Bot prediction
+      if(w.botNums&&w.botNums.length>0){
+        var rSet=new Set(w.resultat);var mSet=new Set(w.machine||[]);var gmSet=new Set((w.resultat||[]).concat(w.machine||[]));
+        h+='<div class="cmp-row"><span class="lbl" style="color:var(--green)">Bot</span><div class="nums" style="gap:3px;justify-content:flex-start">';
+        for(var ni=0;ni<w.botNums.length;ni++){
+          var n=w.botNums[ni];var ex=rSet.has(n);var ma=!ex&&mSet.has(n);
+          h+=Ns(n,ex?'n-hit ns':ma?'n-ora ns':'n-miss ns');
+        }
+        h+='</div><span style="font-size:10px;color:var(--green);font-weight:700">'+w.botHits+'g</span></div>';
+      }
+      // IA prediction
+      if(w.iaNums&&w.iaNums.length>0){
+        var rSet=new Set(w.resultat);var mSet=new Set(w.machine||[]);
+        h+='<div class="cmp-row"><span class="lbl" style="color:var(--purple)">IA</span><div class="nums" style="gap:3px;justify-content:flex-start">';
+        for(var ni=0;ni<w.iaNums.length;ni++){
+          var n=w.iaNums[ni];var ex=rSet.has(n);var ma=!ex&&mSet.has(n);
+          h+=Ns(n,ex?'n-hit ns':ma?'n-ora ns':'n-miss ns');
+        }
+        h+='</div><span style="font-size:10px;color:var(--purple);font-weight:700">'+w.iaHits+'g</span></div>';
+      }
+      // Resultat
+      h+='<div class="cmp-row"><span class="lbl">Sorti</span><div class="nums" style="gap:3px;justify-content:flex-start">';
+      for(var ni=0;ni<w.resultat.length;ni++) h+=Ns(w.resultat[ni],'n-grn ns');
+      if(w.machine&&w.machine.length>0){
+        h+='<span style="color:var(--text2);font-size:9px;margin:0 3px">|</span>';
+        for(var ni=0;ni<w.machine.length;ni++) h+=Ns(w.machine[ni],'n-ora ns');
+      }
+      h+='</div></div>';
+      h+='</div>';
+    }
+    h+='</div>';
+  }
+
+  el.innerHTML=h;
+}
+
+function runTrainLearn(){
+  if(btRunning)return;
+  btRunning=true;
+  var el=document.getElementById('bt-results');
+  el.innerHTML='<div class="loading"><div class="spinner"></div><br>Apprentissage en cours... (2-3 min)</div>';
+  fetch('/api/train-learn',{method:'POST',headers:{'Content-Type':'application/json'}}).then(function(r){return r.json()}).then(function(data){
+    btRunning=false;
+    if(data.error){el.innerHTML='<div class="card" style="color:var(--red)">'+data.error+'</div>';return}
+    var h='<div class="card" style="border-color:var(--green)">';
+    h+='<div class="card-title" style="color:var(--green)">Apprentissage termine</div>';
+    h+='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">';
+    h+='<div class="stat-box"><div class="val" style="color:var(--text2)">'+data.scoreBefore+'%</div><div class="lbl">Avant</div></div>';
+    h+='<div class="stat-box"><div class="val" style="font-size:24px">&#8594;</div><div class="lbl"></div></div>';
+    h+='<div class="stat-box"><div class="val" style="color:var(--green)">'+data.scoreAfter+'%</div><div class="lbl">Apres</div></div>';
+    h+='<div class="stat-box"><div class="val" style="color:'+(data.delta>=0?'var(--green)':'var(--red)')+'">'+
+      (data.delta>=0?'+':'')+data.delta+'%</div><div class="lbl">Delta</div></div>';
+    h+='</div>';
+    h+='<div style="font-size:11px;color:var(--text2)">Entraine sur '+data.trainedOn.toLocaleString()+' tirages | '+data.categories+' categories</div>';
+    h+='<div style="margin-top:10px"><div style="font-size:11px;color:var(--cyan);font-weight:700;margin-bottom:6px">Poids appris</div>';
+    var sorted=Object.entries(data.weights).sort(function(a,b){return b[1]-a[1]});
+    var maxW=sorted[0]?sorted[0][1]:1;
+    for(var i=0;i<sorted.length;i++){
+      var k=sorted[i][0],v=sorted[i][1];
+      var pct=(v/maxW*100).toFixed(0);
+      var col=v>=15?'var(--green)':v>=5?'var(--orange)':'var(--text2)';
+      h+='<div style="display:flex;align-items:center;gap:6px;padding:3px 0;font-size:11px">';
+      h+='<span style="min-width:100px;color:var(--text2)">'+k+'</span>';
+      h+='<div style="flex:1;height:5px;background:var(--card2);border-radius:3px;overflow:hidden"><div style="width:'+pct+'%;height:100%;background:'+col+'"></div></div>';
+      h+='<span style="min-width:35px;text-align:right;font-weight:700;color:'+col+'">'+v.toFixed(1)+'</span>';
+      h+='</div>';
+    }
+    h+='</div></div>';
+    el.innerHTML=h;
+    showToast('Bot entraine avec succes');
+  }).catch(function(){btRunning=false;el.innerHTML='<div class="card" style="color:var(--red)">Erreur</div>'});
+}
+
+function runTrainNN(){
+  if(btRunning)return;
+  if(!confirm('Re-entrainer le reseau de neurones ? (prend ~30s)'))return;
+  btRunning=true;
+  var el=document.getElementById('bt-results');
+  el.innerHTML='<div class="loading"><div class="spinner"></div><br>Entrainement IA en cours...</div>';
+  fetch('/api/train-nn',{method:'POST'}).then(function(r){return r.json()}).then(function(data){
+    btRunning=false;
+    if(data.success){
+      el.innerHTML='<div class="card" style="border-color:var(--purple)"><div class="card-title" style="color:var(--purple)">IA re-entrainee</div><div style="font-size:12px">'+data.message+'</div></div>';
+      showToast('IA entrainee avec succes');
+    }else{
+      el.innerHTML='<div class="card" style="color:var(--red)">Erreur: '+data.error+'</div>';
+    }
+  }).catch(function(){btRunning=false;el.innerHTML='<div class="card" style="color:var(--red)">Erreur connexion</div>'});
+}
+
+// ═══ SIDEBAR ═══
+function loadSidebar(){
+  var el=document.getElementById('sidContent');
+  fetch('/api/resultats-jour').then(function(r){return r.json()}).then(function(data){
+    document.getElementById('sidDate').textContent=data.date+' '+String.fromCharCode(8212)+' '+data.jourNom;
+    if(!data.tirages||data.tirages.length===0){el.innerHTML='<div class="sid-empty">Aucun resultat encore</div>';return}
+    var h='<div class="sid-count"><b>'+data.tirages.length+'</b> tirages sortis</div>';
+    for(var i=0;i<data.tirages.length;i++){
+      var d=data.tirages[i];
       h+='<div class="sid-draw"><div class="sid-draw-name"><span class="h">'+(data.horaires[d.type]||'')+'</span>'+d.type+'</div>';
       h+='<div class="sid-nums">';
-      for(const n of d.gagnants) h+='<div class="sid-num sid-g">'+String(n).padStart(2,'0')+'</div>';
+      for(var j=0;j<d.gagnants.length;j++) h+='<div class="sid-n sid-g">'+String(d.gagnants[j]).padStart(2,'0')+'</div>';
       if(d.machine&&d.machine.length>0){
-        h+='<span style="color:var(--text2);font-size:9px;margin:0 2px">|</span>';
-        for(const n of d.machine) h+='<div class="sid-num sid-m">'+String(n).padStart(2,'0')+'</div>';
+        h+='<span style="color:var(--text2);font-size:8px;margin:0 2px">|</span>';
+        for(var j=0;j<d.machine.length;j++) h+='<div class="sid-n sid-m">'+String(d.machine[j]).padStart(2,'0')+'</div>';
       }
       h+='</div></div>';
     }
     el.innerHTML=h;
-  }catch(e){el.innerHTML='<div class="sid-empty">Erreur chargement</div>'}
+  }).catch(function(){el.innerHTML='<div class="sid-empty">Erreur</div>'});
 }
 
-// Auto-refresh
-setInterval(()=>{loadStatus();loadSidebar();const active=document.querySelector('.tab.active');if(active)showPage(active.dataset.page)},300000);
-setInterval(loadSidebar,120000);
-loadStatus();loadSidebar();try{loadPredictions(cj5)}catch(e){document.getElementById('predContent').innerHTML='<div class="card" style="color:var(--red)">Erreur: relance node server.js</div>'}
+// ═══ AUTO-REFRESH ═══
+setInterval(function(){loadStatus();loadSidebar()},120000);
+setInterval(function(){var active=document.querySelector('.tab.active');if(active)showPage(active.dataset.page)},300000);
+
+// ═══ INIT ═══
+loadStatus();
+loadSidebar();
+try{loadJouer(currentJour)}catch(e){}
 </script>
 </body>
 </html>

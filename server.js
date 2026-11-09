@@ -5,7 +5,7 @@ const https = require("https");
 const { loadDB, saveDB, mergeDraws, IS_VERCEL, getDataPath } = require("./db");
 const { TIRAGES_COMPLET, JOURS_NOMS, getTiragesJour, getNomsTiragesJour } = require("./horaires");
 const { genererCouverture, CONSTRAINTS } = require("./couverture");
-const { learnAndAdapt, loadLearnState, predictConvergence, DEFAULT_WEIGHTS, DRAW_CATEGORIES, getCategoryForType } = require("./apprentissage");
+const { learnAndAdapt, loadLearnState, predictConvergence, DEFAULT_WEIGHTS, DRAW_CATEGORIES, getCategoryForType, computeCriteriaTops, convergenceScore, backtestScore } = require("./apprentissage");
 const { NeuralNet, trainNeural, predictNeural, MODEL_PATH } = require("./neural");
 
 const app = express();
@@ -473,8 +473,8 @@ function autoCompare(db) {
           }
           // Ajuster poids des combos (pour SUPER COMBO)
           if (pred.allCombos && pred.allCombos.length > 0) {
-            if (!state.comboPerf) state.comboPerf = { CONV: 1.0, EQ: 1.0, COND: 1.0, MARKOV: 1.0, JOUR: 1.0, NN: 1.0 };
-            if (state.comboPerf.NN === undefined) state.comboPerf.NN = 1.0;
+            if (!state.comboPerf) state.comboPerf = { CONV: 1.0, EQ: 1.0, COND: 1.0, MARKOV: 1.0, JOUR: 1.0, NN: 0.3 };
+            if (state.comboPerf.NN === undefined) state.comboPerf.NN = 0.3;
             const comboKeyMap = { "CONVERGENCE": "CONV", "CONVERGENCE EQ": "EQ", "CONDITIONNEL+": "COND", "MARKOV+": "MARKOV", "JOUR+": "JOUR", "NEURAL": "NN" };
             for (const combo of pred.allCombos) {
               const key = comboKeyMap[combo.nom];
@@ -711,7 +711,9 @@ app.get("/api/historique", (req, res) => {
   const history = loadHistory();
   const recent = history.analyses.slice(-14);
   const stats = { totalPredictions: 0, totalExacts: 0, totalProches: 0, totalComparisons: 0, totalMachineExacts: 0, neuralExacts: 0, neuralMachineExacts: 0, neuralComparisons: 0, parTirage: {} };
+  const dailySummary = [];
   for (const a of history.analyses) {
+    let dayExacts = 0, dayProches = 0, dayMachine = 0, dayComps = 0, dayNNExacts = 0, dayNNComps = 0;
     for (const c of (a.comparaisons || [])) {
       if (!c.comp) continue;
       stats.totalComparisons++;
@@ -719,10 +721,12 @@ app.get("/api/historique", (req, res) => {
       stats.totalProches += c.comp.proches.length;
       stats.totalMachineExacts += c.comp.nbMachineExacts || 0;
       stats.totalPredictions += 5;
+      dayComps++; dayExacts += c.comp.nbExacts; dayProches += c.comp.proches.length; dayMachine += c.comp.nbMachineExacts || 0;
       if (c.neuralComp) {
         stats.neuralComparisons++;
         stats.neuralExacts += c.neuralComp.nbExacts;
         stats.neuralMachineExacts += c.neuralComp.nbMachineExacts || 0;
+        dayNNComps++; dayNNExacts += c.neuralComp.nbExacts;
       }
       if (!stats.parTirage[c.tirage]) stats.parTirage[c.tirage] = { total: 0, exacts: 0, proches: 0, machine: 0, count: 0 };
       stats.parTirage[c.tirage].count++;
@@ -731,10 +735,13 @@ app.get("/api/historique", (req, res) => {
       stats.parTirage[c.tirage].machine += c.comp.nbMachineExacts || 0;
       stats.parTirage[c.tirage].total += 5;
     }
+    if (dayComps > 0) {
+      dailySummary.push({ date: a.date, comparaisons: dayComps, exacts: dayExacts, proches: dayProches, machine: dayMachine, taux: +(dayExacts / (dayComps * 5) * 100).toFixed(1), nnExacts: dayNNExacts, nnComps: dayNNComps });
+    }
   }
   const learnResult = analyserEchecs(history);
   const learnState = loadLearnState();
-  res.json({ recent, stats, learning: learnResult, v4Weights: learnState.criteriaWeights, lastBacktest: learnState.lastBacktest, autoSavedCount: history.predictions.filter(p => p.auto).length });
+  res.json({ recent, allAnalyses: history.analyses, dailySummary, stats, learning: learnResult, v4Weights: learnState.criteriaWeights, lastBacktest: learnState.lastBacktest, autoSavedCount: history.predictions.filter(p => p.auto).length });
 });
 
 app.get("/api/couverture/:jour", (req, res) => {
@@ -769,6 +776,182 @@ app.post("/api/backtest", (req, res) => {
     const state = learnAndAdapt();
     if (!state) return res.json({ error: "Pas assez de donnees" });
     res.json({ success: true, weights: state.criteriaWeights, lastBacktest: state.lastBacktest });
+  } catch (e) { res.json({ success: false, error: e.message }); }
+});
+
+app.post("/api/backtest-custom", (req, res) => {
+  try {
+    const { periode = 6, tirages = [], mise = 100, mode = "chance3", source = "both" } = req.body || {};
+    const db = loadDB();
+    if (db.draws.length < 200) return res.json({ error: "Pas assez de donnees" });
+    const state = loadLearnState();
+
+    const PARIS = {
+      "1n":   { pick: 1, gains: { 1: 1100 } },
+      "1ndc": { pick: 1, gains: { 1: 550 } },
+      "2n":   { pick: 2, gains: { 2: 24000 } },
+      "2ndc": { pick: 2, gains: { 2: 12000 } },
+      "3n":   { pick: 3, gains: { 3: 200000 } },
+      "3ndc": { pick: 3, gains: { 3: 100000 } },
+      "ch3":  { pick: 3, gains: { 2: 6000, 3: 175000 } },
+      "ch3dc":{ pick: 3, gains: { 2: 3000, 3: 87500 } },
+      "ch4":  { pick: 4, gains: { 2: 3000, 3: 30000, 4: 1000000 } },
+      "ch4dc":{ pick: 4, gains: { 2: 1500, 3: 15000, 4: 500000 } },
+      "ch5":  { pick: 5, gains: { 2: 2000, 3: 10000, 4: 200000, 5: 5000000 } },
+      "ch5dc":{ pick: 5, gains: { 2: 1000, 3: 5000, 4: 100000, 5: 2500000 } },
+    };
+    const pari = PARIS[mode] || PARIS["ch4dc"];
+    const pickN = pari.pick;
+    const gainsTable = pari.gains;
+    const isDC = mode.includes("dc");
+
+    function parseDt(s) {
+      const p = s.match(/(\d{2})\/(\d{2})\/(\d{4})/);
+      return p ? new Date(parseInt(p[3]), parseInt(p[2]) - 1, parseInt(p[1])) : null;
+    }
+    function ajusterBT(nums, ranked) {
+      let att = [...nums];
+      for (let it = 0; it < 20; it++) {
+        const s = att.reduce((a, b) => a + b, 0);
+        const p = att.filter(n => n % 2 === 0).length;
+        const h = att.filter(n => n > 45).length;
+        if (s >= 160 && s <= 290 && p >= 1 && p <= 4 && h >= 1 && h <= 4) return att.sort((a, b) => a - b);
+        let idx, cond;
+        if (s < 160) { idx = att.indexOf(Math.min(...att)); cond = r => r.num > att[idx] && !att.includes(r.num); }
+        else if (s > 290) { idx = att.indexOf(Math.max(...att)); cond = r => r.num < att[idx] && !att.includes(r.num); }
+        else break;
+        if (idx < 0) idx = att.length - 1;
+        const rep = ranked.find(cond);
+        if (rep) att[idx] = rep.num; else break;
+      }
+      return att.sort((a, b) => a - b);
+    }
+
+    const lastDate = parseDt(db.draws[0].date);
+    const cutoff = new Date(lastDate);
+    cutoff.setMonth(cutoff.getMonth() - Math.min(Math.max(periode, 1), 24));
+    const tirageSet = tirages.length > 0 ? new Set(tirages) : null;
+
+    const hitDist = { bot: [0,0,0,0,0,0], ia: [0,0,0,0,0,0] };
+    const monthly = {};
+    const perDraw = {};
+    const winList = [];
+    let totalPlays = 0, totalGainBot = 0, totalGainIA = 0;
+
+    for (let i = 0; i < db.draws.length; i++) {
+      const target = db.draws[i];
+      const dt = parseDt(target.date);
+      if (!dt || dt < cutoff) break;
+      if (tirageSet && !tirageSet.has(target.type)) continue;
+
+      const hist = db.draws.slice(i + 1);
+      const filtered = hist.filter(d => d.type === target.type);
+      if (filtered.length < 20) continue;
+
+      const jour = dt.getDay();
+      const cat = getCategoryForType(target.type);
+      const w = state.categoryWeights[cat] || state.criteriaWeights;
+      const tops = computeCriteriaTops(filtered, hist, 15, jour);
+      if (!tops) continue;
+
+      const ranked = convergenceScore(tops, w);
+      const botNums = pickN >= 5 ? ajusterBT(ranked.slice(0, 5).map(r => r.num), ranked) : ranked.slice(0, pickN).map(r => r.num);
+      let iaNums = [];
+      if (source !== "bot" && neuralNet) {
+        const nnS = predictNeural(neuralNet, hist, target.type, jour);
+        if (nnS && nnS.length >= pickN) iaNums = nnS.slice(0, pickN).map(s => s.num).sort((a, b) => a - b);
+      }
+
+      const gSet = new Set(target.gagnants);
+      const mach = (target.machine || []).filter(n => n > 0);
+      const gmSet = new Set([...target.gagnants, ...mach]);
+      const targetSet = isDC && mach.length > 0 ? gmSet : gSet;
+
+      const botH = source !== "ia" ? botNums.filter(n => targetSet.has(n)).length : 0;
+      const iaH = source !== "bot" && iaNums.length > 0 ? iaNums.filter(n => targetSet.has(n)).length : 0;
+
+      if (source !== "ia") hitDist.bot[Math.min(botH, pickN)]++;
+      if (source !== "bot" && iaNums.length > 0) hitDist.ia[Math.min(iaH, pickN)]++;
+
+      const botGain = source !== "ia" ? (gainsTable[Math.min(botH, pickN)] || 0) * (mise / 100) : 0;
+      const iaGain = source !== "bot" && iaNums.length > 0 ? (gainsTable[Math.min(iaH, pickN)] || 0) * (mise / 100) : 0;
+      totalGainBot += botGain;
+      totalGainIA += iaGain;
+      totalPlays++;
+
+      const mKey = String(dt.getMonth() + 1).padStart(2, "0") + "/" + dt.getFullYear();
+      if (!monthly[mKey]) monthly[mKey] = { plays: 0, dep: 0, gainBot: 0, gainIA: 0 };
+      const pariBySrc = (source === "both" ? 2 : 1) * mise;
+      monthly[mKey].plays++;
+      monthly[mKey].dep += pariBySrc;
+      monthly[mKey].gainBot += botGain;
+      monthly[mKey].gainIA += iaGain;
+
+      if (!perDraw[target.type]) perDraw[target.type] = { plays: 0, dep: 0, gain: 0, wins: 0 };
+      perDraw[target.type].plays++;
+      perDraw[target.type].dep += pariBySrc;
+      perDraw[target.type].gain += botGain + iaGain;
+      if (botGain > 0 || iaGain > 0) perDraw[target.type].wins++;
+
+      if (botGain > 0 || iaGain > 0) {
+        winList.push({
+          date: target.date, tirage: target.type,
+          botNums: source !== "ia" ? botNums : [],
+          iaNums: source !== "bot" ? iaNums : [],
+          resultat: target.gagnants,
+          machine: mach,
+          botHits: botH, iaHits: iaH,
+          botGain, iaGain,
+          gainTotal: botGain + iaGain,
+        });
+      }
+    }
+
+    const pariBySrc = (source === "both" ? 2 : 1) * mise;
+    const totalDep = totalPlays * pariBySrc;
+    const totalGain = totalGainBot + totalGainIA;
+    const profit = totalGain - totalDep;
+
+    const monthlyArr = Object.entries(monthly).sort().map(([m, v]) => ({
+      mois: m, ...v, gain: v.gainBot + v.gainIA, profit: v.gainBot + v.gainIA - v.dep,
+    }));
+    const perDrawArr = Object.entries(perDraw).sort((a, b) => b[1].gain - a[1].gain).map(([t, v]) => ({
+      tirage: t, ...v, profit: v.gain - v.dep, roi: v.dep > 0 ? +((v.gain - v.dep) / v.dep * 100).toFixed(1) : 0,
+    }));
+    winList.sort((a, b) => b.gainTotal - a.gainTotal);
+
+    res.json({
+      success: true,
+      params: { periode, tirages: tirages.length > 0 ? tirages : "tous", mise, mode, source },
+      summary: { totalPlays, totalDep, totalGain, totalGainBot, totalGainIA, profit, roi: totalDep > 0 ? +(profit / totalDep * 100).toFixed(1) : 0 },
+      hitDist,
+      monthly: monthlyArr,
+      perDraw: perDrawArr,
+      wins: winList.slice(0, 50),
+      totalWins: winList.length,
+    });
+  } catch (e) { res.json({ success: false, error: e.message }); }
+});
+
+app.post("/api/train-learn", (req, res) => {
+  try {
+    const db = loadDB();
+    const stateBefore = loadLearnState();
+    const scoreBefore = backtestScore(db.draws, stateBefore.criteriaWeights, 300);
+    console.log("[LEARN] Apprentissage demande...");
+    const result = learnAndAdapt();
+    if (!result) return res.json({ error: "Pas assez de donnees" });
+    const scoreAfter = backtestScore(db.draws, result.criteriaWeights, 300);
+    console.log("[LEARN] Termine: " + (scoreBefore * 100).toFixed(2) + "% -> " + (scoreAfter * 100).toFixed(2) + "%");
+    res.json({
+      success: true,
+      scoreBefore: +(scoreBefore * 100).toFixed(2),
+      scoreAfter: +(scoreAfter * 100).toFixed(2),
+      delta: +((scoreAfter - scoreBefore) * 100).toFixed(2),
+      weights: result.criteriaWeights,
+      categories: Object.keys(result.categoryWeights).length,
+      trainedOn: result.trainedOn,
+    });
   } catch (e) { res.json({ success: false, error: e.message }); }
 });
 

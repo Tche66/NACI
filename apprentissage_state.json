@@ -1,19 +1,20 @@
 {
   "criteriaWeights": {
-    "jourAffinity": 28.9753481228669,
-    "freqGlob": 30,
-    "markov2": 30,
-    "paires": 30,
     "terminaisons": 30,
-    "conditionnel": 19.878638597049264,
-    "retard": 3.12,
+    "paires": 30,
+    "markov2": 30,
+    "freqGlob": 30,
+    "conditionnel": 19.202177006872663,
+    "sameDayBoost": 20,
+    "jourAffinity": 14.865129646079744,
     "antiRepet": 7,
-    "freqRecent": 11.557743242302024,
-    "momentum": 11.247246803047423,
+    "momentum": 5.130069147692745,
+    "freqRecent": 5.012159334237238,
+    "retard": 3.12,
     "cycleOverdue": 3
   },
   "topNPerCriteria": 15,
-  "lastBacktest": "2026-11-08T18:56:02.989Z",
+  "lastBacktest": "2026-11-09T16:01:41.664Z",
   "backtestHistory": [
     {
       "date": "2026-10-27T00:00:00.000Z",
@@ -333,101 +334,378 @@
       "score": 0.0689419795221843,
       "prevScore": 0.0689419795221843,
       "improved": true
+    },
+    {
+      "date": "2026-11-08T19:10:58.496Z",
+      "weights": {
+        "jourAffinity": 28.6255529010239,
+        "freqGlob": 30,
+        "markov2": 30,
+        "paires": 30,
+        "terminaisons": 30,
+        "conditionnel": 19.87027682230524,
+        "retard": 3.12,
+        "antiRepet": 7,
+        "freqRecent": 11.506992389059704,
+        "momentum": 11.116973765504762,
+        "cycleOverdue": 3
+      },
+      "score": 0.0689419795221843,
+      "prevScore": 0.0689419795221843,
+      "improved": true
+    },
+    {
+      "date": "2026-11-08T19:22:44.641Z",
+      "weights": {
+        "jourAffinity": 28.275757679180902,
+        "freqGlob": 30,
+        "markov2": 30,
+        "paires": 30,
+        "terminaisons": 30,
+        "conditionnel": 19.861915047561215,
+        "retard": 3.12,
+        "antiRepet": 7,
+        "freqRecent": 11.456241535817384,
+        "momentum": 10.9867007279621,
+        "cycleOverdue": 3
+      },
+      "score": 0.0689419795221843,
+      "prevScore": 0.0689419795221843,
+      "improved": true
+    },
+    {
+      "date": "2026-11-08T22:20:54.930Z",
+      "weights": {
+        "jourAffinity": 27.925962457337903,
+        "freqGlob": 30,
+        "markov2": 30,
+        "paires": 30,
+        "terminaisons": 30,
+        "conditionnel": 19.85355327281719,
+        "retard": 3.12,
+        "antiRepet": 7,
+        "freqRecent": 11.405490682575063,
+        "momentum": 10.856427690419439,
+        "cycleOverdue": 3
+      },
+      "score": 0.0689419795221843,
+      "prevScore": 0.0689419795221843,
+      "improved": true
+    },
+    {
+      "date": "2026-11-08T22:59:21.157Z",
+      "weights": {
+        "terminaisons": 30,
+        "paires": 30,
+        "markov2": 28.308310580204775,
+        "freqGlob": 27.464484641638222,
+        "conditionnel": 19.99431399317406,
+        "sameDayBoost": 20,
+        "jourAffinity": 17.762143344709898,
+        "antiRepet": 7,
+        "momentum": 4.894808873720137,
+        "freqRecent": 4.943474402730376,
+        "retard": 2.184,
+        "cycleOverdue": 2.0999999999999996
+      },
+      "score": 0.06757679180887372,
+      "prevScore": 0.0689419795221843,
+      "improved": false
+    },
+    {
+      "date": "2026-11-09T14:23:35.647Z",
+      "weights": {
+        "terminaisons": 29.981999999999992,
+        "paires": 29.981999999999992,
+        "markov2": 28.188639347328035,
+        "freqGlob": 28.05569012109025,
+        "conditionnel": 19.546601664406914,
+        "sameDayBoost": 20,
+        "jourAffinity": 17.65747211183316,
+        "antiRepet": 7,
+        "momentum": 6.189562298377673,
+        "freqRecent": 5.726036046565993,
+        "retard": 3.0839999999999996,
+        "cycleOverdue": 2.9999999999999996
+      },
+      "score": 0.06712328767123288,
+      "prevScore": 0.0684931506849315,
+      "improved": false
+    },
+    {
+      "date": "2026-11-09T14:55:41.050Z",
+      "weights": {
+        "terminaisons": 30,
+        "paires": 30,
+        "markov2": 28.617680443218443,
+        "freqGlob": 28.728840806021758,
+        "conditionnel": 19.507012623311024,
+        "sameDayBoost": 20,
+        "jourAffinity": 17.336513207723574,
+        "antiRepet": 7,
+        "momentum": 6.067781476459865,
+        "freqRecent": 5.643981252045447,
+        "retard": 3.12,
+        "cycleOverdue": 3
+      },
+      "score": 0.06712328767123288,
+      "prevScore": 0.06712328767123288,
+      "improved": true
+    },
+    {
+      "date": "2026-11-09T15:01:59.040Z",
+      "weights": {
+        "terminaisons": 30,
+        "paires": 30,
+        "markov2": 29.04672153910885,
+        "freqGlob": 29.401991490953264,
+        "conditionnel": 19.467423582215133,
+        "sameDayBoost": 20,
+        "jourAffinity": 17.015554303613985,
+        "antiRepet": 7,
+        "momentum": 5.946000654542058,
+        "freqRecent": 5.5619264575249,
+        "retard": 3.12,
+        "cycleOverdue": 3
+      },
+      "score": 0.06712328767123288,
+      "prevScore": 0.06712328767123288,
+      "improved": true
+    },
+    {
+      "date": "2026-11-09T15:07:18.246Z",
+      "weights": {
+        "terminaisons": 30,
+        "paires": 30,
+        "markov2": 29.47576263499926,
+        "freqGlob": 30,
+        "conditionnel": 19.427834541119243,
+        "sameDayBoost": 20,
+        "jourAffinity": 16.694595399504397,
+        "antiRepet": 7,
+        "momentum": 5.82421983262425,
+        "freqRecent": 5.479871663004354,
+        "retard": 3.12,
+        "cycleOverdue": 3
+      },
+      "score": 0.06712328767123288,
+      "prevScore": 0.06712328767123288,
+      "improved": true
+    },
+    {
+      "date": "2026-11-09T15:09:44.293Z",
+      "weights": {
+        "terminaisons": 30,
+        "paires": 30,
+        "markov2": 29.776091402122542,
+        "freqGlob": 30,
+        "conditionnel": 19.400122212352116,
+        "sameDayBoost": 20,
+        "jourAffinity": 16.469924166627685,
+        "antiRepet": 7,
+        "momentum": 5.738973257281784,
+        "freqRecent": 5.422433306839971,
+        "retard": 3.1199999999999997,
+        "cycleOverdue": 2.9999999999999996
+      },
+      "score": 0.06643835616438357,
+      "prevScore": 0.06712328767123288,
+      "improved": false
+    },
+    {
+      "date": "2026-11-09T15:32:06.700Z",
+      "weights": {
+        "terminaisons": 30,
+        "paires": 30,
+        "markov2": 30,
+        "freqGlob": 30,
+        "conditionnel": 19.360533171256225,
+        "sameDayBoost": 20,
+        "jourAffinity": 16.148965262518097,
+        "antiRepet": 7,
+        "momentum": 5.617192435363976,
+        "freqRecent": 5.3403785123194245,
+        "retard": 3.12,
+        "cycleOverdue": 3
+      },
+      "score": 0.06643835616438357,
+      "prevScore": 0.06643835616438357,
+      "improved": true
+    },
+    {
+      "date": "2026-11-09T15:34:57.880Z",
+      "weights": {
+        "terminaisons": 30,
+        "paires": 30,
+        "markov2": 30,
+        "freqGlob": 30,
+        "conditionnel": 19.320944130160335,
+        "sameDayBoost": 20,
+        "jourAffinity": 15.828006358408508,
+        "antiRepet": 7,
+        "momentum": 5.495411613446168,
+        "freqRecent": 5.258323717798878,
+        "retard": 3.12,
+        "cycleOverdue": 3
+      },
+      "score": 0.06643835616438357,
+      "prevScore": 0.06643835616438357,
+      "improved": true
+    },
+    {
+      "date": "2026-11-09T15:40:10.089Z",
+      "weights": {
+        "terminaisons": 30,
+        "paires": 30,
+        "markov2": 30,
+        "freqGlob": 30,
+        "conditionnel": 19.281355089064444,
+        "sameDayBoost": 20,
+        "jourAffinity": 15.50704745429892,
+        "antiRepet": 7,
+        "momentum": 5.3736307915283605,
+        "freqRecent": 5.176268923278331,
+        "retard": 3.12,
+        "cycleOverdue": 3
+      },
+      "score": 0.06643835616438357,
+      "prevScore": 0.06643835616438357,
+      "improved": true
+    },
+    {
+      "date": "2026-11-09T15:44:41.066Z",
+      "weights": {
+        "terminaisons": 30,
+        "paires": 30,
+        "markov2": 30,
+        "freqGlob": 30,
+        "conditionnel": 19.241766047968554,
+        "sameDayBoost": 20,
+        "jourAffinity": 15.186088550189332,
+        "antiRepet": 7,
+        "momentum": 5.251849969610553,
+        "freqRecent": 5.094214128757785,
+        "retard": 3.12,
+        "cycleOverdue": 3
+      },
+      "score": 0.06643835616438357,
+      "prevScore": 0.06643835616438357,
+      "improved": true
+    },
+    {
+      "date": "2026-11-09T16:01:41.664Z",
+      "weights": {
+        "terminaisons": 30,
+        "paires": 30,
+        "markov2": 30,
+        "freqGlob": 30,
+        "conditionnel": 19.202177006872663,
+        "sameDayBoost": 20,
+        "jourAffinity": 14.865129646079744,
+        "antiRepet": 7,
+        "momentum": 5.130069147692745,
+        "freqRecent": 5.012159334237238,
+        "retard": 3.12,
+        "cycleOverdue": 3
+      },
+      "score": 0.06712328767123288,
+      "prevScore": 0.06643835616438357,
+      "improved": true
     }
   ],
   "version": 5,
-  "trainedOn": 15715,
-  "trainedPeriod": "01/01/2021 - 08/11/2026",
+  "trainedOn": 15722,
+  "trainedPeriod": "01/01/2021 - 09/11/2026",
   "categoryWeights": {
     "digital": {
-      "jourAffinity": 29.580000000000016,
-      "freqGlob": 29.96,
-      "markov2": 29.880000000000003,
-      "paires": 29.880000000000003,
-      "terminaisons": 29.96,
-      "conditionnel": 20.300000000000022,
-      "retard": 4.439999999999999,
+      "jourAffinity": 29.760000000000023,
+      "freqGlob": 30,
+      "markov2": 30,
+      "paires": 29.9,
+      "terminaisons": 30,
+      "conditionnel": 19.440000000000037,
+      "retard": 3,
       "antiRepet": 7,
-      "freqRecent": 7.320000000000006,
-      "momentum": 6.039999999999998,
+      "freqRecent": 6.880000000000006,
+      "momentum": 6.52,
       "cycleOverdue": 3
     },
     "matin": {
-      "jourAffinity": 28.60344827586208,
-      "freqGlob": 29.023448275862073,
-      "markov2": 26.8386206896552,
-      "paires": 29.96,
-      "terminaisons": 28.647586206896545,
-      "conditionnel": 19.30413793103449,
-      "retard": 8.90965517241381,
+      "jourAffinity": 28.32344827586208,
+      "freqGlob": 28.983448275862074,
+      "markov2": 26.578620689655203,
+      "paires": 29.92,
+      "terminaisons": 28.86758620689655,
+      "conditionnel": 19.224137931034495,
+      "retard": 3.24,
       "antiRepet": 7,
-      "freqRecent": 6.135862068965517,
-      "momentum": 8.183448275862073,
-      "cycleOverdue": 3
+      "freqRecent": 6.215862068965518,
+      "momentum": 8.823448275862074,
+      "cycleOverdue": 3.02
     },
     "midi": {
-      "jourAffinity": 27.876551724137936,
-      "freqGlob": 28.099310344827597,
-      "markov2": 24.626206896551736,
-      "paires": 29.7,
-      "terminaisons": 26.242068965517266,
-      "conditionnel": 26.731034482758634,
-      "retard": 5.111724137931032,
+      "jourAffinity": 27.91655172413794,
+      "freqGlob": 27.8993103448276,
+      "markov2": 24.42620689655174,
+      "paires": 29.740000000000002,
+      "terminaisons": 26.28206896551727,
+      "conditionnel": 26.771034482758637,
+      "retard": 3,
       "antiRepet": 7,
-      "freqRecent": 8.456551724137933,
-      "momentum": 6.658620689655179,
-      "cycleOverdue": 3.3000000000000003
+      "freqRecent": 9.216551724137931,
+      "momentum": 7.41862068965518,
+      "cycleOverdue": 3
     },
     "aprem": {
       "jourAffinity": 30,
       "freqGlob": 30,
-      "markov2": 26.55,
+      "markov2": 25.890000000000004,
       "paires": 30,
       "terminaisons": 30,
-      "conditionnel": 21.244999999999987,
-      "retard": 4.925000000000007,
+      "conditionnel": 21.364999999999984,
+      "retard": 0,
       "antiRepet": 7,
-      "freqRecent": 11.260000000000021,
-      "momentum": 14.475000000000009,
-      "cycleOverdue": 3.180000000000003
+      "freqRecent": 12.220000000000027,
+      "momentum": 16.45500000000001,
+      "cycleOverdue": 0
     },
     "soir": {
-      "jourAffinity": 27.235714285714288,
-      "freqGlob": 27.035714285714285,
-      "markov2": 29.60000000000001,
-      "paires": 26.372142857142872,
-      "terminaisons": 25.479285714285687,
-      "conditionnel": 22.070714285714285,
-      "retard": 11.162857142857145,
+      "jourAffinity": 24.735714285714288,
+      "freqGlob": 24.635714285714283,
+      "markov2": 29.200000000000017,
+      "paires": 25.872142857142883,
+      "terminaisons": 22.279285714285685,
+      "conditionnel": 22.970714285714283,
+      "retard": 4.920000000000002,
       "antiRepet": 7,
       "freqRecent": 3.2800000000000002,
       "momentum": 3.18,
-      "cycleOverdue": 4.357500000000007
+      "cycleOverdue": 4.180000000000005
     },
     "afterwork": {
-      "jourAffinity": 22.648326350187826,
-      "freqGlob": 25.1302395964691,
-      "markov2": 26.123930087187674,
-      "paires": 26.72024786776773,
+      "jourAffinity": 21.662663267750556,
+      "freqGlob": 24.463572929802435,
+      "markov2": 25.593464137366894,
+      "paires": 26.08225503622651,
       "terminaisons": 29.93548387096774,
-      "conditionnel": 22.06822139961222,
-      "retard": 11.68694436534735,
+      "conditionnel": 22.512665844056663,
+      "retard": 3.71146953405018,
       "antiRepet": 7,
-      "freqRecent": 14.50616903280044,
-      "momentum": 11.715778654625831,
+      "freqRecent": 15.696133190506533,
+      "momentum": 12.472051056059522,
       "cycleOverdue": 3
     },
     "weekend": {
       "jourAffinity": 30,
-      "freqGlob": 25.068571428571424,
-      "markov2": 28.580000000000013,
+      "freqGlob": 23.628571428571423,
+      "markov2": 28.039999999999992,
       "paires": 30,
-      "terminaisons": 28.82571428571429,
-      "conditionnel": 16.654285714285724,
-      "retard": 11.134285714285742,
+      "terminaisons": 29.725714285714304,
+      "conditionnel": 13.414285714285732,
+      "retard": 3.4800000000000075,
       "antiRepet": 7,
-      "freqRecent": 5.057142857142859,
-      "momentum": 9.44857142857143,
+      "freqRecent": 4.337142857142858,
+      "momentum": 9.268571428571434,
       "cycleOverdue": 3
     }
   },
@@ -571,13 +849,212 @@
         "weekend": 0.052
       },
       "trainedOn": 15715
+    },
+    {
+      "date": "2026-11-08T19:10:58.496Z",
+      "globalScore": 0.0689419795221843,
+      "categoryScores": {
+        "digital": 0.06666666666666667,
+        "matin": 0.04533333333333334,
+        "midi": 0.056,
+        "aprem": 0.064,
+        "soir": 0.06133333333333333,
+        "afterwork": 0.05466666666666667,
+        "weekend": 0.052
+      },
+      "trainedOn": 15715
+    },
+    {
+      "date": "2026-11-08T19:22:44.641Z",
+      "globalScore": 0.0689419795221843,
+      "categoryScores": {
+        "digital": 0.06666666666666667,
+        "matin": 0.04533333333333334,
+        "midi": 0.056,
+        "aprem": 0.064,
+        "soir": 0.06133333333333333,
+        "afterwork": 0.05466666666666667,
+        "weekend": 0.052
+      },
+      "trainedOn": 15715
+    },
+    {
+      "date": "2026-11-08T22:20:54.930Z",
+      "globalScore": 0.0689419795221843,
+      "categoryScores": {
+        "digital": 0.06666666666666667,
+        "matin": 0.04533333333333334,
+        "midi": 0.056,
+        "aprem": 0.064,
+        "soir": 0.06133333333333333,
+        "afterwork": 0.05466666666666667,
+        "weekend": 0.052
+      },
+      "trainedOn": 15715
+    },
+    {
+      "date": "2026-11-08T22:59:21.157Z",
+      "globalScore": 0.06757679180887372,
+      "categoryScores": {
+        "digital": 0.07333333333333333,
+        "matin": 0.044,
+        "midi": 0.056,
+        "aprem": 0.06533333333333333,
+        "soir": 0.06133333333333333,
+        "afterwork": 0.05333333333333334,
+        "weekend": 0.052
+      },
+      "trainedOn": 15717
+    },
+    {
+      "date": "2026-11-09T14:23:35.647Z",
+      "globalScore": 0.06712328767123288,
+      "categoryScores": {
+        "digital": 0.06666666666666667,
+        "matin": 0.042666666666666665,
+        "midi": 0.05466666666666667,
+        "aprem": 0.06533333333333333,
+        "soir": 0.06133333333333333,
+        "afterwork": 0.05333333333333334,
+        "weekend": 0.052
+      },
+      "trainedOn": 15722
+    },
+    {
+      "date": "2026-11-09T14:55:41.050Z",
+      "globalScore": 0.06712328767123288,
+      "categoryScores": {
+        "digital": 0.06666666666666667,
+        "matin": 0.042666666666666665,
+        "midi": 0.05466666666666667,
+        "aprem": 0.06533333333333333,
+        "soir": 0.06133333333333333,
+        "afterwork": 0.05333333333333334,
+        "weekend": 0.052
+      },
+      "trainedOn": 15722
+    },
+    {
+      "date": "2026-11-09T15:01:59.040Z",
+      "globalScore": 0.06712328767123288,
+      "categoryScores": {
+        "digital": 0.06666666666666667,
+        "matin": 0.042666666666666665,
+        "midi": 0.05466666666666667,
+        "aprem": 0.06533333333333333,
+        "soir": 0.06133333333333333,
+        "afterwork": 0.05333333333333334,
+        "weekend": 0.052
+      },
+      "trainedOn": 15722
+    },
+    {
+      "date": "2026-11-09T15:07:18.246Z",
+      "globalScore": 0.06712328767123288,
+      "categoryScores": {
+        "digital": 0.06666666666666667,
+        "matin": 0.042666666666666665,
+        "midi": 0.05466666666666667,
+        "aprem": 0.06533333333333333,
+        "soir": 0.06133333333333333,
+        "afterwork": 0.05333333333333334,
+        "weekend": 0.052
+      },
+      "trainedOn": 15722
+    },
+    {
+      "date": "2026-11-09T15:09:44.293Z",
+      "globalScore": 0.06643835616438357,
+      "categoryScores": {
+        "digital": 0.06666666666666667,
+        "matin": 0.042666666666666665,
+        "midi": 0.05466666666666667,
+        "aprem": 0.06533333333333333,
+        "soir": 0.06133333333333333,
+        "afterwork": 0.05333333333333334,
+        "weekend": 0.052
+      },
+      "trainedOn": 15722
+    },
+    {
+      "date": "2026-11-09T15:32:06.700Z",
+      "globalScore": 0.06643835616438357,
+      "categoryScores": {
+        "digital": 0.06666666666666667,
+        "matin": 0.042666666666666665,
+        "midi": 0.05466666666666667,
+        "aprem": 0.06533333333333333,
+        "soir": 0.06133333333333333,
+        "afterwork": 0.05333333333333334,
+        "weekend": 0.052
+      },
+      "trainedOn": 15722
+    },
+    {
+      "date": "2026-11-09T15:34:57.880Z",
+      "globalScore": 0.06643835616438357,
+      "categoryScores": {
+        "digital": 0.06666666666666667,
+        "matin": 0.042666666666666665,
+        "midi": 0.05466666666666667,
+        "aprem": 0.06533333333333333,
+        "soir": 0.06133333333333333,
+        "afterwork": 0.05333333333333334,
+        "weekend": 0.052
+      },
+      "trainedOn": 15722
+    },
+    {
+      "date": "2026-11-09T15:40:10.089Z",
+      "globalScore": 0.06643835616438357,
+      "categoryScores": {
+        "digital": 0.06666666666666667,
+        "matin": 0.042666666666666665,
+        "midi": 0.05466666666666667,
+        "aprem": 0.06533333333333333,
+        "soir": 0.06133333333333333,
+        "afterwork": 0.05333333333333334,
+        "weekend": 0.052
+      },
+      "trainedOn": 15722
+    },
+    {
+      "date": "2026-11-09T15:44:41.066Z",
+      "globalScore": 0.06643835616438357,
+      "categoryScores": {
+        "digital": 0.06666666666666667,
+        "matin": 0.042666666666666665,
+        "midi": 0.05466666666666667,
+        "aprem": 0.06533333333333333,
+        "soir": 0.06133333333333333,
+        "afterwork": 0.05333333333333334,
+        "weekend": 0.052
+      },
+      "trainedOn": 15722
+    },
+    {
+      "date": "2026-11-09T16:01:41.664Z",
+      "globalScore": 0.06712328767123288,
+      "categoryScores": {
+        "digital": 0.06666666666666667,
+        "matin": 0.042666666666666665,
+        "midi": 0.05466666666666667,
+        "aprem": 0.06533333333333333,
+        "soir": 0.06133333333333333,
+        "afterwork": 0.05333333333333334,
+        "weekend": 0.052
+      },
+      "trainedOn": 15722
     }
   ],
   "comboPerf": {
-    "CONV": 1.0827974882991516,
-    "EQ": 1.210774735594245,
-    "COND": 0.6941469271971421,
-    "MARKOV": 0.9597718037687641,
-    "JOUR": 1.0306505916633693
-  }
+    "CONV": 0.9221280383077298,
+    "EQ": 1.026531534237064,
+    "COND": 0.6081664752633221,
+    "MARKOV": 0.7437870453025901,
+    "JOUR": 0.9673843826506985,
+    "NN": 0.322270105
+  },
+  "lastRecalibration": "2026-11-08T22:53:49.185Z",
+  "recalibrationNote": "v6: recalibrage sur 15717 tirages, cycleOverdue/retard desactives, NN reduit a 0.3"
 }
