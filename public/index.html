@@ -293,9 +293,12 @@ function loadJouer(jour){
     }
 
     // CONSEIL DU JOUR
-    var jourQuality={0:{lbl:'TRES BON',col:'var(--green)',icon:'&#9733;'},1:{lbl:'EXCELLENT',col:'var(--green)',icon:'&#9733;&#9733;'},2:{lbl:'EXCELLENT',col:'var(--green)',icon:'&#9733;&#9733;'},3:{lbl:'FAIBLE',col:'var(--red)',icon:'&#9888;'},4:{lbl:'NEUTRE',col:'var(--orange)',icon:''},5:{lbl:'BON',col:'var(--green)',icon:'&#9733;'},6:{lbl:'FAIBLE',col:'var(--red)',icon:'&#9888;'}};
-    var topTirages={0:['Benediction','Prestige','Awale'],1:['Akwaba','Monday Special'],2:['Sika','Lucky Tuesday'],3:['Midweek','Baraka'],4:['Fortune Thursday'],5:['Friday Bonanza'],6:['Special Weekend 3h','Diamant']};
-    var eviterTirages={0:['Espoir'],1:['Premiere Heure'],2:['Emergence'],3:['Premiere Heure'],4:['Privilege'],5:['Solution'],6:['Moaye','National']};
+    // Donnees basees sur backtest Chance 4+ DC, 6 mois, Bot top 4
+    var jourQuality={0:{lbl:'TRES BON',col:'var(--green)',icon:'&#9733;'},1:{lbl:'BON',col:'var(--orange)',icon:'&#9733;'},2:{lbl:'JACKPOT',col:'var(--green)',icon:'&#9733;&#9733;&#9733;'},3:{lbl:'FAIBLE',col:'var(--red)',icon:'&#9888;'},4:{lbl:'NEUTRE',col:'var(--orange)',icon:''},5:{lbl:'BON',col:'var(--green)',icon:'&#9733;'},6:{lbl:'BON',col:'var(--green)',icon:'&#9733;'}};
+    var topTirages={0:['Prestige','Benediction','Digital Reveil 7h'],1:['Reveil','Cash','Digital 23h'],2:['Sika','Digital Reveil 8h','Digital 23h'],3:['Baraka','Digital Reveil 7h','Digital 23h'],4:['Digital Reveil 8h','Digital 23h','Digital 21h'],5:['Digital Reveil 7h','Digital 23h','Afterwork'],6:['Special Weekend 3h','Diamant','Digital 23h']};
+    var eviterTirages={0:['Espoir','National'],1:['Monday Special','Premiere Heure'],2:['Lucky Tuesday','Emergence'],3:['Midweek','Premiere Heure'],4:['Kado','Fortune Thursday'],5:['Friday Bonanza','Solution'],6:['National','Moaye']};
+    // Remarques speciales par tirage
+    var tirageRemarks={'Sika':'MEILLEUR TIRAGE (ROI +19246%) — 1 jackpot 4/4 sur 6 mois','Digital Reveil 8h':'Top digital (ROI +222%, 11.3% de win)','Digital Reveil 7h':'Solide (ROI +159%)','Digital 23h':'Regulier tous les jours (ROI +120%)','Special Weekend 3h':'Bon le weekend (ROI +289%)','Reveil':'Surprise lundi matin (ROI +622%)','Cash':'Vendredi matin rentable (ROI +535%)','Monday Special':'EVITER — 0 gain en 6 mois','Lucky Tuesday':'EVITER — 0 gain en 6 mois','Midweek':'EVITER — 0 gain en 6 mois','Friday Bonanza':'EVITER — quasi-perdant','Espoir':'EVITER — 0 gain','National':'EVITER — 0 gain'};
     var jq=jourQuality[jour]||{lbl:'',col:'var(--text2)',icon:''};
     var tops=topTirages[jour]||[];
     var eviter=eviterTirages[jour]||[];
@@ -419,21 +422,35 @@ function loadJouer(jour){
         if(t.prediction.combos[j].isSuper||t.prediction.combos[j].confiance==='MAXIMALE'){sc=t.prediction.combos[j];mainC=sc}
         if(t.prediction.combos[j].isNeural||t.prediction.combos[j].confiance==='IA'){nnC=t.prediction.combos[j]}
       }
-      h+='<div style="padding:8px 0;border-bottom:1px solid var(--border)">';
-      // Ligne classique
+      var remark=tirageRemarks[t.tirage]||'';
+      var isTop=tops.indexOf(t.tirage)>=0;
+      var isEviter=eviter.indexOf(t.tirage)>=0;
+      var borderCol=isEviter?'var(--red)':isTop?'var(--green)':'var(--border)';
+      h+='<div style="padding:8px 0;border-bottom:1px solid var(--border);border-left:3px solid '+borderCol+';padding-left:8px;margin-bottom:2px;border-radius:2px">';
+      // Ligne classique — top 4 en gros, le 5eme en petit
       h+='<div class="trow" style="border:none;padding:2px 0">';
       h+='<span class="trow-time">'+t.heure+'</span>';
-      h+='<span class="trow-name">'+t.tirage+'</span>';
+      h+='<span class="trow-name"'+(isTop?' style="color:var(--green)"':'')+(isEviter?' style="color:var(--red)"':'')+'>'+t.tirage+'</span>';
       h+='<div class="nums" style="gap:3px;justify-content:flex-start">';
-      for(var k=0;k<mainC.nums.length;k++) h+=Ns(mainC.nums[k],sc?'n-grn ns':'n-blu ns');
-      h+='</div></div>';
-      // Ligne IA Neural
+      for(var k=0;k<Math.min(4,mainC.nums.length);k++) h+=Ns(mainC.nums[k],sc?'n-grn ns':'n-blu ns');
+      if(mainC.nums.length>4) h+='<span style="font-size:9px;color:var(--text2);margin-left:2px">+'+mainC.nums[4]+'</span>';
+      h+='</div>';
+      if(isTop) h+='<span style="font-size:8px;color:var(--green);font-weight:700;margin-left:4px">TOP</span>';
+      if(isEviter) h+='<span style="font-size:8px;color:var(--red);font-weight:700;margin-left:4px">EVITER</span>';
+      h+='</div>';
+      // Ligne IA Neural — top 4
       if(nnC){
         h+='<div class="trow" style="border:none;padding:2px 0;padding-left:50px">';
         h+='<span style="font-size:9px;color:var(--purple);font-weight:700;min-width:110px">IA</span>';
         h+='<div class="nums" style="gap:3px;justify-content:flex-start">';
-        for(var k=0;k<nnC.nums.length;k++) h+=Ns(nnC.nums[k],'n-pur ns');
+        for(var k=0;k<Math.min(4,nnC.nums.length);k++) h+=Ns(nnC.nums[k],'n-pur ns');
+        if(nnC.nums.length>4) h+='<span style="font-size:9px;color:var(--text2);margin-left:2px">+'+nnC.nums[4]+'</span>';
         h+='</div></div>';
+      }
+      // Remarque speciale
+      if(remark){
+        var rkCol=remark.indexOf('EVITER')>=0?'var(--red)':remark.indexOf('JACKPOT')>=0||remark.indexOf('MEILLEUR')>=0?'var(--yellow)':'var(--text2)';
+        h+='<div style="font-size:9px;color:'+rkCol+';padding-left:50px;margin-top:1px">'+remark+'</div>';
       }
       h+='</div>';
     }
@@ -706,17 +723,20 @@ function loadSuivi(){
     // MEILLEURS JOURS
     h+='<div class="card"><div class="card-title" style="color:var(--cyan)">Meilleurs jours pour jouer</div>';
     h+='<div class="card-sub">Base sur 2000 tirages recents du bot</div>';
-    var jourData=[{j:"Lundi",pct:"7.1",lift:"1.28",star:2},{j:"Mardi",pct:"6.9",lift:"1.25",star:2},{j:"Dimanche",pct:"6.4",lift:"1.15",star:1},{j:"Vendredi",pct:"6.1",lift:"1.11",star:1},{j:"Jeudi",pct:"5.7",lift:"1.02",star:0},{j:"Samedi",pct:"5.3",lift:"0.96",star:-1},{j:"Mercredi",pct:"5.3",lift:"0.95",star:-1}];
+    // Jours classes par ROI Chance 4+ DC (6 mois)
+    var jourData=[{j:"Mardi",pct:"2001",lift:"JACKPOT",star:3},{j:"Dimanche",pct:"143",lift:"x2.4",star:2},{j:"Samedi",pct:"72",lift:"x1.7",star:1},{j:"Vendredi",pct:"75",lift:"x1.8",star:1},{j:"Lundi",pct:"44",lift:"x1.4",star:1},{j:"Jeudi",pct:"22",lift:"x1.2",star:0},{j:"Mercredi",pct:"-19",lift:"x0.8",star:-1}];
     h+='<div style="display:flex;flex-direction:column;gap:4px">';
     for(var ji=0;ji<jourData.length;ji++){
       var jd=jourData[ji];
-      var jc=jd.star>=2?'var(--green)':jd.star>=1?'var(--cyan)':jd.star===0?'var(--orange)':'var(--red)';
-      var jlbl=jd.star>=2?'EXCELLENT':jd.star>=1?'BON':jd.star===0?'NEUTRE':'EVITER';
-      var barW=Math.round(parseFloat(jd.pct)/10.4*100);
+      var jc=jd.star>=3?'var(--yellow)':jd.star>=2?'var(--green)':jd.star>=1?'var(--cyan)':jd.star===0?'var(--orange)':'var(--red)';
+      var jlbl=jd.star>=3?'JACKPOT':jd.star>=2?'EXCELLENT':jd.star>=1?'BON':jd.star===0?'NEUTRE':'EVITER';
+      var roi=parseInt(jd.pct);
+      var barW=Math.max(0,Math.min(100,Math.round(Math.abs(roi)/20)));
+      if(roi>100)barW=100;
       h+='<div style="display:flex;align-items:center;gap:8px;padding:6px 0'+(ji<jourData.length-1?';border-bottom:1px solid var(--border)':'')+'">';
       h+='<span style="min-width:75px;font-weight:600;font-size:12px">'+jd.j+'</span>';
       h+='<div style="flex:1;height:6px;background:var(--card2);border-radius:3px;overflow:hidden"><div style="width:'+barW+'%;height:100%;background:'+jc+';border-radius:3px"></div></div>';
-      h+='<span style="min-width:40px;text-align:right;font-weight:700;font-size:12px;color:'+jc+'">'+jd.pct+'%</span>';
+      h+='<span style="min-width:55px;text-align:right;font-weight:700;font-size:12px;color:'+jc+'">'+(roi>=0?'+':'')+jd.pct+'%</span>';
       h+='<span style="min-width:65px;text-align:right;font-size:10px;color:'+jc+';font-weight:600">'+jlbl+'</span>';
       h+='</div>';
     }
@@ -726,7 +746,7 @@ function loadSuivi(){
     h+='<div style="display:flex;gap:10px;flex-wrap:wrap">';
     // Top tirages
     h+='<div class="card" style="flex:1;min-width:250px"><div class="card-title" style="color:var(--green)">Top tirages</div>';
-    var topT=[{n:"Akwaba",p:"10.4",j:"Lun 15h55"},{n:"Friday Bonanza",p:"9.2",j:"Ven 18h30"},{n:"Digital 23h",p:"8.9",j:"Tous 22h58"},{n:"Sika",p:"8.1",j:"Mar 15h55"},{n:"Midweek",p:"7.2",j:"Mer 18h30"},{n:"Digital Reveil 7h",p:"6.8",j:"Tous 06h58"},{n:"Digital 21h",p:"6.7",j:"Tous 20h58"}];
+    var topT=[{n:"Sika",p:"+19246%",j:"Mar 15h55",r:"JACKPOT 4/4"},{n:"Reveil",p:"+622%",j:"Lun 09h55"},{n:"Cash",p:"+535%",j:"Ven 09h55"},{n:"Sp. Weekend 3h",p:"+289%",j:"Sam/Dim 03h"},{n:"Digital Rev. 8h",p:"+222%",j:"Tous 07h58"},{n:"Digital Rev. 7h",p:"+159%",j:"Tous 06h58"},{n:"Digital 23h",p:"+120%",j:"Tous 22h58"}];
     for(var ti=0;ti<topT.length;ti++){
       var t=topT[ti];
       h+='<div style="display:flex;align-items:center;gap:6px;padding:4px 0;font-size:11px'+(ti<topT.length-1?';border-bottom:1px solid var(--border)':'')+'">';
@@ -739,7 +759,7 @@ function loadSuivi(){
     h+='</div>';
     // A eviter
     h+='<div class="card" style="flex:1;min-width:250px"><div class="card-title" style="color:var(--red)">A eviter</div>';
-    var worstT=[{n:"Solution",p:"1.5",j:"Ven 12h55"},{n:"Premiere Heure",p:"2.2",j:"Mer 09h55"},{n:"Moaye",p:"2.2",j:"Sam 15h55"},{n:"Espoir",p:"2.4",j:"Dim 18h30"},{n:"Etoile",p:"3.6",j:"Lun 12h55"},{n:"Emergence",p:"3.7",j:"Mar 12h55"},{n:"National",p:"3.8",j:"Sam 18h30"}];
+    var worstT=[{n:"Monday Special",p:"-100%",j:"Lun 18h30"},{n:"Lucky Tuesday",p:"-100%",j:"Mar 18h30"},{n:"Midweek",p:"-100%",j:"Mer 18h30"},{n:"Espoir",p:"-100%",j:"Dim 18h30"},{n:"National",p:"-100%",j:"Sam 18h30"},{n:"Kado",p:"-100%",j:"Jeu 09h55"},{n:"Friday Bonanza",p:"-35%",j:"Ven 18h30"}];
     for(var ti=0;ti<worstT.length;ti++){
       var t=worstT[ti];
       h+='<div style="display:flex;align-items:center;gap:6px;padding:4px 0;font-size:11px'+(ti<worstT.length-1?';border-bottom:1px solid var(--border)':'')+'">';
@@ -753,14 +773,15 @@ function loadSuivi(){
 
     // MEILLEURS CRENEAUX HORAIRES
     h+='<div class="card"><div class="card-title" style="color:var(--orange)">Meilleurs creneaux</div>';
-    var creneaux=[{h:"Digital (soir/nuit)",p:"6.7",lift:"x1.21",col:"var(--green)"},{h:"Apres-midi (16h)",p:"6.2",lift:"x1.12",col:"var(--green)"},{h:"Soir (18-19h)",p:"6.2",lift:"x1.11",col:"var(--green)"},{h:"Afterwork (18h)",p:"5.9",lift:"x1.07",col:"var(--orange)"},{h:"Weekend nuit",p:"5.5",lift:"x0.98",col:"var(--text2)"},{h:"Matin (10h)",p:"5.1",lift:"x0.91",col:"var(--red)"},{h:"Midi (13h)",p:"4.4",lift:"x0.80",col:"var(--red)"}];
+    // Creneaux horaires par ROI Chance 4+ DC
+    var creneaux=[{h:"16h (aprem)",p:"+2732%",col:"var(--yellow)"},{h:"03h (weekend)",p:"+289%",col:"var(--green)"},{h:"08h (digital)",p:"+222%",col:"var(--green)"},{h:"07h (digital)",p:"+159%",col:"var(--green)"},{h:"10h (matin)",p:"+119%",col:"var(--cyan)"},{h:"23h (digital)",p:"+120%",col:"var(--cyan)"},{h:"21h (digital)",p:"+39%",col:"var(--orange)"},{h:"19h (soir)",p:"-83%",col:"var(--red)"}];
     h+='<div style="display:flex;flex-wrap:wrap;gap:6px">';
     for(var ci=0;ci<creneaux.length;ci++){
       var cr=creneaux[ci];
-      var bg=cr.col==='var(--green)'?'rgba(0,230,118,.06)':cr.col==='var(--red)'?'rgba(255,82,82,.06)':'rgba(255,171,64,.06)';
+      var bg=cr.col==='var(--yellow)'?'rgba(255,215,64,.08)':cr.col==='var(--green)'?'rgba(0,230,118,.06)':cr.col==='var(--cyan)'?'rgba(24,255,255,.06)':cr.col==='var(--red)'?'rgba(255,82,82,.06)':'rgba(255,171,64,.06)';
       h+='<div style="background:'+bg+';border:1px solid '+cr.col+';border-radius:8px;padding:8px 12px;flex:1;min-width:130px;text-align:center">';
       h+='<div style="font-size:10px;font-weight:700;color:'+cr.col+'">'+cr.h+'</div>';
-      h+='<div style="font-size:18px;font-weight:800;color:'+cr.col+'">'+cr.p+'%</div>';
+      h+='<div style="font-size:16px;font-weight:800;color:'+cr.col+'">ROI '+cr.p+'</div>';
       h+='</div>';
     }
     h+='</div></div>';
