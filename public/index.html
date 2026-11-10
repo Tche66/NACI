@@ -1010,7 +1010,7 @@ function loadBacktest(){
   // Source
   h+='<div style="flex:1;min-width:140px"><label style="font-size:10px;color:var(--text2);display:block;margin-bottom:4px">Predictions</label>';
   h+='<select id="bt-source" style="width:100%;padding:8px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:6px;font-size:12px">';
-  h+='<option value="both" selected>Bot + IA (2 paris)</option><option value="bot">Bot seul</option><option value="ia">IA seule</option>';
+  h+='<option value="all" selected>Bot + IA + LSTM (3 paris)</option><option value="both">Bot + IA (2 paris)</option><option value="bot">Bot seul</option><option value="ia">IA seule</option><option value="lstm">LSTM seul</option>';
   h+='</select></div>';
   h+='</div>';
   // Tirages
@@ -1096,15 +1096,20 @@ function renderBtResults(data){
   h+='<div class="stat-box"><div class="val">'+data.totalWins+'</div><div class="lbl">Tirages gagnants</div></div>';
   h+='</div>';
 
-  // Gains Bot vs IA
-  if(p.source==='both'){
+  // Gains Bot vs IA vs LSTM
+  if(p.source==='both'||p.source==='all'){
     h+='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">';
-    h+='<div style="flex:1;min-width:120px;background:rgba(0,230,118,.06);border:1px solid var(--green);border-radius:8px;padding:10px;text-align:center">';
+    h+='<div style="flex:1;min-width:100px;background:rgba(0,230,118,.06);border:1px solid var(--green);border-radius:8px;padding:10px;text-align:center">';
     h+='<div style="font-size:10px;color:var(--green);font-weight:700">BOT</div>';
     h+='<div style="font-size:18px;font-weight:800;color:var(--green)">'+s.totalGainBot.toLocaleString()+'F</div></div>';
-    h+='<div style="flex:1;min-width:120px;background:rgba(224,64,251,.06);border:1px solid var(--purple);border-radius:8px;padding:10px;text-align:center">';
+    h+='<div style="flex:1;min-width:100px;background:rgba(224,64,251,.06);border:1px solid var(--purple);border-radius:8px;padding:10px;text-align:center">';
     h+='<div style="font-size:10px;color:var(--purple);font-weight:700">IA</div>';
     h+='<div style="font-size:18px;font-weight:800;color:var(--purple)">'+s.totalGainIA.toLocaleString()+'F</div></div>';
+    if(p.source==='all'&&s.totalGainLSTM!==undefined){
+      h+='<div style="flex:1;min-width:100px;background:rgba(255,171,64,.06);border:1px solid var(--orange);border-radius:8px;padding:10px;text-align:center">';
+      h+='<div style="font-size:10px;color:var(--orange);font-weight:700">LSTM</div>';
+      h+='<div style="font-size:18px;font-weight:800;color:var(--orange)">'+(s.totalGainLSTM||0).toLocaleString()+'F</div></div>';
+    }
     h+='</div>';
   }
   h+='</div>';
@@ -1136,6 +1141,22 @@ function renderBtResults(data){
         var pct=(data.hitDist.ia[i]/totalIA*100).toFixed(1);
         h+='<div style="text-align:center;flex:1;min-width:50px;background:var(--card2);padding:6px;border-radius:6px">';
         h+='<div style="font-size:16px;font-weight:800;color:'+colors[i]+'">'+data.hitDist.ia[i]+'</div>';
+        h+='<div style="font-size:9px;color:var(--text2)">'+labels[i]+'</div>';
+        h+='<div style="font-size:9px;color:var(--text2)">'+pct+'%</div>';
+        h+='</div>';
+      }
+      h+='</div>';
+    }
+  }
+  if(data.hitDist.lstm){
+    var totalLSTM=data.hitDist.lstm.reduce(function(a,b){return a+b},0);
+    if(totalLSTM>0){
+      h+='<div style="margin-bottom:8px;font-size:11px;color:var(--orange);font-weight:700">LSTM</div>';
+      h+='<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px">';
+      for(var i=0;i<6;i++){
+        var pct=(data.hitDist.lstm[i]/totalLSTM*100).toFixed(1);
+        h+='<div style="text-align:center;flex:1;min-width:50px;background:var(--card2);padding:6px;border-radius:6px">';
+        h+='<div style="font-size:16px;font-weight:800;color:'+colors[i]+'">'+data.hitDist.lstm[i]+'</div>';
         h+='<div style="font-size:9px;color:var(--text2)">'+labels[i]+'</div>';
         h+='<div style="font-size:9px;color:var(--text2)">'+pct+'%</div>';
         h+='</div>';

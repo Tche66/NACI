@@ -14502,9 +14502,25 @@
           ]
         }
       ],
-      "compared": false,
+      "compared": true,
       "savedAt": "2026-11-10T08:54:00.102Z",
-      "auto": true
+      "auto": true,
+      "resultat": [
+        85,
+        81,
+        36,
+        66,
+        17
+      ],
+      "machine": [
+        6,
+        59,
+        8,
+        84,
+        56
+      ],
+      "nbExacts": 0,
+      "nbMachineExacts": 0
     }
   ],
   "analyses": [
@@ -29346,7 +29362,7 @@
     },
     {
       "date": "10/11/2026",
-      "timestamp": "2026-11-10T22:45:13.603Z",
+      "timestamp": "2026-11-10T23:06:18.668Z",
       "comparaisons": [
         {
           "tirage": "Digital Reveil 7h",
@@ -30057,6 +30073,93 @@
             ],
             "memeTerminaison": [],
             "score": 26,
+            "maxScore": 100
+          }
+        },
+        {
+          "tirage": "Digital 23h",
+          "prediction": [
+            19,
+            22,
+            33,
+            55,
+            90
+          ],
+          "resultat": [
+            85,
+            81,
+            36,
+            66,
+            17
+          ],
+          "machine": [
+            6,
+            59,
+            8,
+            84,
+            56
+          ],
+          "comp": {
+            "nbExacts": 0,
+            "exacts": [],
+            "nbMachineExacts": 0,
+            "machineExacts": [],
+            "proches": [
+              {
+                "predit": 19,
+                "reel": 17,
+                "ecart": 2
+              }
+            ],
+            "memeDizaine": [
+              {
+                "predit": 19,
+                "reel": 17,
+                "dizaine": "10-19"
+              },
+              {
+                "predit": 33,
+                "reel": 36,
+                "dizaine": "30-39"
+              }
+            ],
+            "memeTerminaison": [
+              {
+                "predit": 55,
+                "reel": 85,
+                "terminaison": 5
+              }
+            ],
+            "score": 16,
+            "maxScore": 100
+          },
+          "neuralPrediction": [
+            2,
+            4,
+            10,
+            12,
+            20
+          ],
+          "neuralComp": {
+            "nbExacts": 0,
+            "exacts": [],
+            "nbMachineExacts": 0,
+            "machineExacts": [],
+            "proches": [],
+            "memeDizaine": [
+              {
+                "predit": 10,
+                "reel": 17,
+                "dizaine": "10-19"
+              },
+              {
+                "predit": 12,
+                "reel": 17,
+                "dizaine": "10-19"
+              }
+            ],
+            "memeTerminaison": [],
+            "score": 6,
             "maxScore": 100
           }
         }

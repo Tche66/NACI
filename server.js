@@ -918,11 +918,24 @@ app.post("/api/backtest-custom", (req, res) => {
     }
     const tirageSet = tirages.length > 0 ? new Set(tirages) : null;
 
-    const hitDist = { bot: [0,0,0,0,0,0], ia: [0,0,0,0,0,0] };
+    const hitDist = { bot: [0,0,0,0,0,0], ia: [0,0,0,0,0,0], lstm: [0,0,0,0,0,0] };
     const monthly = {};
     const perDraw = {};
     const winList = [];
-    let totalPlays = 0, totalGainBot = 0, totalGainIA = 0;
+    let totalPlays = 0, totalGainBot = 0, totalGainIA = 0, totalGainLSTM = 0;
+
+    // DC = UP/DOWN: matchs comptes separement gagnants vs machine, on prend le meilleur
+    function countHitsDC(nums, gagnants, machine) {
+      const gSet = new Set(gagnants);
+      const mSet = new Set(machine);
+      const hitsG = nums.filter(n => gSet.has(n)).length;
+      const hitsM = nums.filter(n => mSet.has(n)).length;
+      return Math.max(hitsG, hitsM);
+    }
+    function countHitsStd(nums, gagnants) {
+      const gSet = new Set(gagnants);
+      return nums.filter(n => gSet.has(n)).length;
+    }
 
     for (let i = 0; i < db.draws.length; i++) {
       const target = db.draws[i];
@@ -944,63 +957,77 @@ app.post("/api/backtest-custom", (req, res) => {
       const ranked = convergenceScore(tops, w);
       const botNums = pickN >= 5 ? ajusterBT(ranked.slice(0, 5).map(r => r.num), ranked) : ranked.slice(0, pickN).map(r => r.num);
       let iaNums = [];
-      if (source !== "bot" && neuralNet) {
+      if (source !== "bot" && source !== "lstm" && neuralNet) {
         const nnS = predictNeural(neuralNet, hist, target.type, jour);
         if (nnS && nnS.length >= pickN) iaNums = nnS.slice(0, pickN).map(s => s.num).sort((a, b) => a - b);
       }
+      let lstmNums = [];
+      if (source !== "bot" && source !== "ia" && lstmNet) {
+        try {
+          const lS = predictLSTM(lstmNet, hist, target.type, jour);
+          if (lS && lS.length >= pickN) lstmNums = lS.slice(0, pickN).map(s => s.num).sort((a, b) => a - b);
+        } catch (e) {}
+      }
 
-      const gSet = new Set(target.gagnants);
       const mach = (target.machine || []).filter(n => n > 0);
-      const gmSet = new Set([...target.gagnants, ...mach]);
-      const targetSet = isDC && mach.length > 0 ? gmSet : gSet;
+      const hasMachine = mach.length > 0;
 
-      const botH = source !== "ia" ? botNums.filter(n => targetSet.has(n)).length : 0;
-      const iaH = source !== "bot" && iaNums.length > 0 ? iaNums.filter(n => targetSet.has(n)).length : 0;
+      // DC = UP ou DOWN (gagnants OU machine, pas combine)
+      const botH = (source !== "ia" && source !== "lstm") ? (isDC && hasMachine ? countHitsDC(botNums, target.gagnants, mach) : countHitsStd(botNums, target.gagnants)) : 0;
+      const iaH = (source !== "bot" && source !== "lstm" && iaNums.length > 0) ? (isDC && hasMachine ? countHitsDC(iaNums, target.gagnants, mach) : countHitsStd(iaNums, target.gagnants)) : 0;
+      const lstmH = (source !== "bot" && source !== "ia" && lstmNums.length > 0) ? (isDC && hasMachine ? countHitsDC(lstmNums, target.gagnants, mach) : countHitsStd(lstmNums, target.gagnants)) : 0;
 
-      if (source !== "ia") hitDist.bot[Math.min(botH, pickN)]++;
-      if (source !== "bot" && iaNums.length > 0) hitDist.ia[Math.min(iaH, pickN)]++;
+      if (source !== "ia" && source !== "lstm") hitDist.bot[Math.min(botH, pickN)]++;
+      if (source !== "bot" && source !== "lstm" && iaNums.length > 0) hitDist.ia[Math.min(iaH, pickN)]++;
+      if (source !== "bot" && source !== "ia" && lstmNums.length > 0) hitDist.lstm[Math.min(lstmH, pickN)]++;
 
-      const botGain = source !== "ia" ? (gainsTable[Math.min(botH, pickN)] || 0) * (mise / 100) : 0;
-      const iaGain = source !== "bot" && iaNums.length > 0 ? (gainsTable[Math.min(iaH, pickN)] || 0) * (mise / 100) : 0;
+      const botGain = (source !== "ia" && source !== "lstm") ? (gainsTable[Math.min(botH, pickN)] || 0) * (mise / 100) : 0;
+      const iaGain = (source !== "bot" && source !== "lstm" && iaNums.length > 0) ? (gainsTable[Math.min(iaH, pickN)] || 0) * (mise / 100) : 0;
+      const lstmGain = (source !== "bot" && source !== "ia" && lstmNums.length > 0) ? (gainsTable[Math.min(lstmH, pickN)] || 0) * (mise / 100) : 0;
       totalGainBot += botGain;
       totalGainIA += iaGain;
+      totalGainLSTM += lstmGain;
       totalPlays++;
 
+      const nSources = (source === "all" ? 3 : source === "both" ? 2 : 1);
       const mKey = String(dt.getMonth() + 1).padStart(2, "0") + "/" + dt.getFullYear();
-      if (!monthly[mKey]) monthly[mKey] = { plays: 0, dep: 0, gainBot: 0, gainIA: 0 };
-      const pariBySrc = (source === "both" ? 2 : 1) * mise;
+      if (!monthly[mKey]) monthly[mKey] = { plays: 0, dep: 0, gainBot: 0, gainIA: 0, gainLSTM: 0 };
+      const pariBySrc = nSources * mise;
       monthly[mKey].plays++;
       monthly[mKey].dep += pariBySrc;
       monthly[mKey].gainBot += botGain;
       monthly[mKey].gainIA += iaGain;
+      monthly[mKey].gainLSTM += lstmGain;
 
       if (!perDraw[target.type]) perDraw[target.type] = { plays: 0, dep: 0, gain: 0, wins: 0 };
       perDraw[target.type].plays++;
       perDraw[target.type].dep += pariBySrc;
-      perDraw[target.type].gain += botGain + iaGain;
-      if (botGain > 0 || iaGain > 0) perDraw[target.type].wins++;
+      perDraw[target.type].gain += botGain + iaGain + lstmGain;
+      if (botGain > 0 || iaGain > 0 || lstmGain > 0) perDraw[target.type].wins++;
 
-      if (botGain > 0 || iaGain > 0) {
+      if (botGain > 0 || iaGain > 0 || lstmGain > 0) {
         winList.push({
           date: target.date, tirage: target.type,
-          botNums: source !== "ia" ? botNums : [],
-          iaNums: source !== "bot" ? iaNums : [],
+          botNums: (source !== "ia" && source !== "lstm") ? botNums : [],
+          iaNums: (source !== "bot" && source !== "lstm") ? iaNums : [],
+          lstmNums: (source !== "bot" && source !== "ia") ? lstmNums : [],
           resultat: target.gagnants,
           machine: mach,
-          botHits: botH, iaHits: iaH,
-          botGain, iaGain,
-          gainTotal: botGain + iaGain,
+          botHits: botH, iaHits: iaH, lstmHits: lstmH,
+          botGain, iaGain, lstmGain,
+          gainTotal: botGain + iaGain + lstmGain,
         });
       }
     }
 
-    const pariBySrc = (source === "both" ? 2 : 1) * mise;
+    const nSources = (source === "all" ? 3 : source === "both" ? 2 : 1);
+    const pariBySrc = nSources * mise;
     const totalDep = totalPlays * pariBySrc;
-    const totalGain = totalGainBot + totalGainIA;
+    const totalGain = totalGainBot + totalGainIA + totalGainLSTM;
     const profit = totalGain - totalDep;
 
     const monthlyArr = Object.entries(monthly).sort().map(([m, v]) => ({
-      mois: m, ...v, gain: v.gainBot + v.gainIA, profit: v.gainBot + v.gainIA - v.dep,
+      mois: m, ...v, gain: v.gainBot + v.gainIA + (v.gainLSTM || 0), profit: v.gainBot + v.gainIA + (v.gainLSTM || 0) - v.dep,
     }));
     const perDrawArr = Object.entries(perDraw).sort((a, b) => b[1].gain - a[1].gain).map(([t, v]) => ({
       tirage: t, ...v, profit: v.gain - v.dep, roi: v.dep > 0 ? +((v.gain - v.dep) / v.dep * 100).toFixed(1) : 0,
@@ -1010,7 +1037,7 @@ app.post("/api/backtest-custom", (req, res) => {
     res.json({
       success: true,
       params: { periode, tirages: tirages.length > 0 ? tirages : "tous", mise, mode, source, dateDebut: dateDebut || null, dateFin: dateFin || null },
-      summary: { totalPlays, totalDep, totalGain, totalGainBot, totalGainIA, profit, roi: totalDep > 0 ? +(profit / totalDep * 100).toFixed(1) : 0 },
+      summary: { totalPlays, totalDep, totalGain, totalGainBot, totalGainIA, totalGainLSTM, profit, roi: totalDep > 0 ? +(profit / totalDep * 100).toFixed(1) : 0 },
       hitDist,
       monthly: monthlyArr,
       perDraw: perDrawArr,
