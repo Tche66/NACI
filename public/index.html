@@ -43,7 +43,7 @@
     .n-ora{background:linear-gradient(135deg,#ef6c00,#fb8c00);color:#fff}
     .n-pur{background:linear-gradient(135deg,#7b1fa2,#9c27b0);color:#fff}
     .n-hit{background:linear-gradient(135deg,#00c853,#69f0ae);color:#000;box-shadow:0 3px 10px rgba(0,200,83,.4)}
-    .n-close{background:linear-gradient(135deg,#ff8f00,#ffc107);color:#000}
+    .n-close{background:linear-gradient(135deg,#1565c0,#42a5f5);color:#fff}
     .n-miss{background:var(--card2);color:var(--text2);border:1px solid var(--border)}
 
     /* Main combo */
@@ -95,7 +95,7 @@
     .cmp-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:4px 0}
     .cmp-row .lbl{font-size:10px;color:var(--text2);min-width:60px}
     .cmp-result{font-size:11px;margin-left:auto;white-space:nowrap}
-    .cmp-result .g{color:var(--green);font-weight:700}.cmp-result .p{color:var(--yellow)}
+    .cmp-result .g{color:var(--green);font-weight:700}.cmp-result .p{color:var(--blue)}
 
     /* Collapsible */
     .collapse-btn{display:flex;justify-content:space-between;align-items:center;cursor:pointer;width:100%}
@@ -881,7 +881,7 @@ function loadSuivi(){
         h+='<td>'+d.comparaisons+'</td>';
         h+='<td style="color:var(--green);font-weight:700">'+d.exacts+'</td>';
         h+='<td style="color:var(--orange)">'+d.machine+'</td>';
-        h+='<td style="color:var(--yellow)">'+d.proches+'</td>';
+        h+='<td style="color:var(--blue)">'+d.proches+'</td>';
         h+='<td style="color:'+tc+';font-weight:700">'+d.taux+'%</td>';
         h+='<td style="color:var(--purple)">'+(d.nnComps>0?d.nnExacts+'g':'—')+'</td>';
         h+='</tr>';
