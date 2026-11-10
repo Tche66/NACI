@@ -1088,7 +1088,10 @@ function renderBtResults(data){
   var profitCol=s.profit>=0?'var(--green)':'var(--red)';
   h+='<div class="card" style="border-color:'+profitCol+'">';
   h+='<div class="card-title" style="color:'+profitCol+'">Bilan : '+(s.profit>=0?'+':'')+s.profit.toLocaleString()+'F (ROI '+(s.roi>=0?'+':'')+s.roi+'%)</div>';
-  h+='<div class="card-sub">'+p.periode+' mois | '+s.totalPlays+' tirages | Mode: '+p.mode+' | Source: '+p.source+' | Mise: '+p.mise+'F</div>';
+  var periodeLabel=p.dateDebut?('Du '+p.dateDebut+' au '+p.dateFin):(p.periode+' mois');
+  var modeLabel=p.mode.includes('dc')?p.mode+' (UP/DOWN)':p.mode;
+  var srcLabel={all:'Bot+IA+LSTM (3 paris)',both:'Bot+IA (2 paris)',bot:'Bot seul',ia:'IA seule',lstm:'LSTM seul'}[p.source]||p.source;
+  h+='<div class="card-sub">'+periodeLabel+' | '+s.totalPlays+' tirages | '+modeLabel+' | '+srcLabel+' | Mise: '+p.mise+'F</div>';
   h+='<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px">';
   h+='<div class="stat-box"><div class="val" style="color:var(--green)">'+s.totalGain.toLocaleString()+'F</div><div class="lbl">Gains totaux</div></div>';
   h+='<div class="stat-box"><div class="val" style="color:var(--red)">'+s.totalDep.toLocaleString()+'F</div><div class="lbl">Depense</div></div>';
@@ -1118,7 +1121,10 @@ function renderBtResults(data){
   h+='<div class="card"><div class="card-title">Distribution des matchs</div>';
   var labels=["0 bon","1 bon","2 bons","3 bons","4 bons","5 bons"];
   var colors=["var(--red)","var(--orange)","var(--yellow)","var(--green)","var(--cyan)","var(--purple)"];
-  if(p.source!=='ia'&&data.hitDist.bot){
+  var showBot=p.source==='all'||p.source==='both'||p.source==='bot';
+  var showIA=p.source==='all'||p.source==='both'||p.source==='ia';
+  var showLSTM=p.source==='all'||p.source==='lstm';
+  if(showBot&&data.hitDist.bot){
     var totalBot=data.hitDist.bot.reduce(function(a,b){return a+b},0);
     h+='<div style="margin-bottom:8px;font-size:11px;color:var(--green);font-weight:700">Bot classique</div>';
     h+='<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px">';
@@ -1132,7 +1138,7 @@ function renderBtResults(data){
     }
     h+='</div>';
   }
-  if(p.source!=='bot'&&data.hitDist.ia){
+  if(showIA&&data.hitDist.ia){
     var totalIA=data.hitDist.ia.reduce(function(a,b){return a+b},0);
     if(totalIA>0){
       h+='<div style="margin-bottom:8px;font-size:11px;color:var(--purple);font-weight:700">IA Neural</div>';
@@ -1148,7 +1154,7 @@ function renderBtResults(data){
       h+='</div>';
     }
   }
-  if(data.hitDist.lstm){
+  if(showLSTM&&data.hitDist.lstm){
     var totalLSTM=data.hitDist.lstm.reduce(function(a,b){return a+b},0);
     if(totalLSTM>0){
       h+='<div style="margin-bottom:8px;font-size:11px;color:var(--orange);font-weight:700">LSTM</div>';
@@ -1185,13 +1191,22 @@ function renderBtResults(data){
     }
     h+='</div>';
     // Tableau
-    h+='<div style="overflow-x:auto"><table style="width:100%"><thead><tr><th style="text-align:left">Mois</th><th>Tirages</th><th>Depense</th><th>Gains</th><th>Profit</th></tr></thead><tbody>';
+    var multiSrc=p.source==='all'||p.source==='both';
+    h+='<div style="overflow-x:auto"><table style="width:100%"><thead><tr><th style="text-align:left">Mois</th><th>Joue</th><th>Dep.</th>';
+    if(multiSrc){h+='<th style="color:var(--green)">Bot</th><th style="color:var(--purple)">IA</th>';}
+    if(p.source==='all'){h+='<th style="color:var(--orange)">LSTM</th>';}
+    h+='<th>Total</th><th>Profit</th></tr></thead><tbody>';
     for(var i=0;i<data.monthly.length;i++){
       var m=data.monthly[i];
       var col=m.profit>=0?'var(--green)':'var(--red)';
       h+='<tr><td style="text-align:left;font-weight:600;font-size:11px">'+m.mois+'</td>';
       h+='<td>'+m.plays+'</td>';
       h+='<td style="font-size:11px">'+m.dep.toLocaleString()+'F</td>';
+      if(multiSrc){
+        h+='<td style="color:var(--green);font-size:11px">'+(m.gainBot||0).toLocaleString()+'F</td>';
+        h+='<td style="color:var(--purple);font-size:11px">'+(m.gainIA||0).toLocaleString()+'F</td>';
+      }
+      if(p.source==='all'){h+='<td style="color:var(--orange);font-size:11px">'+(m.gainLSTM||0).toLocaleString()+'F</td>';}
       h+='<td style="color:var(--green);font-weight:700;font-size:11px">'+m.gain.toLocaleString()+'F</td>';
       h+='<td style="color:'+col+';font-weight:700;font-size:11px">'+(m.profit>=0?'+':'')+m.profit.toLocaleString()+'F</td></tr>';
     }
@@ -1201,14 +1216,17 @@ function renderBtResults(data){
   // PAR TIRAGE
   if(data.perDraw&&data.perDraw.length>0){
     h+='<div class="card"><div class="card-title">Par tirage</div>';
-    h+='<div style="overflow-x:auto"><table style="width:100%"><thead><tr><th style="text-align:left">Tirage</th><th>Joue</th><th>Gagnants</th><th>Gains</th><th>ROI</th></tr></thead><tbody>';
+    h+='<div style="overflow-x:auto"><table style="width:100%"><thead><tr><th style="text-align:left">Tirage</th><th>Joue</th><th>Wins</th><th>Gains</th><th>Dep.</th><th>Profit</th><th>ROI</th></tr></thead><tbody>';
     for(var i=0;i<data.perDraw.length;i++){
       var d=data.perDraw[i];
       var col=d.roi>=0?'var(--green)':'var(--red)';
+      var profitD=d.profit||0;
       h+='<tr><td style="text-align:left;font-weight:600;font-size:11px">'+d.tirage+'</td>';
       h+='<td>'+d.plays+'</td>';
       h+='<td style="color:var(--green)">'+d.wins+'</td>';
-      h+='<td style="font-size:11px">'+d.gain.toLocaleString()+'F</td>';
+      h+='<td style="font-size:11px;color:var(--green)">'+d.gain.toLocaleString()+'F</td>';
+      h+='<td style="font-size:11px;color:var(--red)">'+d.dep.toLocaleString()+'F</td>';
+      h+='<td style="color:'+col+';font-weight:700;font-size:11px">'+(profitD>=0?'+':'')+profitD.toLocaleString()+'F</td>';
       h+='<td style="color:'+col+';font-weight:700">'+(d.roi>=0?'+':'')+d.roi+'%</td></tr>';
     }
     h+='</tbody></table></div></div>';
@@ -1219,32 +1237,48 @@ function renderBtResults(data){
     h+='<div class="card"><div class="card-title">Tirages gagnants ('+data.totalWins+')</div>';
     for(var i=0;i<data.wins.length;i++){
       var w=data.wins[i];
-      var src=w.botGain>0&&w.iaGain>0?'Bot+IA':w.botGain>0?'Bot':'IA';
-      var srcCol=w.botGain>0&&w.iaGain>0?'var(--cyan)':w.botGain>0?'var(--green)':'var(--purple)';
+      var srcs=[];
+      if(w.botGain>0)srcs.push('Bot');if(w.iaGain>0)srcs.push('IA');if(w.lstmGain>0)srcs.push('LSTM');
+      var src=srcs.join('+')||'?';
+      var srcCol=srcs.length>=2?'var(--cyan)':srcs[0]==='Bot'?'var(--green)':srcs[0]==='LSTM'?'var(--orange)':'var(--purple)';
       h+='<div class="cmp-block">';
       h+='<div class="cmp-header"><span class="date">'+w.date+'</span><span class="tirage">'+w.tirage+'</span>';
       h+='<span style="margin-left:auto;font-weight:700;color:'+srcCol+'">'+src+' +'+w.gainTotal.toLocaleString()+'F</span></div>';
+      var rSet=new Set(w.resultat);var mSet=new Set(w.machine||[]);
       // Bot prediction
       if(w.botNums&&w.botNums.length>0){
-        var rSet=new Set(w.resultat);var mSet=new Set(w.machine||[]);var gmSet=new Set((w.resultat||[]).concat(w.machine||[]));
         h+='<div class="cmp-row"><span class="lbl" style="color:var(--green)">Bot</span><div class="nums" style="gap:3px;justify-content:flex-start">';
         for(var ni=0;ni<w.botNums.length;ni++){
           var n=w.botNums[ni];var ex=rSet.has(n);var ma=!ex&&mSet.has(n);
           h+=Ns(n,ex?'n-hit ns':ma?'n-ora ns':'n-miss ns');
         }
-        h+='</div><span style="font-size:10px;color:var(--green);font-weight:700">'+w.botHits+'g</span></div>';
+        h+='</div><span style="font-size:10px;color:var(--green);font-weight:700">'+(w.botHits||0)+'g</span>';
+        if(w.botGain>0)h+='<span style="font-size:9px;color:var(--green);margin-left:4px">+'+w.botGain.toLocaleString()+'F</span>';
+        h+='</div>';
       }
       // IA prediction
       if(w.iaNums&&w.iaNums.length>0){
-        var rSet=new Set(w.resultat);var mSet=new Set(w.machine||[]);
         h+='<div class="cmp-row"><span class="lbl" style="color:var(--purple)">IA</span><div class="nums" style="gap:3px;justify-content:flex-start">';
         for(var ni=0;ni<w.iaNums.length;ni++){
           var n=w.iaNums[ni];var ex=rSet.has(n);var ma=!ex&&mSet.has(n);
           h+=Ns(n,ex?'n-hit ns':ma?'n-ora ns':'n-miss ns');
         }
-        h+='</div><span style="font-size:10px;color:var(--purple);font-weight:700">'+w.iaHits+'g</span></div>';
+        h+='</div><span style="font-size:10px;color:var(--purple);font-weight:700">'+(w.iaHits||0)+'g</span>';
+        if(w.iaGain>0)h+='<span style="font-size:9px;color:var(--purple);margin-left:4px">+'+w.iaGain.toLocaleString()+'F</span>';
+        h+='</div>';
       }
-      // Resultat
+      // LSTM prediction
+      if(w.lstmNums&&w.lstmNums.length>0){
+        h+='<div class="cmp-row"><span class="lbl" style="color:var(--orange)">LSTM</span><div class="nums" style="gap:3px;justify-content:flex-start">';
+        for(var ni=0;ni<w.lstmNums.length;ni++){
+          var n=w.lstmNums[ni];var ex=rSet.has(n);var ma=!ex&&mSet.has(n);
+          h+=Ns(n,ex?'n-hit ns':ma?'n-ora ns':'n-miss ns');
+        }
+        h+='</div><span style="font-size:10px;color:var(--orange);font-weight:700">'+(w.lstmHits||0)+'g</span>';
+        if(w.lstmGain>0)h+='<span style="font-size:9px;color:var(--orange);margin-left:4px">+'+w.lstmGain.toLocaleString()+'F</span>';
+        h+='</div>';
+      }
+      // Resultat: gagnants | machine (UP | DOWN)
       h+='<div class="cmp-row"><span class="lbl">Sorti</span><div class="nums" style="gap:3px;justify-content:flex-start">';
       for(var ni=0;ni<w.resultat.length;ni++) h+=Ns(w.resultat[ni],'n-grn ns');
       if(w.machine&&w.machine.length>0){
