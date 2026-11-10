@@ -13797,9 +13797,25 @@
           ]
         }
       ],
-      "compared": false,
+      "compared": true,
       "savedAt": "2026-11-10T08:54:00.102Z",
-      "auto": true
+      "auto": true,
+      "resultat": [
+        57,
+        8,
+        52,
+        88,
+        63
+      ],
+      "machine": [
+        32,
+        72,
+        84,
+        14,
+        66
+      ],
+      "nbExacts": 0,
+      "nbMachineExacts": 0
     },
     {
       "date": "10/11/2026",
@@ -13884,9 +13900,25 @@
           ]
         }
       ],
-      "compared": false,
+      "compared": true,
       "savedAt": "2026-11-10T08:54:00.102Z",
-      "auto": true
+      "auto": true,
+      "resultat": [
+        61,
+        50,
+        52,
+        88,
+        76
+      ],
+      "machine": [
+        36,
+        77,
+        28,
+        8,
+        62
+      ],
+      "nbExacts": 0,
+      "nbMachineExacts": 1
     },
     {
       "date": "10/11/2026",
@@ -13971,9 +14003,25 @@
           ]
         }
       ],
-      "compared": false,
+      "compared": true,
       "savedAt": "2026-11-10T08:54:00.102Z",
-      "auto": true
+      "auto": true,
+      "resultat": [
+        32,
+        18,
+        43,
+        36,
+        69
+      ],
+      "machine": [
+        31,
+        33,
+        7,
+        37,
+        10
+      ],
+      "nbExacts": 0,
+      "nbMachineExacts": 0
     },
     {
       "date": "10/11/2026",
@@ -14058,9 +14106,25 @@
           ]
         }
       ],
-      "compared": false,
+      "compared": true,
       "savedAt": "2026-11-10T08:54:00.102Z",
-      "auto": true
+      "auto": true,
+      "resultat": [
+        19,
+        17,
+        60,
+        36,
+        6
+      ],
+      "machine": [
+        1,
+        30,
+        37,
+        47,
+        62
+      ],
+      "nbExacts": 1,
+      "nbMachineExacts": 0
     },
     {
       "date": "10/11/2026",
@@ -14232,9 +14296,25 @@
           ]
         }
       ],
-      "compared": false,
+      "compared": true,
       "savedAt": "2026-11-10T08:54:00.102Z",
-      "auto": true
+      "auto": true,
+      "resultat": [
+        14,
+        74,
+        36,
+        25,
+        10
+      ],
+      "machine": [
+        4,
+        77,
+        46,
+        30,
+        80
+      ],
+      "nbExacts": 1,
+      "nbMachineExacts": 0
     },
     {
       "date": "10/11/2026",
@@ -14319,9 +14399,25 @@
           ]
         }
       ],
-      "compared": false,
+      "compared": true,
       "savedAt": "2026-11-10T08:54:00.102Z",
-      "auto": true
+      "auto": true,
+      "resultat": [
+        89,
+        27,
+        2,
+        56,
+        37
+      ],
+      "machine": [
+        79,
+        48,
+        45,
+        5,
+        8
+      ],
+      "nbExacts": 0,
+      "nbMachineExacts": 0
     },
     {
       "date": "10/11/2026",
@@ -29250,7 +29346,7 @@
     },
     {
       "date": "10/11/2026",
-      "timestamp": "2026-11-10T08:54:05.522Z",
+      "timestamp": "2026-11-10T22:45:13.603Z",
       "comparaisons": [
         {
           "tirage": "Digital Reveil 7h",
@@ -29374,6 +29470,593 @@
               }
             ],
             "score": 28,
+            "maxScore": 100
+          }
+        },
+        {
+          "tirage": "La Matinale",
+          "prediction": [
+            13,
+            16,
+            18,
+            43,
+            80
+          ],
+          "resultat": [
+            57,
+            8,
+            52,
+            88,
+            63
+          ],
+          "machine": [
+            32,
+            72,
+            84,
+            14,
+            66
+          ],
+          "comp": {
+            "nbExacts": 0,
+            "exacts": [],
+            "nbMachineExacts": 0,
+            "machineExacts": [],
+            "proches": [],
+            "memeDizaine": [
+              {
+                "predit": 80,
+                "reel": 88,
+                "dizaine": "80-89"
+              }
+            ],
+            "memeTerminaison": [
+              {
+                "predit": 13,
+                "reel": 63,
+                "terminaison": 3
+              },
+              {
+                "predit": 18,
+                "reel": 8,
+                "terminaison": 8
+              },
+              {
+                "predit": 43,
+                "reel": 63,
+                "terminaison": 3
+              }
+            ],
+            "score": 9,
+            "maxScore": 100
+          },
+          "neuralPrediction": [
+            10,
+            11,
+            22,
+            32,
+            40
+          ],
+          "neuralComp": {
+            "nbExacts": 0,
+            "exacts": [],
+            "nbMachineExacts": 1,
+            "machineExacts": [
+              32
+            ],
+            "proches": [
+              {
+                "predit": 10,
+                "reel": 8,
+                "ecart": 2
+              }
+            ],
+            "memeDizaine": [],
+            "memeTerminaison": [
+              {
+                "predit": 22,
+                "reel": 52,
+                "terminaison": 2
+              },
+              {
+                "predit": 32,
+                "reel": 52,
+                "terminaison": 2
+              }
+            ],
+            "score": 22,
+            "maxScore": 100
+          }
+        },
+        {
+          "tirage": "Emergence",
+          "prediction": [
+            8,
+            13,
+            44,
+            60,
+            69
+          ],
+          "resultat": [
+            61,
+            50,
+            52,
+            88,
+            76
+          ],
+          "machine": [
+            36,
+            77,
+            28,
+            8,
+            62
+          ],
+          "comp": {
+            "nbExacts": 0,
+            "exacts": [],
+            "nbMachineExacts": 1,
+            "machineExacts": [
+              8
+            ],
+            "proches": [
+              {
+                "predit": 60,
+                "reel": 61,
+                "ecart": 1
+              }
+            ],
+            "memeDizaine": [
+              {
+                "predit": 60,
+                "reel": 61,
+                "dizaine": "60-69"
+              },
+              {
+                "predit": 69,
+                "reel": 61,
+                "dizaine": "60-69"
+              }
+            ],
+            "memeTerminaison": [
+              {
+                "predit": 8,
+                "reel": 88,
+                "terminaison": 8
+              },
+              {
+                "predit": 60,
+                "reel": 50,
+                "terminaison": 0
+              }
+            ],
+            "score": 28,
+            "maxScore": 100
+          },
+          "neuralPrediction": [
+            2,
+            14,
+            20,
+            40,
+            50
+          ],
+          "neuralComp": {
+            "nbExacts": 1,
+            "exacts": [
+              50
+            ],
+            "nbMachineExacts": 0,
+            "machineExacts": [],
+            "proches": [],
+            "memeDizaine": [],
+            "memeTerminaison": [
+              {
+                "predit": 2,
+                "reel": 52,
+                "terminaison": 2
+              }
+            ],
+            "score": 22,
+            "maxScore": 100
+          }
+        },
+        {
+          "tirage": "Sika",
+          "prediction": [
+            15,
+            55,
+            58,
+            60,
+            75
+          ],
+          "resultat": [
+            32,
+            18,
+            43,
+            36,
+            69
+          ],
+          "machine": [
+            31,
+            33,
+            7,
+            37,
+            10
+          ],
+          "comp": {
+            "nbExacts": 0,
+            "exacts": [],
+            "nbMachineExacts": 0,
+            "machineExacts": [],
+            "proches": [],
+            "memeDizaine": [
+              {
+                "predit": 15,
+                "reel": 18,
+                "dizaine": "10-19"
+              },
+              {
+                "predit": 60,
+                "reel": 69,
+                "dizaine": "60-69"
+              }
+            ],
+            "memeTerminaison": [
+              {
+                "predit": 58,
+                "reel": 18,
+                "terminaison": 8
+              }
+            ],
+            "score": 8,
+            "maxScore": 100
+          },
+          "neuralPrediction": [
+            4,
+            8,
+            10,
+            30,
+            32
+          ],
+          "neuralComp": {
+            "nbExacts": 1,
+            "exacts": [
+              32
+            ],
+            "nbMachineExacts": 1,
+            "machineExacts": [
+              10
+            ],
+            "proches": [
+              {
+                "predit": 30,
+                "reel": 32,
+                "ecart": 2
+              }
+            ],
+            "memeDizaine": [
+              {
+                "predit": 10,
+                "reel": 18,
+                "dizaine": "10-19"
+              },
+              {
+                "predit": 30,
+                "reel": 36,
+                "dizaine": "30-39"
+              }
+            ],
+            "memeTerminaison": [
+              {
+                "predit": 8,
+                "reel": 18,
+                "terminaison": 8
+              }
+            ],
+            "score": 46,
+            "maxScore": 100
+          }
+        },
+        {
+          "tirage": "Afterwork",
+          "prediction": [
+            7,
+            9,
+            36,
+            78,
+            88
+          ],
+          "resultat": [
+            19,
+            17,
+            60,
+            36,
+            6
+          ],
+          "machine": [
+            1,
+            30,
+            37,
+            47,
+            62
+          ],
+          "comp": {
+            "nbExacts": 1,
+            "exacts": [
+              36
+            ],
+            "nbMachineExacts": 0,
+            "machineExacts": [],
+            "proches": [
+              {
+                "predit": 7,
+                "reel": 6,
+                "ecart": 1
+              }
+            ],
+            "memeDizaine": [
+              {
+                "predit": 7,
+                "reel": 6,
+                "dizaine": "0-9"
+              },
+              {
+                "predit": 9,
+                "reel": 6,
+                "dizaine": "0-9"
+              }
+            ],
+            "memeTerminaison": [
+              {
+                "predit": 7,
+                "reel": 17,
+                "terminaison": 7
+              },
+              {
+                "predit": 9,
+                "reel": 19,
+                "terminaison": 9
+              }
+            ],
+            "score": 38,
+            "maxScore": 100
+          },
+          "neuralPrediction": [
+            6,
+            10,
+            20,
+            23,
+            24
+          ],
+          "neuralComp": {
+            "nbExacts": 1,
+            "exacts": [
+              6
+            ],
+            "nbMachineExacts": 0,
+            "machineExacts": [],
+            "proches": [
+              {
+                "predit": 20,
+                "reel": 19,
+                "ecart": 1
+              }
+            ],
+            "memeDizaine": [
+              {
+                "predit": 10,
+                "reel": 19,
+                "dizaine": "10-19"
+              }
+            ],
+            "memeTerminaison": [
+              {
+                "predit": 10,
+                "reel": 60,
+                "terminaison": 0
+              },
+              {
+                "predit": 20,
+                "reel": 60,
+                "terminaison": 0
+              }
+            ],
+            "score": 35,
+            "maxScore": 100
+          }
+        },
+        {
+          "tirage": "Digital 21h",
+          "prediction": [
+            14,
+            19,
+            28,
+            79,
+            88
+          ],
+          "resultat": [
+            14,
+            74,
+            36,
+            25,
+            10
+          ],
+          "machine": [
+            4,
+            77,
+            46,
+            30,
+            80
+          ],
+          "comp": {
+            "nbExacts": 1,
+            "exacts": [
+              14
+            ],
+            "nbMachineExacts": 0,
+            "machineExacts": [],
+            "proches": [],
+            "memeDizaine": [
+              {
+                "predit": 19,
+                "reel": 10,
+                "dizaine": "10-19"
+              },
+              {
+                "predit": 28,
+                "reel": 25,
+                "dizaine": "20-29"
+              },
+              {
+                "predit": 79,
+                "reel": 74,
+                "dizaine": "70-79"
+              }
+            ],
+            "memeTerminaison": [],
+            "score": 29,
+            "maxScore": 100
+          },
+          "neuralPrediction": [
+            4,
+            10,
+            20,
+            30,
+            40
+          ],
+          "neuralComp": {
+            "nbExacts": 1,
+            "exacts": [
+              10
+            ],
+            "nbMachineExacts": 2,
+            "machineExacts": [
+              4,
+              30
+            ],
+            "proches": [],
+            "memeDizaine": [
+              {
+                "predit": 20,
+                "reel": 25,
+                "dizaine": "20-29"
+              },
+              {
+                "predit": 30,
+                "reel": 36,
+                "dizaine": "30-39"
+              }
+            ],
+            "memeTerminaison": [
+              {
+                "predit": 4,
+                "reel": 14,
+                "terminaison": 4
+              }
+            ],
+            "score": 48,
+            "maxScore": 100
+          }
+        },
+        {
+          "tirage": "Digital 22h",
+          "prediction": [
+            25,
+            40,
+            59,
+            72,
+            88
+          ],
+          "resultat": [
+            89,
+            27,
+            2,
+            56,
+            37
+          ],
+          "machine": [
+            79,
+            48,
+            45,
+            5,
+            8
+          ],
+          "comp": {
+            "nbExacts": 0,
+            "exacts": [],
+            "nbMachineExacts": 0,
+            "machineExacts": [],
+            "proches": [
+              {
+                "predit": 25,
+                "reel": 27,
+                "ecart": 2
+              },
+              {
+                "predit": 88,
+                "reel": 89,
+                "ecart": 1
+              }
+            ],
+            "memeDizaine": [
+              {
+                "predit": 25,
+                "reel": 27,
+                "dizaine": "20-29"
+              },
+              {
+                "predit": 59,
+                "reel": 56,
+                "dizaine": "50-59"
+              },
+              {
+                "predit": 88,
+                "reel": 89,
+                "dizaine": "80-89"
+              }
+            ],
+            "memeTerminaison": [
+              {
+                "predit": 59,
+                "reel": 89,
+                "terminaison": 9
+              },
+              {
+                "predit": 72,
+                "reel": 2,
+                "terminaison": 2
+              }
+            ],
+            "score": 29,
+            "maxScore": 100
+          },
+          "neuralPrediction": [
+            2,
+            10,
+            11,
+            20,
+            30
+          ],
+          "neuralComp": {
+            "nbExacts": 1,
+            "exacts": [
+              2
+            ],
+            "nbMachineExacts": 0,
+            "machineExacts": [],
+            "proches": [],
+            "memeDizaine": [
+              {
+                "predit": 20,
+                "reel": 27,
+                "dizaine": "20-29"
+              },
+              {
+                "predit": 30,
+                "reel": 37,
+                "dizaine": "30-39"
+              }
+            ],
+            "memeTerminaison": [],
+            "score": 26,
             "maxScore": 100
           }
         }

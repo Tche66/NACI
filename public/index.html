@@ -413,48 +413,63 @@ function loadJouer(jour){
 
     // TIRAGES DU JOUR
     h+='<div class="card"><div class="card-title">Tirages du '+JOURS[jour]+'</div>';
-    h+='<div class="card-sub"><span style="color:var(--green)">&#9679;</span> Bot &nbsp; <span style="color:var(--purple)">&#9679;</span> IA &nbsp; <span style="color:var(--cyan)">&#9679;</span> Vote (en commun) &nbsp; <span style="color:var(--text2)">&#9679;</span> 5e choix</div>';
+    h+='<div class="card-sub"><span style="color:var(--green)">&#9679;</span> Bot &nbsp; <span style="color:var(--purple)">&#9679;</span> IA &nbsp; <span style="color:var(--orange)">&#9679;</span> LSTM &nbsp; <span style="color:var(--cyan)">&#9679;</span> Vote &nbsp; <span style="color:var(--text2)">&#9679;</span> 5e choix</div>';
     for(var i=0;i<data.parTirage.length;i++){
       var t=data.parTirage[i];
       if(!t.prediction)continue;
-      var sc=null,nnC=null,mainC=t.prediction.combos[0];
+      var sc=null,nnC=null,lstmC=null,mainC=t.prediction.combos[0];
       for(var j=0;j<t.prediction.combos.length;j++){
         if(t.prediction.combos[j].isSuper||t.prediction.combos[j].confiance==='MAXIMALE'){sc=t.prediction.combos[j];mainC=sc}
         if(t.prediction.combos[j].isNeural||t.prediction.combos[j].confiance==='IA'){nnC=t.prediction.combos[j]}
+        if(t.prediction.combos[j].isLSTM||t.prediction.combos[j].confiance==='LSTM'){lstmC=t.prediction.combos[j]}
       }
       var remark=tirageRemarks[t.tirage]||'';
       var isTop=tops.indexOf(t.tirage)>=0;
       var isEviter=eviter.indexOf(t.tirage)>=0;
       var borderCol=isEviter?'var(--red)':isTop?'var(--green)':'var(--border)';
       var nnNums=nnC?nnC.nums:[];
+      var lstmNums=lstmC?lstmC.nums:[];
       var botNums=mainC.nums;
-      var voteCount=0;
-      for(var v=0;v<botNums.length;v++){if(nnNums.indexOf(botNums[v])>=0)voteCount++}
+      function countVotes(n){var v=0;if(botNums.indexOf(n)>=0)v++;if(nnNums.indexOf(n)>=0)v++;if(lstmNums.indexOf(n)>=0)v++;return v}
+      var totalVotes=0;
+      for(var v=0;v<botNums.length;v++){if(countVotes(botNums[v])>=2)totalVotes++}
       h+='<div style="padding:8px 0;border-bottom:1px solid var(--border);border-left:3px solid '+borderCol+';padding-left:8px;margin-bottom:2px;border-radius:2px">';
-      // Ligne classique — 5 numeros, 4 en couleur, 5e en gris, vote en cyan
+      // Ligne Bot — vote si present dans 2+ sources
       h+='<div class="trow" style="border:none;padding:2px 0">';
       h+='<span class="trow-time">'+t.heure+'</span>';
       h+='<span class="trow-name"'+(isTop?' style="color:var(--green)"':'')+(isEviter?' style="color:var(--red)"':'')+'>'+t.tirage+'</span>';
       h+='<div class="nums" style="gap:3px;justify-content:flex-start">';
       for(var k=0;k<botNums.length;k++){
-        var isVote=nnNums.indexOf(botNums[k])>=0;
-        var cls=isVote?'n-hit':(k<4?(sc?'n-grn':'n-blu'):'n-miss');
+        var nv=countVotes(botNums[k]);
+        var cls=nv>=2?'n-hit':(k<4?(sc?'n-grn':'n-blu'):'n-miss');
         h+=Ns(botNums[k],cls+' ns');
       }
       h+='</div>';
-      if(voteCount>0) h+='<span style="font-size:8px;color:var(--cyan);font-weight:700;margin-left:4px">'+voteCount+'&#9733;</span>';
+      if(totalVotes>0) h+='<span style="font-size:8px;color:var(--cyan);font-weight:700;margin-left:4px">'+totalVotes+'&#9733;</span>';
       if(isTop) h+='<span style="font-size:8px;color:var(--green);font-weight:700;margin-left:4px">TOP</span>';
       if(isEviter) h+='<span style="font-size:8px;color:var(--red);font-weight:700;margin-left:4px">EVITER</span>';
       h+='</div>';
-      // Ligne IA Neural — 5 numeros, 4 en couleur, 5e en gris, vote en cyan
+      // Ligne IA Neural
       if(nnC){
         h+='<div class="trow" style="border:none;padding:2px 0;padding-left:50px">';
         h+='<span style="font-size:9px;color:var(--purple);font-weight:700;min-width:110px">IA</span>';
         h+='<div class="nums" style="gap:3px;justify-content:flex-start">';
         for(var k=0;k<nnC.nums.length;k++){
-          var isVote=botNums.indexOf(nnC.nums[k])>=0;
-          var cls=isVote?'n-hit':(k<4?'n-pur':'n-miss');
+          var nv=countVotes(nnC.nums[k]);
+          var cls=nv>=2?'n-hit':(k<4?'n-pur':'n-miss');
           h+=Ns(nnC.nums[k],cls+' ns');
+        }
+        h+='</div></div>';
+      }
+      // Ligne LSTM
+      if(lstmC){
+        h+='<div class="trow" style="border:none;padding:2px 0;padding-left:50px">';
+        h+='<span style="font-size:9px;color:var(--orange);font-weight:700;min-width:110px">LSTM</span>';
+        h+='<div class="nums" style="gap:3px;justify-content:flex-start">';
+        for(var k=0;k<lstmC.nums.length;k++){
+          var nv=countVotes(lstmC.nums[k]);
+          var cls=nv>=2?'n-hit':(k<4?'n-ora':'n-miss');
+          h+=Ns(lstmC.nums[k],cls+' ns');
         }
         h+='</div></div>';
       }

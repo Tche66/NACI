@@ -7,6 +7,7 @@ const { TIRAGES_COMPLET, JOURS_NOMS, getTiragesJour, getNomsTiragesJour } = requ
 const { genererCouverture, CONSTRAINTS } = require("./couverture");
 const { learnAndAdapt, loadLearnState, predictConvergence, DEFAULT_WEIGHTS, DRAW_CATEGORIES, getCategoryForType, computeCriteriaTops, convergenceScore, backtestScore } = require("./apprentissage");
 const { NeuralNet, trainNeural, predictNeural, MODEL_PATH } = require("./neural");
+const { LSTMNet, trainLSTM, predictLSTM, LSTM_MODEL_PATH } = require("./lstm");
 
 const app = express();
 const PORT = 3000;
@@ -26,6 +27,23 @@ function loadOrTrainNN(db) {
       console.log("[NN] Modele entraine et sauvegarde.");
     }
   } catch (e) { console.log("[NN] Erreur:", e.message); }
+}
+
+// LSTM global
+let lstmNet = null;
+function loadOrTrainLSTM(db) {
+  try {
+    if (fs.existsSync(LSTM_MODEL_PATH)) {
+      lstmNet = LSTMNet.load(LSTM_MODEL_PATH);
+      if (lstmNet) console.log("[LSTM] Modele charge depuis " + LSTM_MODEL_PATH);
+      else throw new Error("Format incompatible");
+    } else {
+      console.log("[LSTM] Entrainement du LSTM...");
+      lstmNet = trainLSTM(db.draws, 5);
+      lstmNet.save(LSTM_MODEL_PATH);
+      console.log("[LSTM] Modele entraine et sauvegarde.");
+    }
+  } catch (e) { console.log("[LSTM] Erreur:", e.message); lstmNet = null; }
 }
 const HISTORY_PATH = getDataPath("historique_predictions.json");
 
@@ -683,6 +701,17 @@ app.get("/api/predictions/:jour", (req, res) => {
       pred.combos.push({ nom: "NEURAL", nums: nnNums, confiance: "IA", detail: nnDetail, isNeural: true });
     }
 
+    // Ajouter combo LSTM (3eme source)
+    if (lstmNet && pred && pred.combos) {
+      try {
+        const lstmScores = predictLSTM(lstmNet, db.draws, t.nom, jour, todayDraws);
+        if (lstmScores) {
+          const lstmNums = lstmScores.slice(0, 5).map(s => s.num).sort((a, b) => a - b);
+          pred.combos.push({ nom: "LSTM", nums: lstmNums, confiance: "LSTM", isLSTM: true });
+        }
+      } catch (e) {}
+    }
+
     parTirage.push({
       tirage: t.nom, heure: t.heure, type: t.type,
       prediction: pred,
@@ -1197,14 +1226,25 @@ app.get("/api/semaine", (req, res) => {
         } catch (e) { /* silencieux */ }
       }
 
+      // Ajouter combo LSTM pour la semaine
+      let lstmCombo = null;
+      if (lstmNet && conv) {
+        try {
+          const lS = predictLSTM(lstmNet, db.draws, t.nom, j, []);
+          if (lS) lstmCombo = lS.slice(0, 5).map(s => s.num).sort((a, b) => a - b);
+        } catch (e) { /* silencieux */ }
+      }
+
       const combos = conv ? conv.combos.slice(0, 3) : null;
       if (combos && nnCombo) combos.push({ nom: "NEURAL", nums: nnCombo, confiance: "IA" });
+      if (combos && lstmCombo) combos.push({ nom: "LSTM", nums: lstmCombo, confiance: "LSTM" });
 
       preds.push({
         tirage: t.nom, heure: t.heure, type: t.type,
         combo: conv ? conv.combos[0].nums : null,
         combos,
         neural: nnCombo,
+        lstm: lstmCombo,
         paire1: pair ? pair.paire1 : null,
         paire2: pair ? pair.paire2 : null,
         isTop: topTypes.has(t.nom),
@@ -1229,6 +1269,9 @@ if (IS_VERCEL) {
     if (fs.existsSync(path.join(__dirname, "neural_model.json"))) {
       neuralNet = NeuralNet.load(path.join(__dirname, "neural_model.json"));
     }
+    if (fs.existsSync(path.join(__dirname, "lstm_model.json"))) {
+      lstmNet = LSTMNet.load(path.join(__dirname, "lstm_model.json"));
+    }
   } catch (e) {}
   module.exports = app;
 } else {
@@ -1241,6 +1284,7 @@ if (IS_VERCEL) {
     const db = loadDB();
     try { learnAndAdapt(); } catch (e) { console.log("[LEARN] Erreur backtest:", e.message); }
     loadOrTrainNN(db);
+    loadOrTrainLSTM(db);
     try { autoSavePredictions(db); } catch (e) { console.log("[AUTO-SAVE] Erreur:", e.message); }
     catchUpResults().catch(e => console.log("[CATCHUP] Erreur:", e.message));
   });
