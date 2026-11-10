@@ -413,7 +413,7 @@ function loadJouer(jour){
 
     // TIRAGES DU JOUR
     h+='<div class="card"><div class="card-title">Tirages du '+JOURS[jour]+'</div>';
-    h+='<div class="card-sub"><span style="color:var(--green)">&#9679;</span> Classique &nbsp; <span style="color:var(--purple)">&#9679;</span> IA Neural</div>';
+    h+='<div class="card-sub"><span style="color:var(--green)">&#9679;</span> Bot &nbsp; <span style="color:var(--purple)">&#9679;</span> IA &nbsp; <span style="color:var(--cyan)">&#9679;</span> Vote (en commun) &nbsp; <span style="color:var(--text2)">&#9679;</span> 5e choix</div>';
     for(var i=0;i<data.parTirage.length;i++){
       var t=data.parTirage[i];
       if(!t.prediction)continue;
@@ -426,25 +426,36 @@ function loadJouer(jour){
       var isTop=tops.indexOf(t.tirage)>=0;
       var isEviter=eviter.indexOf(t.tirage)>=0;
       var borderCol=isEviter?'var(--red)':isTop?'var(--green)':'var(--border)';
+      var nnNums=nnC?nnC.nums:[];
+      var botNums=mainC.nums;
+      var voteCount=0;
+      for(var v=0;v<botNums.length;v++){if(nnNums.indexOf(botNums[v])>=0)voteCount++}
       h+='<div style="padding:8px 0;border-bottom:1px solid var(--border);border-left:3px solid '+borderCol+';padding-left:8px;margin-bottom:2px;border-radius:2px">';
-      // Ligne classique — top 4 en gros, le 5eme en petit
+      // Ligne classique — 5 numeros, 4 en couleur, 5e en gris, vote en cyan
       h+='<div class="trow" style="border:none;padding:2px 0">';
       h+='<span class="trow-time">'+t.heure+'</span>';
       h+='<span class="trow-name"'+(isTop?' style="color:var(--green)"':'')+(isEviter?' style="color:var(--red)"':'')+'>'+t.tirage+'</span>';
       h+='<div class="nums" style="gap:3px;justify-content:flex-start">';
-      for(var k=0;k<Math.min(4,mainC.nums.length);k++) h+=Ns(mainC.nums[k],sc?'n-grn ns':'n-blu ns');
-      if(mainC.nums.length>4) h+='<span style="font-size:9px;color:var(--text2);margin-left:2px">+'+mainC.nums[4]+'</span>';
+      for(var k=0;k<botNums.length;k++){
+        var isVote=nnNums.indexOf(botNums[k])>=0;
+        var cls=isVote?'n-hit':(k<4?(sc?'n-grn':'n-blu'):'n-miss');
+        h+=Ns(botNums[k],cls+' ns');
+      }
       h+='</div>';
+      if(voteCount>0) h+='<span style="font-size:8px;color:var(--cyan);font-weight:700;margin-left:4px">'+voteCount+'&#9733;</span>';
       if(isTop) h+='<span style="font-size:8px;color:var(--green);font-weight:700;margin-left:4px">TOP</span>';
       if(isEviter) h+='<span style="font-size:8px;color:var(--red);font-weight:700;margin-left:4px">EVITER</span>';
       h+='</div>';
-      // Ligne IA Neural — top 4
+      // Ligne IA Neural — 5 numeros, 4 en couleur, 5e en gris, vote en cyan
       if(nnC){
         h+='<div class="trow" style="border:none;padding:2px 0;padding-left:50px">';
         h+='<span style="font-size:9px;color:var(--purple);font-weight:700;min-width:110px">IA</span>';
         h+='<div class="nums" style="gap:3px;justify-content:flex-start">';
-        for(var k=0;k<Math.min(4,nnC.nums.length);k++) h+=Ns(nnC.nums[k],'n-pur ns');
-        if(nnC.nums.length>4) h+='<span style="font-size:9px;color:var(--text2);margin-left:2px">+'+nnC.nums[4]+'</span>';
+        for(var k=0;k<nnC.nums.length;k++){
+          var isVote=botNums.indexOf(nnC.nums[k])>=0;
+          var cls=isVote?'n-hit':(k<4?'n-pur':'n-miss');
+          h+=Ns(nnC.nums[k],cls+' ns');
+        }
         h+='</div></div>';
       }
       // Remarque speciale
@@ -915,6 +926,11 @@ function loadSuivi(){
 
 // ═══ BACKTEST ═══
 var btRunning=false;
+function toggleBtPeriode(){
+  var mode=document.getElementById('bt-periode-mode').value;
+  document.getElementById('bt-periode-relative').style.display=mode==='relative'?'block':'none';
+  document.getElementById('bt-periode-custom').style.display=mode==='custom'?'block':'none';
+}
 function loadBacktest(){
   var el=document.getElementById('backtestContent');
   if(btRunning)return;
@@ -925,10 +941,36 @@ function loadBacktest(){
   h+='<div class="card-sub">Teste tes paris sur les donnees passees pour voir combien tu aurais gagne</div>';
   h+='<div style="display:flex;flex-wrap:wrap;gap:10px">';
   // Periode
-  h+='<div style="flex:1;min-width:140px"><label style="font-size:10px;color:var(--text2);display:block;margin-bottom:4px">Periode (mois)</label>';
+  h+='<div style="flex:1;min-width:280px"><label style="font-size:10px;color:var(--text2);display:block;margin-bottom:4px">Periode</label>';
+  h+='<select id="bt-periode-mode" onchange="toggleBtPeriode()" style="width:100%;padding:8px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:6px;font-size:12px;margin-bottom:6px">';
+  h+='<option value="relative" selected>Derniers X mois</option><option value="custom">Mois/Annee personnalise</option>';
+  h+='</select>';
+  h+='<div id="bt-periode-relative" style="display:block">';
   h+='<select id="bt-periode" style="width:100%;padding:8px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:6px;font-size:12px">';
   h+='<option value="1">1 mois</option><option value="3">3 mois</option><option value="6" selected>6 mois</option><option value="12">12 mois</option><option value="24">24 mois</option>';
   h+='</select></div>';
+  var nowBt=new Date();var curM=nowBt.getMonth()+1;var curY=nowBt.getFullYear();
+  h+='<div id="bt-periode-custom" style="display:none">';
+  h+='<div style="display:flex;gap:6px;align-items:center">';
+  h+='<div style="flex:1"><div style="font-size:9px;color:var(--text2);margin-bottom:2px">Du</div>';
+  h+='<div style="display:flex;gap:3px">';
+  h+='<select id="bt-mois-debut" style="flex:1;padding:6px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;font-size:11px">';
+  var moisNoms=["Jan","Fev","Mar","Avr","Mai","Jun","Jul","Aou","Sep","Oct","Nov","Dec"];
+  for(var mi=1;mi<=12;mi++){var sel=(mi===1)?" selected":"";h+='<option value="'+mi+'"'+sel+'>'+moisNoms[mi-1]+'</option>'}
+  h+='</select>';
+  h+='<select id="bt-annee-debut" style="width:70px;padding:6px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;font-size:11px">';
+  for(var yi=curY;yi>=2021;yi--){var sel=(yi===curY-1)?" selected":"";h+='<option value="'+yi+'"'+sel+'>'+yi+'</option>'}
+  h+='</select></div></div>';
+  h+='<div style="flex:1"><div style="font-size:9px;color:var(--text2);margin-bottom:2px">Au</div>';
+  h+='<div style="display:flex;gap:3px">';
+  h+='<select id="bt-mois-fin" style="flex:1;padding:6px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;font-size:11px">';
+  for(var mi=1;mi<=12;mi++){var sel=(mi===curM)?" selected":"";h+='<option value="'+mi+'"'+sel+'>'+moisNoms[mi-1]+'</option>'}
+  h+='</select>';
+  h+='<select id="bt-annee-fin" style="width:70px;padding:6px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:4px;font-size:11px">';
+  for(var yi=curY;yi>=2021;yi--){var sel=(yi===curY)?" selected":"";h+='<option value="'+yi+'"'+sel+'>'+yi+'</option>'}
+  h+='</select></div></div>';
+  h+='</div></div>';
+  h+='</div>';
   // Mise
   h+='<div style="flex:1;min-width:140px"><label style="font-size:10px;color:var(--text2);display:block;margin-bottom:4px">Mise par pari (FCFA)</label>';
   h+='<select id="bt-mise" style="width:100%;padding:8px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:6px;font-size:12px">';
@@ -957,11 +999,25 @@ function loadBacktest(){
   h+='</select></div>';
   h+='</div>';
   // Tirages
-  h+='<div style="margin-top:10px"><label style="font-size:10px;color:var(--text2);display:block;margin-bottom:4px">Tirages (vide = tous, ou selectionne)</label>';
-  h+='<div id="bt-tirages" style="display:flex;flex-wrap:wrap;gap:4px">';
-  var allTirages=["Akwaba","Sika","Baraka","Midweek","Friday Bonanza","Monday Special","Lucky Tuesday","Fortune Thursday","Benediction","Prestige","Awale","Digital 23h","Digital 21h","Digital Reveil 7h","Special Weekend 3h","Diamant","Afterwork"];
-  for(var ti=0;ti<allTirages.length;ti++){
-    h+='<label style="display:flex;align-items:center;gap:3px;font-size:10px;background:var(--card2);padding:4px 8px;border-radius:4px;cursor:pointer"><input type="checkbox" value="'+allTirages[ti]+'" style="accent-color:var(--green)">'+allTirages[ti]+'</label>';
+  h+='<div style="margin-top:10px"><label style="font-size:10px;color:var(--text2);display:block;margin-bottom:4px">Tirages (vide = tous, ou selectionne) <span style="cursor:pointer;color:var(--cyan)" onclick="var cbs=document.querySelectorAll(\'#bt-tirages input\');var all=true;cbs.forEach(function(c){if(!c.checked)all=false});cbs.forEach(function(c){c.checked=!all})">[tout cocher/decocher]</span></label>';
+  h+='<div id="bt-tirages" style="display:flex;flex-direction:column;gap:6px">';
+  var tirageGroups=[
+    {label:"Matin (09h55)",color:"var(--green)",items:["Reveil","La Matinale","Premiere Heure","Kado","Cash","Soutra","Benediction"]},
+    {label:"Midi (12h55)",color:"var(--blue)",items:["Etoile","Emergence","Fortune","Privilege","Solution","Diamant","Prestige"]},
+    {label:"Apres-midi (15h55)",color:"var(--orange)",items:["Akwaba","Sika","Baraka","Monni","Wari","Moaye","Awale"]},
+    {label:"Afterwork (17h55)",color:"var(--cyan)",items:["Afterwork"]},
+    {label:"Soir / Special (18h30)",color:"var(--purple)",items:["Monday Special","Lucky Tuesday","Midweek","Fortune Thursday","Friday Bonanza","National","Espoir"]},
+    {label:"Digital",color:"var(--yellow)",items:["Digital Reveil 7h","Digital Reveil 8h","Digital 21h","Digital 22h","Digital 23h"]},
+    {label:"Weekend nuit",color:"var(--text2)",items:["Special Weekend 1h","Special Weekend 3h"]}
+  ];
+  for(var gi=0;gi<tirageGroups.length;gi++){
+    var g=tirageGroups[gi];
+    h+='<div><div style="font-size:9px;color:'+g.color+';font-weight:700;margin-bottom:3px">'+g.label+'</div>';
+    h+='<div style="display:flex;flex-wrap:wrap;gap:4px">';
+    for(var ti=0;ti<g.items.length;ti++){
+      h+='<label style="display:flex;align-items:center;gap:3px;font-size:10px;background:var(--card2);padding:4px 8px;border-radius:4px;cursor:pointer"><input type="checkbox" value="'+g.items[ti]+'" style="accent-color:var(--green)">'+g.items[ti]+'</label>';
+    }
+    h+='</div></div>';
   }
   h+='</div></div>';
   // Boutons
@@ -984,12 +1040,18 @@ function runBacktest(){
   var tirages=[];
   for(var i=0;i<checked.length;i++)tirages.push(checked[i].value);
   var params={
-    periode:parseInt(document.getElementById('bt-periode').value),
     mise:parseInt(document.getElementById('bt-mise').value),
     mode:document.getElementById('bt-mode').value,
     source:document.getElementById('bt-source').value,
     tirages:tirages
   };
+  var pMode=document.getElementById('bt-periode-mode').value;
+  if(pMode==='custom'){
+    params.dateDebut=document.getElementById('bt-mois-debut').value+'/'+document.getElementById('bt-annee-debut').value;
+    params.dateFin=document.getElementById('bt-mois-fin').value+'/'+document.getElementById('bt-annee-fin').value;
+  }else{
+    params.periode=parseInt(document.getElementById('bt-periode').value);
+  }
   var el=document.getElementById('bt-results');
   el.innerHTML='<div class="loading"><div class="spinner"></div><br>Backtest en cours... (peut prendre 1-2 min)</div>';
   btRunning=true;

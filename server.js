@@ -392,113 +392,123 @@ async function autoUpdate() {
     } else {
       console.log(`[AUTO] Pas de nouveaux tirages.`);
       autoSavePredictions(db);
+      autoCompare(db);
     }
   } catch (e) { console.log(`[AUTO] Erreur: ${e.message}`); }
 }
 
 function autoCompare(db) {
   const history = loadHistory();
-  const todayStr = new Date().toLocaleDateString("fr-FR");
-  const pendingPreds = history.predictions.filter(p => p.date === todayStr && !p.compared);
+  const pendingPreds = history.predictions.filter(p => !p.compared);
   if (pendingPreds.length === 0) return;
-  const todayDraws = db.draws.filter(d => {
-    const parts = d.date.match(/(\d{2})\/(\d{2})\/(\d{4})/);
-    if (!parts) return false;
-    const drawDate = new Date(parseInt(parts[3]), parseInt(parts[2])-1, parseInt(parts[1]));
-    return drawDate.toLocaleDateString("fr-FR") === todayStr;
-  });
-  if (todayDraws.length === 0) return;
-  const analyse = { date: todayStr, timestamp: new Date().toISOString(), comparaisons: [] };
-  let learnUpdated = false;
 
-  for (const pred of pendingPreds) {
-    const realDraw = todayDraws.find(d => d.type === pred.tirage);
-    if (!realDraw) continue;
-    const comp = comparerPredictionResultat(pred.nums, realDraw.gagnants, realDraw.machine);
-
-    let neuralPred = null, neuralComp = null;
-    if (pred.allCombos) {
-      const nc = pred.allCombos.find(c => c.nom === "NEURAL");
-      if (nc && nc.nums) {
-        neuralPred = nc.nums;
-        neuralComp = comparerPredictionResultat(nc.nums, realDraw.gagnants, realDraw.machine);
-      }
-    }
-
-    analyse.comparaisons.push({
-      tirage: pred.tirage,
-      prediction: pred.nums,
-      resultat: realDraw.gagnants,
-      machine: realDraw.machine || [],
-      comp,
-      neuralPrediction: neuralPred,
-      neuralComp,
-    });
-    pred.compared = true;
-    pred.resultat = realDraw.gagnants;
-    pred.machine = realDraw.machine || [];
-    pred.nbExacts = comp.nbExacts;
-    pred.nbMachineExacts = comp.nbMachineExacts;
-
-    // ═══ AUTO-APPRENTISSAGE PAR PREDICTION (v5: global + par categorie) ═══
-    try {
-      const { computeCriteriaTops, loadLearnState, saveLearnState } = require("./apprentissage");
-      const filtered = db.draws.filter(d => d.type === pred.tirage);
-      if (filtered.length >= 20) {
-        const parts2 = realDraw.date.match(/(\d{2})\/(\d{2})\/(\d{4})/);
-        let jour = null;
-        if (parts2) { const dt = new Date(parseInt(parts2[3]), parseInt(parts2[2]) - 1, parseInt(parts2[1])); jour = dt.getDay(); }
-        const tops = computeCriteriaTops(filtered, db.draws, 15, jour);
-        if (tops) {
-          const state = loadLearnState();
-          const realNums = realDraw.gagnants;
-          const cat = getCategoryForType(pred.tirage);
-          if (!state.categoryWeights[cat]) state.categoryWeights[cat] = { ...state.criteriaWeights };
-          for (const n of realNums) {
-            for (const [critere, topList] of Object.entries(tops)) {
-              if (!topList || critere.startsWith("_") || critere === "lastDrawNums") continue;
-              // Ajuster poids global
-              const wg = state.criteriaWeights[critere];
-              if (wg !== undefined) {
-                if (topList.includes(n)) state.criteriaWeights[critere] = Math.min(30, wg + 0.15);
-                else state.criteriaWeights[critere] = Math.max(3, wg - 0.03);
-              }
-              // Ajuster poids categorie (pas plus vite que le global)
-              const wc = state.categoryWeights[cat][critere];
-              if (wc !== undefined) {
-                if (topList.includes(n)) state.categoryWeights[cat][critere] = Math.min(30, wc + 0.2);
-                else state.categoryWeights[cat][critere] = Math.max(3, wc - 0.04);
-              }
-            }
-          }
-          // Ajuster poids des combos (pour SUPER COMBO)
-          if (pred.allCombos && pred.allCombos.length > 0) {
-            if (!state.comboPerf) state.comboPerf = { CONV: 1.0, EQ: 1.0, COND: 1.0, MARKOV: 1.0, JOUR: 1.0, NN: 0.3 };
-            if (state.comboPerf.NN === undefined) state.comboPerf.NN = 0.3;
-            const comboKeyMap = { "CONVERGENCE": "CONV", "CONVERGENCE EQ": "EQ", "CONDITIONNEL+": "COND", "MARKOV+": "MARKOV", "JOUR+": "JOUR", "NEURAL": "NN" };
-            for (const combo of pred.allCombos) {
-              const key = comboKeyMap[combo.nom];
-              if (!key || state.comboPerf[key] === undefined) continue;
-              const comboHits = (combo.nums || []).filter(n => realNums.includes(n)).length;
-              if (comboHits > 0) state.comboPerf[key] = Math.min(2.0, state.comboPerf[key] * 0.95 + 0.1);
-              else state.comboPerf[key] = Math.max(0.3, state.comboPerf[key] * 0.97 - 0.01);
-            }
-          }
-
-          saveLearnState(state);
-          learnUpdated = true;
-        }
-      }
-    } catch (e) { /* silencieux */ }
+  const byDate = {};
+  for (const p of pendingPreds) {
+    if (!byDate[p.date]) byDate[p.date] = [];
+    byDate[p.date].push(p);
   }
 
-  if (analyse.comparaisons.length > 0) {
-    history.analyses.push(analyse);
-    saveHistory(history);
-    const totalEx = analyse.comparaisons.reduce((s, c) => s + (c.comp ? c.comp.nbExacts : 0), 0);
-    console.log(`[AUTO] Compare ${analyse.comparaisons.length} tirages — ${totalEx} exacts` + (learnUpdated ? " — poids ajustes" : ""));
+  let totalCompared = 0;
+  let learnUpdated = false;
 
-    // Re-entrainer le NN toutes les 50 comparaisons
+  for (const [dateStr, preds] of Object.entries(byDate)) {
+    const dateDraws = db.draws.filter(d => d.date === dateStr);
+    if (dateDraws.length === 0) continue;
+
+    const analyse = { date: dateStr, timestamp: new Date().toISOString(), comparaisons: [] };
+
+    for (const pred of preds) {
+      const realDraw = dateDraws.find(d => d.type === pred.tirage);
+      if (!realDraw) continue;
+      const comp = comparerPredictionResultat(pred.nums, realDraw.gagnants, realDraw.machine);
+
+      let neuralPred = null, neuralComp = null;
+      if (pred.allCombos) {
+        const nc = pred.allCombos.find(c => c.nom === "NEURAL");
+        if (nc && nc.nums) {
+          neuralPred = nc.nums;
+          neuralComp = comparerPredictionResultat(nc.nums, realDraw.gagnants, realDraw.machine);
+        }
+      }
+
+      analyse.comparaisons.push({
+        tirage: pred.tirage,
+        prediction: pred.nums,
+        resultat: realDraw.gagnants,
+        machine: realDraw.machine || [],
+        comp,
+        neuralPrediction: neuralPred,
+        neuralComp,
+      });
+      pred.compared = true;
+      pred.resultat = realDraw.gagnants;
+      pred.machine = realDraw.machine || [];
+      pred.nbExacts = comp.nbExacts;
+      pred.nbMachineExacts = comp.nbMachineExacts;
+      totalCompared++;
+
+      try {
+        const { computeCriteriaTops, loadLearnState, saveLearnState } = require("./apprentissage");
+        const filtered = db.draws.filter(d => d.type === pred.tirage);
+        if (filtered.length >= 20) {
+          const parts2 = realDraw.date.match(/(\d{2})\/(\d{2})\/(\d{4})/);
+          let jour = null;
+          if (parts2) { const dt = new Date(parseInt(parts2[3]), parseInt(parts2[2]) - 1, parseInt(parts2[1])); jour = dt.getDay(); }
+          const tops = computeCriteriaTops(filtered, db.draws, 15, jour);
+          if (tops) {
+            const state = loadLearnState();
+            const realNums = realDraw.gagnants;
+            const cat = getCategoryForType(pred.tirage);
+            if (!state.categoryWeights[cat]) state.categoryWeights[cat] = { ...state.criteriaWeights };
+            for (const n of realNums) {
+              for (const [critere, topList] of Object.entries(tops)) {
+                if (!topList || critere.startsWith("_") || critere === "lastDrawNums") continue;
+                const wg = state.criteriaWeights[critere];
+                if (wg !== undefined) {
+                  if (topList.includes(n)) state.criteriaWeights[critere] = Math.min(30, wg + 0.15);
+                  else state.criteriaWeights[critere] = Math.max(3, wg - 0.03);
+                }
+                const wc = state.categoryWeights[cat][critere];
+                if (wc !== undefined) {
+                  if (topList.includes(n)) state.categoryWeights[cat][critere] = Math.min(30, wc + 0.2);
+                  else state.categoryWeights[cat][critere] = Math.max(3, wc - 0.04);
+                }
+              }
+            }
+            if (pred.allCombos && pred.allCombos.length > 0) {
+              if (!state.comboPerf) state.comboPerf = { CONV: 1.0, EQ: 1.0, COND: 1.0, MARKOV: 1.0, JOUR: 1.0, NN: 0.3 };
+              if (state.comboPerf.NN === undefined) state.comboPerf.NN = 0.3;
+              const comboKeyMap = { "CONVERGENCE": "CONV", "CONVERGENCE EQ": "EQ", "CONDITIONNEL+": "COND", "MARKOV+": "MARKOV", "JOUR+": "JOUR", "NEURAL": "NN" };
+              for (const combo of pred.allCombos) {
+                const key = comboKeyMap[combo.nom];
+                if (!key || state.comboPerf[key] === undefined) continue;
+                const comboHits = (combo.nums || []).filter(n => realNums.includes(n)).length;
+                if (comboHits > 0) state.comboPerf[key] = Math.min(2.0, state.comboPerf[key] * 0.95 + 0.1);
+                else state.comboPerf[key] = Math.max(0.3, state.comboPerf[key] * 0.97 - 0.01);
+              }
+            }
+            saveLearnState(state);
+            learnUpdated = true;
+          }
+        }
+      } catch (e) { /* silencieux */ }
+    }
+
+    if (analyse.comparaisons.length > 0) {
+      const existingAnalyse = history.analyses.find(a => a.date === dateStr);
+      if (existingAnalyse) {
+        existingAnalyse.comparaisons.push(...analyse.comparaisons);
+        existingAnalyse.timestamp = analyse.timestamp;
+      } else {
+        history.analyses.push(analyse);
+      }
+    }
+  }
+
+  if (totalCompared > 0) {
+    saveHistory(history);
+    console.log(`[AUTO] Compare ${totalCompared} predictions sur ${Object.keys(byDate).length} jour(s)` + (learnUpdated ? " — poids ajustes" : ""));
+
     if (neuralNet && history.analyses.length % 10 === 0) {
       try {
         console.log("[NN] Re-entrainement incremental...");
@@ -556,6 +566,44 @@ function autoSavePredictions(db) {
     saveHistory(history);
     console.log(`[AUTO-SAVE] ${saved} predictions sauvegardees pour ${todayStr}`);
   }
+}
+
+// ═══ RATTRAPAGE RESULTATS MANQUES ═══
+async function catchUpResults() {
+  const history = loadHistory();
+  const pendingPreds = history.predictions.filter(p => !p.compared);
+  if (pendingPreds.length === 0) return;
+
+  const missingMonths = new Set();
+  for (const p of pendingPreds) {
+    const parts = p.date.match(/(\d{2})\/(\d{2})\/(\d{4})/);
+    if (!parts) continue;
+    const month = parseInt(parts[2]) - 1;
+    const year = parseInt(parts[3]);
+    missingMonths.add(`${MONTHS_FR[month]} ${year}`);
+  }
+
+  if (missingMonths.size === 0) return;
+  console.log(`[CATCHUP] ${pendingPreds.length} predictions non comparees sur ${missingMonths.size} mois`);
+
+  const db = loadDB();
+  let totalNew = 0;
+  for (const m of missingMonths) {
+    try {
+      const json = await fetchJSON(`https://lotobonheur.ci/api/results?monthYear=${encodeURIComponent(m)}`);
+      const newDraws = parseAPIDraws(json);
+      totalNew += mergeDraws(db.draws, newDraws);
+    } catch (e) { console.log(`[CATCHUP] Erreur pour ${m}: ${e.message}`); }
+  }
+
+  if (totalNew > 0) {
+    saveDB(db);
+    console.log(`[CATCHUP] +${totalNew} tirages recuperes`);
+  }
+
+  autoCompare(db);
+  const remaining = loadHistory().predictions.filter(p => !p.compared).length;
+  console.log(`[CATCHUP] Termine — ${remaining} predictions encore en attente`);
 }
 
 if (!IS_VERCEL) setInterval(autoUpdate, 60000);
@@ -781,7 +829,7 @@ app.post("/api/backtest", (req, res) => {
 
 app.post("/api/backtest-custom", (req, res) => {
   try {
-    const { periode = 6, tirages = [], mise = 100, mode = "chance3", source = "both" } = req.body || {};
+    const { periode = 6, tirages = [], mise = 100, mode = "chance3", source = "both", dateDebut, dateFin } = req.body || {};
     const db = loadDB();
     if (db.draws.length < 200) return res.json({ error: "Pas assez de donnees" });
     const state = loadLearnState();
@@ -828,8 +876,17 @@ app.post("/api/backtest-custom", (req, res) => {
     }
 
     const lastDate = parseDt(db.draws[0].date);
-    const cutoff = new Date(lastDate);
-    cutoff.setMonth(cutoff.getMonth() - Math.min(Math.max(periode, 1), 24));
+    let cutoff, endDate;
+    if (dateDebut && dateFin) {
+      const [dm, dy] = dateDebut.split("/").map(Number);
+      const [fm, fy] = dateFin.split("/").map(Number);
+      cutoff = new Date(dy, dm - 1, 1);
+      endDate = new Date(fy, fm, 0, 23, 59, 59);
+    } else {
+      cutoff = new Date(lastDate);
+      cutoff.setMonth(cutoff.getMonth() - Math.min(Math.max(periode, 1), 24));
+      endDate = null;
+    }
     const tirageSet = tirages.length > 0 ? new Set(tirages) : null;
 
     const hitDist = { bot: [0,0,0,0,0,0], ia: [0,0,0,0,0,0] };
@@ -842,6 +899,7 @@ app.post("/api/backtest-custom", (req, res) => {
       const target = db.draws[i];
       const dt = parseDt(target.date);
       if (!dt || dt < cutoff) break;
+      if (endDate && dt > endDate) continue;
       if (tirageSet && !tirageSet.has(target.type)) continue;
 
       const hist = db.draws.slice(i + 1);
@@ -922,7 +980,7 @@ app.post("/api/backtest-custom", (req, res) => {
 
     res.json({
       success: true,
-      params: { periode, tirages: tirages.length > 0 ? tirages : "tous", mise, mode, source },
+      params: { periode, tirages: tirages.length > 0 ? tirages : "tous", mise, mode, source, dateDebut: dateDebut || null, dateFin: dateFin || null },
       summary: { totalPlays, totalDep, totalGain, totalGainBot, totalGainIA, profit, roi: totalDep > 0 ? +(profit / totalDep * 100).toFixed(1) : 0 },
       hitDist,
       monthly: monthlyArr,
@@ -1184,5 +1242,6 @@ if (IS_VERCEL) {
     try { learnAndAdapt(); } catch (e) { console.log("[LEARN] Erreur backtest:", e.message); }
     loadOrTrainNN(db);
     try { autoSavePredictions(db); } catch (e) { console.log("[AUTO-SAVE] Erreur:", e.message); }
+    catchUpResults().catch(e => console.log("[CATCHUP] Erreur:", e.message));
   });
 }

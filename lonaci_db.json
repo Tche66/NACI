@@ -1,6 +1,42 @@
 {
   "draws": [
     {
+      "date": "10/11/2026",
+      "type": "Digital Reveil 7h",
+      "gagnants": [
+        72,
+        78,
+        15,
+        29,
+        74
+      ],
+      "machine": [
+        24,
+        53,
+        9,
+        35,
+        42
+      ]
+    },
+    {
+      "date": "10/11/2026",
+      "type": "Soleil",
+      "gagnants": [
+        80,
+        38,
+        68,
+        46,
+        33
+      ],
+      "machine": [
+        37,
+        12,
+        70,
+        71,
+        86
+      ]
+    },
+    {
       "date": "09/11/2026",
       "type": "Digital Reveil 7h",
       "gagnants": [
