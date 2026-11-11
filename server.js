@@ -858,7 +858,7 @@ app.post("/api/backtest", (req, res) => {
 
 app.post("/api/backtest-custom", (req, res) => {
   try {
-    const { periode = 6, tirages = [], mise = 100, mode = "chance3", source = "both", dateDebut, dateFin } = req.body || {};
+    const { periode = 6, tirages = [], mise = 100, mode = "chance3", source = "both", dateDebut, dateFin, jourFiltre } = req.body || {};
     const db = loadDB();
     if (db.draws.length < 200) return res.json({ error: "Pas assez de donnees" });
     const state = loadLearnState();
@@ -942,6 +942,7 @@ app.post("/api/backtest-custom", (req, res) => {
       const dt = parseDt(target.date);
       if (!dt || dt < cutoff) break;
       if (endDate && dt > endDate) continue;
+      if (jourFiltre !== undefined && jourFiltre !== null && dt.getDay() !== jourFiltre) continue;
       if (tirageSet && !tirageSet.has(target.type)) continue;
 
       const hist = db.draws.slice(i + 1);
@@ -1049,7 +1050,7 @@ app.post("/api/backtest-custom", (req, res) => {
 
     res.json({
       success: true,
-      params: { periode, tirages: tirages.length > 0 ? tirages : "tous", mise, mode, source, dateDebut: dateDebut || null, dateFin: dateFin || null },
+      params: { periode, tirages: tirages.length > 0 ? tirages : "tous", mise, mode, source, dateDebut: dateDebut || null, dateFin: dateFin || null, jourFiltre: jourFiltre !== undefined ? jourFiltre : null },
       summary: { totalPlays, totalDep, totalGain, totalGainBot, totalGainIA, totalGainLSTM, profit, roi: totalDep > 0 ? +(profit / totalDep * 100).toFixed(1) : 0 },
       hitDist,
       monthly: monthlyArr,

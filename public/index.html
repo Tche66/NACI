@@ -298,7 +298,7 @@ function loadJouer(jour){
     var topTirages={0:['Prestige','Benediction','Digital Reveil 7h'],1:['Reveil','Cash','Digital 23h'],2:['Sika','Digital Reveil 8h','Digital 23h'],3:['Baraka','Digital Reveil 7h','Digital 23h'],4:['Digital Reveil 8h','Digital 23h','Digital 21h'],5:['Digital Reveil 7h','Digital 23h','Afterwork'],6:['Special Weekend 3h','Diamant','Digital 23h']};
     var eviterTirages={0:['Espoir','National'],1:['Monday Special','Premiere Heure'],2:['Lucky Tuesday','Emergence'],3:['Midweek','Premiere Heure'],4:['Kado','Fortune Thursday'],5:['Friday Bonanza','Solution'],6:['National','Moaye']};
     // Remarques speciales par tirage
-    var tirageRemarks={'Sika':'MEILLEUR TIRAGE (ROI +19246%) — 1 jackpot 4/4 sur 6 mois','Digital Reveil 8h':'Top digital (ROI +222%, 11.3% de win)','Digital Reveil 7h':'Solide (ROI +159%)','Digital 23h':'Regulier tous les jours (ROI +120%)','Special Weekend 3h':'Bon le weekend (ROI +289%)','Reveil':'Surprise lundi matin (ROI +622%)','Cash':'Vendredi matin rentable (ROI +535%)','Monday Special':'EVITER — 0 gain en 6 mois','Lucky Tuesday':'EVITER — 0 gain en 6 mois','Midweek':'EVITER — 0 gain en 6 mois','Friday Bonanza':'EVITER — quasi-perdant','Espoir':'EVITER — 0 gain','National':'EVITER — 0 gain'};
+    var tirageRemarks={'Digital Reveil 7h':'TOP — ROI +5616% consensus ch4dc','Sika':'EXCELLENT — ROI +768% consensus','Diamant':'EXCELLENT — ROI +683% consensus','Afterwork':'BON — ROI +53% consensus, regulier','Prestige':'BON — ROI +30% consensus','Cash':'POTENTIEL — ROI variable','Digital Reveil 8h':'CORRECT — digital regulier','Digital 23h':'CORRECT — quotidien','Monday Special':'EVITER — 0 gain','Lucky Tuesday':'EVITER — 0 gain','Midweek':'EVITER — 0 gain','Friday Bonanza':'EVITER — quasi-perdant','Espoir':'EVITER — 0 gain','National':'EVITER — 0 gain','La Matinale':'EVITER — 0 gain consensus','Premiere Heure':'EVITER — 0 gain consensus','Emergence':'EVITER — 0 gain consensus','Reveil':'EVITER — 0 gain consensus','Akwaba':'EVITER — 0 gain consensus'};
     var jq=jourQuality[jour]||{lbl:'',col:'var(--text2)',icon:''};
     var tops=topTirages[jour]||[];
     var eviter=eviterTirages[jour]||[];
@@ -311,9 +311,9 @@ function loadJouer(jour){
     // Pari recommande
     h+='<div style="background:var(--card2);padding:8px 12px;border-radius:6px;flex:1;min-width:140px">';
     h+='<div style="color:var(--cyan);font-weight:700;font-size:10px;margin-bottom:3px">PARI RECOMMANDE</div>';
-    h+='<div style="color:var(--text);font-weight:600">Chance 4+ Double Chance</div>';
-    h+='<div style="color:var(--text2);font-size:9px">4 nums, gagne a 2+ bons (gagnants+machine)</div>';
-    h+='<div style="color:var(--yellow);font-size:9px;margin-top:2px">ROI +951% sur 6 mois de backtest</div>';
+    h+='<div style="color:var(--text);font-weight:600">Chance 4+ DC — LSTM + consensus</div>';
+    h+='<div style="color:var(--text2);font-size:9px">4 nums LSTM, jouer seulement si consensus (UP ou DOWN)</div>';
+    h+='<div style="color:var(--yellow);font-size:9px;margin-top:2px">ROI +332% sur 6 mois de backtest</div>';
     h+='</div>';
     // Tirages a cibler
     if(tops.length>0){
@@ -332,13 +332,9 @@ function loadJouer(jour){
     h+='</div>';
     // Mini-guide mises
     h+='<div style="margin-top:8px;padding:8px 12px;background:rgba(68,138,255,.06);border:1px solid rgba(68,138,255,.15);border-radius:6px;font-size:10px;color:var(--text2)">';
-    if(jq.lbl==='EXCELLENT'||jq.lbl==='TRES BON'){
-      h+='<b style="color:var(--blue)">Conseil :</b> Bon jour. <b style="color:var(--text)">Chance 4+ Double Chance</b> : prends les <b>4 premiers numeros</b> Bot + 4 premiers IA. Mise 100F chaque = 200F/tirage.';
-    }else if(jq.lbl==='BON'||jq.lbl==='NEUTRE'){
-      h+='<b style="color:var(--blue)">Conseil :</b> Jour moyen. <b style="color:var(--text)">Chance 4+ DC</b> Bot seul (100F) sur les tirages recommandes.';
-    }else{
-      h+='<b style="color:var(--blue)">Conseil :</b> Jour faible. <b style="color:var(--text)">Evite</b> ou 100F sur Digital 23h en Chance 4+ DC.';
-    }
+    h+='<b style="color:var(--blue)">Strategie :</b> Joue les <b style="color:var(--orange)">4 premiers LSTM</b> en <b>Chance 4+ DC</b> (100F). ';
+    h+='Joue <b>seulement</b> les tirages ou il y a un <b style="color:var(--cyan)">vote</b> (numero en commun entre 2+ sources). ';
+    h+='Si aucun vote = <b style="color:var(--red)">skip ce tirage</b>.';
     h+='</div>';
     h+='</div>';
 
@@ -349,19 +345,36 @@ function loadJouer(jour){
       var nNums=superC.nnTop5||[];
       var common=superC.commonNums||[];
 
+      // Detecter LSTM global
+      var lstmGC=null;
+      for(var ci=0;ci<data.global.combos.length;ci++){
+        if(data.global.combos[ci].isLSTM||data.global.combos[ci].confiance==='LSTM') lstmGC=data.global.combos[ci];
+      }
+      var lNums=lstmGC?lstmGC.nums:[];
+
       h+='<div class="card hero-combo">';
       h+='<div class="label">&#127919; A jouer — Combo Fusion</div>';
-      h+='<div style="font-size:10px;color:var(--text2);margin-bottom:8px">Les 5 meilleurs numeros (classique + IA combines)</div>';
+      h+='<div style="font-size:10px;color:var(--text2);margin-bottom:8px">Les 5 meilleurs numeros (Bot + IA + LSTM)</div>';
       h+='<div class="nums" style="gap:10px;margin:12px 0">';
       for(var i=0;i<superC.nums.length;i++){
-        var isCommon=common.indexOf(superC.nums[i])>=0;
-        var isNN=nNums.indexOf(superC.nums[i])>=0&&cNums.indexOf(superC.nums[i])<0;
-        h+=N(superC.nums[i],isCommon?'n-hit':isNN?'n-pur':'n-grn');
+        var n=superC.nums[i];
+        var srcCount=0;
+        if(cNums.indexOf(n)>=0)srcCount++;
+        if(nNums.indexOf(n)>=0)srcCount++;
+        if(lNums.indexOf(n)>=0)srcCount++;
+        h+=N(n,srcCount>=2?'n-hit':lNums.indexOf(n)>=0?'n-ora':nNums.indexOf(n)>=0?'n-pur':'n-grn');
       }
       h+='</div>';
       h+='<div class="meta">Somme: '+superC.nums.reduce(function(a,b){return a+b},0)+' &middot; '+JOURS[jour]+'</div>';
-      if(common.length>0){
-        h+='<div style="margin-top:6px;font-size:10px;color:var(--yellow)">&#9733; '+common.length+' numero'+(common.length>1?'s':'')+' en commun classique + IA = confiance max</div>';
+      // Compter les votes
+      var voteNums=[];
+      for(var i=0;i<superC.nums.length;i++){
+        var n=superC.nums[i];var vc=0;
+        if(cNums.indexOf(n)>=0)vc++;if(nNums.indexOf(n)>=0)vc++;if(lNums.indexOf(n)>=0)vc++;
+        if(vc>=2)voteNums.push(n);
+      }
+      if(voteNums.length>0){
+        h+='<div style="margin-top:6px;font-size:10px;color:var(--cyan)">&#9733; '+voteNums.length+' numero'+(voteNums.length>1?'s':'')+' vote'+(voteNums.length>1?'s':'')+' par 2+ sources ('+voteNums.join(', ')+') = CONSENSUS</div>';
       }
       h+='</div>';
 
@@ -382,6 +395,13 @@ function loadJouer(jour){
       h+='<div class="nums" style="gap:4px;justify-content:center">';
       for(var i=0;i<nNums.length;i++) h+=Ns(nNums[i],'n-pur ns');
       h+='</div></div>';
+      // LSTM
+      h+='<div style="color:var(--text2);font-size:12px;font-weight:700">+</div>';
+      h+='<div style="flex:1;min-width:140px;text-align:center">';
+      h+='<div style="font-size:10px;color:var(--orange);font-weight:700;margin-bottom:4px">LSTM</div>';
+      h+='<div class="nums" style="gap:4px;justify-content:center">';
+      for(var i=0;i<lNums.length;i++) h+=Ns(lNums[i],'n-ora ns');
+      h+='</div></div>';
       // = Fusion
       h+='<div style="color:var(--text2);font-size:12px;font-weight:700">=</div>';
       h+='<div style="flex:1;min-width:140px;text-align:center">';
@@ -392,7 +412,7 @@ function loadJouer(jour){
       h+='</div>';
       // Conseil Double Chance
       h+='<div style="margin-top:10px;padding:8px 10px;background:rgba(255,171,64,.06);border:1px solid rgba(255,171,64,.2);border-radius:6px;font-size:10px;color:var(--text)">';
-      h+='<b style="color:var(--orange)">&#128161; Double Chance :</b> Si ton tirage a des numeros machine, joue en <b>Double Chance</b> — tes numeros sont compares aux gagnants ET aux numeros machine (10 cibles au lieu de 5). Tes chances doublent !';
+      h+='<b style="color:var(--orange)">&#128161; Double Chance (UP/DOWN) :</b> Tes numeros sont compares aux <b>gagnants</b> (UP) ou aux <b>machine</b> (DOWN) separement. Si 2+ matchent dans l un OU l autre = <b>GAGNE</b>. 1 en gagnant + 1 en machine = PERDU.';
       h+='</div>';
       h+='</div>';
     }
@@ -433,6 +453,15 @@ function loadJouer(jour){
       function countVotes(n){var v=0;if(botNums.indexOf(n)>=0)v++;if(nnNums.indexOf(n)>=0)v++;if(lstmNums.indexOf(n)>=0)v++;return v}
       var totalVotes=0;
       for(var v=0;v<botNums.length;v++){if(countVotes(botNums[v])>=2)totalVotes++}
+      // Consensus: top3 de 2+ sources en commun
+      var bt3=botNums.slice(0,3),it3=nnNums.slice(0,3),lt3=lstmNums.slice(0,3);
+      var t3c={};
+      for(var xx=0;xx<bt3.length;xx++)t3c[bt3[xx]]=(t3c[bt3[xx]]||0)+1;
+      for(var xx=0;xx<it3.length;xx++)t3c[it3[xx]]=(t3c[it3[xx]]||0)+1;
+      for(var xx=0;xx<lt3.length;xx++)t3c[lt3[xx]]=(t3c[lt3[xx]]||0)+1;
+      var hasConsensus=false;for(var kk in t3c){if(t3c[kk]>=2){hasConsensus=true;break}}
+      var consensusCol=hasConsensus?'var(--cyan)':isEviter?'var(--red)':'var(--border)';
+      if(hasConsensus&&!isEviter) borderCol='var(--cyan)';
       h+='<div style="padding:8px 0;border-bottom:1px solid var(--border);border-left:3px solid '+borderCol+';padding-left:8px;margin-bottom:2px;border-radius:2px">';
       // Ligne Bot — vote si present dans 2+ sources
       h+='<div class="trow" style="border:none;padding:2px 0">';
@@ -446,6 +475,8 @@ function loadJouer(jour){
       }
       h+='</div>';
       if(totalVotes>0) h+='<span style="font-size:8px;color:var(--cyan);font-weight:700;margin-left:4px">'+totalVotes+'&#9733;</span>';
+      if(hasConsensus&&!isEviter) h+='<span style="font-size:7px;background:var(--cyan);color:#000;padding:1px 5px;border-radius:3px;margin-left:4px;font-weight:700">JOUER</span>';
+      else if(!isEviter&&!isTop) h+='<span style="font-size:7px;background:var(--card2);color:var(--text2);padding:1px 5px;border-radius:3px;margin-left:4px">SKIP</span>';
       if(isTop) h+='<span style="font-size:8px;color:var(--green);font-weight:700;margin-left:4px">TOP</span>';
       if(isEviter) h+='<span style="font-size:8px;color:var(--red);font-weight:700;margin-left:4px">EVITER</span>';
       h+='</div>';
@@ -946,6 +977,19 @@ function toggleBtPeriode(){
   document.getElementById('bt-periode-relative').style.display=mode==='relative'?'block':'none';
   document.getElementById('bt-periode-custom').style.display=mode==='custom'?'block':'none';
 }
+
+function setBtPreset(type){
+  var cbs=document.querySelectorAll('#bt-tirages input');
+  var topT=['Digital Reveil 7h','Sika','Diamant','Afterwork','Prestige','Cash','Digital Reveil 8h','Digital 23h'];
+  var digT=['Digital Reveil 7h','Digital Reveil 8h','Digital 21h','Digital 22h','Digital 23h'];
+  var stdT=['Reveil','La Matinale','Premiere Heure','Kado','Cash','Soutra','Benediction','Etoile','Emergence','Fortune','Privilege','Solution','Diamant','Prestige','Akwaba','Sika','Baraka','Monni','Wari','Moaye','Awale','Afterwork'];
+  cbs.forEach(function(c){
+    if(type==='none') c.checked=false;
+    else if(type==='top') c.checked=topT.indexOf(c.value)>=0;
+    else if(type==='digital') c.checked=digT.indexOf(c.value)>=0;
+    else if(type==='standard') c.checked=stdT.indexOf(c.value)>=0;
+  });
+}
 function loadBacktest(){
   var el=document.getElementById('backtestContent');
   if(btRunning)return;
@@ -1012,6 +1056,21 @@ function loadBacktest(){
   h+='<select id="bt-source" style="width:100%;padding:8px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:6px;font-size:12px">';
   h+='<option value="consensus" selected>LSTM + consensus (RECOMMANDE)</option><option value="lstm">LSTM seul</option><option value="all">Bot + IA + LSTM (3 paris)</option><option value="both">Bot + IA (2 paris)</option><option value="bot">Bot seul</option><option value="ia">IA seule</option>';
   h+='</select></div>';
+  // Filtre par jour
+  h+='<div style="flex:1;min-width:140px"><label style="font-size:10px;color:var(--text2);display:block;margin-bottom:4px">Jour de la semaine</label>';
+  h+='<select id="bt-jour" style="width:100%;padding:8px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:6px;font-size:12px">';
+  h+='<option value="" selected>Tous les jours</option>';
+  h+='<option value="1">Lundi</option><option value="2">Mardi</option><option value="3">Mercredi</option>';
+  h+='<option value="4">Jeudi</option><option value="5">Vendredi</option><option value="6">Samedi</option><option value="0">Dimanche</option>';
+  h+='</select></div>';
+  h+='</div>';
+  // Presets rapides
+  h+='<div style="margin-top:8px;display:flex;gap:4px;flex-wrap:wrap">';
+  h+='<span style="font-size:9px;color:var(--text2)">Presets:</span>';
+  h+='<button class="jbtn" style="font-size:9px;padding:3px 8px" onclick="setBtPreset(\'top\')">TOP tirages</button>';
+  h+='<button class="jbtn" style="font-size:9px;padding:3px 8px" onclick="setBtPreset(\'digital\')">Digital seul</button>';
+  h+='<button class="jbtn" style="font-size:9px;padding:3px 8px" onclick="setBtPreset(\'standard\')">Standard seul</button>';
+  h+='<button class="jbtn" style="font-size:9px;padding:3px 8px" onclick="setBtPreset(\'none\')">Decocher tout</button>';
   h+='</div>';
   // Tirages
   h+='<div style="margin-top:10px"><label style="font-size:10px;color:var(--text2);display:block;margin-bottom:4px">Tirages (vide = tous, ou selectionne) <span style="cursor:pointer;color:var(--cyan)" onclick="var cbs=document.querySelectorAll(\'#bt-tirages input\');var all=true;cbs.forEach(function(c){if(!c.checked)all=false});cbs.forEach(function(c){c.checked=!all})">[tout cocher/decocher]</span></label>';
@@ -1060,6 +1119,8 @@ function runBacktest(){
     source:document.getElementById('bt-source').value,
     tirages:tirages
   };
+  var jourF=document.getElementById('bt-jour').value;
+  if(jourF!=='') params.jourFiltre=parseInt(jourF);
   var pMode=document.getElementById('bt-periode-mode').value;
   if(pMode==='custom'){
     params.dateDebut=document.getElementById('bt-mois-debut').value+'/'+document.getElementById('bt-annee-debut').value;
