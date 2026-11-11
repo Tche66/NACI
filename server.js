@@ -955,41 +955,54 @@ app.post("/api/backtest-custom", (req, res) => {
       if (!tops) continue;
 
       const ranked = convergenceScore(tops, w);
-      const botNums = pickN >= 5 ? ajusterBT(ranked.slice(0, 5).map(r => r.num), ranked) : ranked.slice(0, pickN).map(r => r.num);
-      let iaNums = [];
-      if (source !== "bot" && source !== "lstm" && neuralNet) {
+      const botAll = pickN >= 5 ? ajusterBT(ranked.slice(0, 5).map(r => r.num), ranked) : ranked.slice(0, 5).map(r => r.num);
+      const botNums = botAll.slice(0, pickN);
+      let iaNums = [], iaAll = [];
+      if (neuralNet) {
         const nnS = predictNeural(neuralNet, hist, target.type, jour);
-        if (nnS && nnS.length >= pickN) iaNums = nnS.slice(0, pickN).map(s => s.num).sort((a, b) => a - b);
+        if (nnS && nnS.length >= 5) { iaAll = nnS.slice(0, 5).map(s => s.num); iaNums = iaAll.slice(0, pickN).sort((a, b) => a - b); }
       }
-      let lstmNums = [];
-      if (source !== "bot" && source !== "ia" && lstmNet) {
+      let lstmNums = [], lstmAll = [];
+      if (lstmNet) {
         try {
           const lS = predictLSTM(lstmNet, hist, target.type, jour);
-          if (lS && lS.length >= pickN) lstmNums = lS.slice(0, pickN).map(s => s.num).sort((a, b) => a - b);
+          if (lS && lS.length >= 5) { lstmAll = lS.slice(0, 5).map(s => s.num); lstmNums = lstmAll.slice(0, pickN).sort((a, b) => a - b); }
         } catch (e) {}
       }
+
+      // Filtre consensus: top3 de 2+ sources en commun
+      const top3Counts = {};
+      for (const n of botAll.slice(0, 3)) top3Counts[n] = (top3Counts[n] || 0) + 1;
+      for (const n of iaAll.slice(0, 3)) top3Counts[n] = (top3Counts[n] || 0) + 1;
+      for (const n of lstmAll.slice(0, 3)) top3Counts[n] = (top3Counts[n] || 0) + 1;
+      const hasConsensus = Object.values(top3Counts).some(c => c >= 2);
+      if (source === "consensus" && !hasConsensus) continue;
 
       const mach = (target.machine || []).filter(n => n > 0);
       const hasMachine = mach.length > 0;
 
+      const useSrcBot = source === "all" || source === "both" || source === "bot";
+      const useSrcIA = source === "all" || source === "both" || source === "ia";
+      const useSrcLSTM = source === "all" || source === "lstm" || source === "consensus";
+
       // DC = UP ou DOWN (gagnants OU machine, pas combine)
-      const botH = (source !== "ia" && source !== "lstm") ? (isDC && hasMachine ? countHitsDC(botNums, target.gagnants, mach) : countHitsStd(botNums, target.gagnants)) : 0;
-      const iaH = (source !== "bot" && source !== "lstm" && iaNums.length > 0) ? (isDC && hasMachine ? countHitsDC(iaNums, target.gagnants, mach) : countHitsStd(iaNums, target.gagnants)) : 0;
-      const lstmH = (source !== "bot" && source !== "ia" && lstmNums.length > 0) ? (isDC && hasMachine ? countHitsDC(lstmNums, target.gagnants, mach) : countHitsStd(lstmNums, target.gagnants)) : 0;
+      const botH = useSrcBot ? (isDC && hasMachine ? countHitsDC(botNums, target.gagnants, mach) : countHitsStd(botNums, target.gagnants)) : 0;
+      const iaH = (useSrcIA && iaNums.length > 0) ? (isDC && hasMachine ? countHitsDC(iaNums, target.gagnants, mach) : countHitsStd(iaNums, target.gagnants)) : 0;
+      const lstmH = (useSrcLSTM && lstmNums.length > 0) ? (isDC && hasMachine ? countHitsDC(lstmNums, target.gagnants, mach) : countHitsStd(lstmNums, target.gagnants)) : 0;
 
-      if (source !== "ia" && source !== "lstm") hitDist.bot[Math.min(botH, pickN)]++;
-      if (source !== "bot" && source !== "lstm" && iaNums.length > 0) hitDist.ia[Math.min(iaH, pickN)]++;
-      if (source !== "bot" && source !== "ia" && lstmNums.length > 0) hitDist.lstm[Math.min(lstmH, pickN)]++;
+      if (useSrcBot) hitDist.bot[Math.min(botH, pickN)]++;
+      if (useSrcIA && iaNums.length > 0) hitDist.ia[Math.min(iaH, pickN)]++;
+      if (useSrcLSTM && lstmNums.length > 0) hitDist.lstm[Math.min(lstmH, pickN)]++;
 
-      const botGain = (source !== "ia" && source !== "lstm") ? (gainsTable[Math.min(botH, pickN)] || 0) * (mise / 100) : 0;
-      const iaGain = (source !== "bot" && source !== "lstm" && iaNums.length > 0) ? (gainsTable[Math.min(iaH, pickN)] || 0) * (mise / 100) : 0;
-      const lstmGain = (source !== "bot" && source !== "ia" && lstmNums.length > 0) ? (gainsTable[Math.min(lstmH, pickN)] || 0) * (mise / 100) : 0;
+      const botGain = useSrcBot ? (gainsTable[Math.min(botH, pickN)] || 0) * (mise / 100) : 0;
+      const iaGain = (useSrcIA && iaNums.length > 0) ? (gainsTable[Math.min(iaH, pickN)] || 0) * (mise / 100) : 0;
+      const lstmGain = (useSrcLSTM && lstmNums.length > 0) ? (gainsTable[Math.min(lstmH, pickN)] || 0) * (mise / 100) : 0;
       totalGainBot += botGain;
       totalGainIA += iaGain;
       totalGainLSTM += lstmGain;
       totalPlays++;
 
-      const nSources = (source === "all" ? 3 : source === "both" ? 2 : 1);
+      const nSources = (source === "all" ? 3 : source === "both" ? 2 : source === "consensus" ? 1 : 1);
       const mKey = String(dt.getMonth() + 1).padStart(2, "0") + "/" + dt.getFullYear();
       if (!monthly[mKey]) monthly[mKey] = { plays: 0, dep: 0, gainBot: 0, gainIA: 0, gainLSTM: 0 };
       const pariBySrc = nSources * mise;
@@ -1020,7 +1033,7 @@ app.post("/api/backtest-custom", (req, res) => {
       }
     }
 
-    const nSources = (source === "all" ? 3 : source === "both" ? 2 : 1);
+    const nSources = (source === "all" ? 3 : source === "both" ? 2 : source === "consensus" ? 1 : 1);
     const pariBySrc = nSources * mise;
     const totalDep = totalPlays * pariBySrc;
     const totalGain = totalGainBot + totalGainIA + totalGainLSTM;

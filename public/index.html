@@ -1010,7 +1010,7 @@ function loadBacktest(){
   // Source
   h+='<div style="flex:1;min-width:140px"><label style="font-size:10px;color:var(--text2);display:block;margin-bottom:4px">Predictions</label>';
   h+='<select id="bt-source" style="width:100%;padding:8px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:6px;font-size:12px">';
-  h+='<option value="all" selected>Bot + IA + LSTM (3 paris)</option><option value="both">Bot + IA (2 paris)</option><option value="bot">Bot seul</option><option value="ia">IA seule</option><option value="lstm">LSTM seul</option>';
+  h+='<option value="consensus" selected>LSTM + consensus (RECOMMANDE)</option><option value="lstm">LSTM seul</option><option value="all">Bot + IA + LSTM (3 paris)</option><option value="both">Bot + IA (2 paris)</option><option value="bot">Bot seul</option><option value="ia">IA seule</option>';
   h+='</select></div>';
   h+='</div>';
   // Tirages
@@ -1090,7 +1090,7 @@ function renderBtResults(data){
   h+='<div class="card-title" style="color:'+profitCol+'">Bilan : '+(s.profit>=0?'+':'')+s.profit.toLocaleString()+'F (ROI '+(s.roi>=0?'+':'')+s.roi+'%)</div>';
   var periodeLabel=p.dateDebut?('Du '+p.dateDebut+' au '+p.dateFin):(p.periode+' mois');
   var modeLabel=p.mode.includes('dc')?p.mode+' (UP/DOWN)':p.mode;
-  var srcLabel={all:'Bot+IA+LSTM (3 paris)',both:'Bot+IA (2 paris)',bot:'Bot seul',ia:'IA seule',lstm:'LSTM seul'}[p.source]||p.source;
+  var srcLabel={consensus:'LSTM+consensus (1 pari filtre)',all:'Bot+IA+LSTM (3 paris)',both:'Bot+IA (2 paris)',bot:'Bot seul',ia:'IA seule',lstm:'LSTM seul'}[p.source]||p.source;
   h+='<div class="card-sub">'+periodeLabel+' | '+s.totalPlays+' tirages | '+modeLabel+' | '+srcLabel+' | Mise: '+p.mise+'F</div>';
   h+='<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px">';
   h+='<div class="stat-box"><div class="val" style="color:var(--green)">'+s.totalGain.toLocaleString()+'F</div><div class="lbl">Gains totaux</div></div>';
@@ -1123,7 +1123,7 @@ function renderBtResults(data){
   var colors=["var(--red)","var(--orange)","var(--yellow)","var(--green)","var(--cyan)","var(--purple)"];
   var showBot=p.source==='all'||p.source==='both'||p.source==='bot';
   var showIA=p.source==='all'||p.source==='both'||p.source==='ia';
-  var showLSTM=p.source==='all'||p.source==='lstm';
+  var showLSTM=p.source==='all'||p.source==='lstm'||p.source==='consensus';
   if(showBot&&data.hitDist.bot){
     var totalBot=data.hitDist.bot.reduce(function(a,b){return a+b},0);
     h+='<div style="margin-bottom:8px;font-size:11px;color:var(--green);font-weight:700">Bot classique</div>';
