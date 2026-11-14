@@ -1,6 +1,42 @@
 {
   "draws": [
     {
+      "date": "14/11/2026",
+      "type": "Special Weekend 1h",
+      "gagnants": [
+        64,
+        21,
+        55,
+        69,
+        14
+      ],
+      "machine": [
+        81,
+        77,
+        54,
+        8,
+        62
+      ]
+    },
+    {
+      "date": "14/11/2026",
+      "type": "Special Weekend 3h",
+      "gagnants": [
+        19,
+        25,
+        20,
+        30,
+        77
+      ],
+      "machine": [
+        80,
+        74,
+        72,
+        53,
+        89
+      ]
+    },
+    {
       "date": "13/11/2026",
       "type": "Digital Reveil 7h",
       "gagnants": [
@@ -273349,5 +273385,5 @@
       ]
     }
   ],
-  "lastUpdate": "2026-11-14T00:04:39.927Z"
+  "lastUpdate": "2026-11-14T03:29:08.328Z"
 }
