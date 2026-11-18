@@ -15294,9 +15294,25 @@
           ]
         }
       ],
-      "compared": false,
+      "compared": true,
       "savedAt": "2026-11-11T01:56:27.570Z",
-      "auto": true
+      "auto": true,
+      "resultat": [
+        16,
+        44,
+        43,
+        68,
+        26
+      ],
+      "machine": [
+        42,
+        12,
+        69,
+        82,
+        10
+      ],
+      "nbExacts": 0,
+      "nbMachineExacts": 0
     },
     {
       "date": "11/11/2026",
@@ -15381,9 +15397,25 @@
           ]
         }
       ],
-      "compared": false,
+      "compared": true,
       "savedAt": "2026-11-11T01:56:27.570Z",
-      "auto": true
+      "auto": true,
+      "resultat": [
+        76,
+        78,
+        21,
+        35,
+        1
+      ],
+      "machine": [
+        40,
+        14,
+        44,
+        2,
+        22
+      ],
+      "nbExacts": 0,
+      "nbMachineExacts": 1
     },
     {
       "date": "11/11/2026",
@@ -15468,8 +15500,2922 @@
           ]
         }
       ],
-      "compared": false,
+      "compared": true,
       "savedAt": "2026-11-11T01:56:27.570Z",
+      "auto": true,
+      "resultat": [
+        10,
+        68,
+        66,
+        71,
+        41
+      ],
+      "machine": [
+        72,
+        36,
+        29,
+        6,
+        21
+      ],
+      "nbExacts": 0,
+      "nbMachineExacts": 0
+    },
+    {
+      "date": "12/11/2026",
+      "tirage": "Digital Reveil 7h",
+      "heure": "06:58",
+      "nums": [
+        9,
+        19,
+        25,
+        58,
+        75
+      ],
+      "allCombos": [
+        {
+          "nom": "SUPER COMBO v2",
+          "nums": [
+            9,
+            19,
+            25,
+            58,
+            75
+          ]
+        },
+        {
+          "nom": "CONVERGENCE",
+          "nums": [
+            9,
+            25,
+            58,
+            75,
+            88
+          ]
+        },
+        {
+          "nom": "CONVERGENCE EQ",
+          "nums": [
+            9,
+            25,
+            58,
+            75,
+            88
+          ]
+        },
+        {
+          "nom": "CONDITIONNEL+",
+          "nums": [
+            9,
+            19,
+            44,
+            55,
+            66
+          ]
+        },
+        {
+          "nom": "MARKOV+",
+          "nums": [
+            9,
+            25,
+            58,
+            75,
+            77
+          ]
+        },
+        {
+          "nom": "JOUR+",
+          "nums": [
+            19,
+            25,
+            55,
+            76,
+            88
+          ]
+        },
+        {
+          "nom": "NEURAL",
+          "nums": [
+            8,
+            9,
+            18,
+            26,
+            29
+          ]
+        }
+      ],
+      "compared": true,
+      "savedAt": "2026-11-12T21:26:05.063Z",
+      "auto": true,
+      "resultat": [
+        49,
+        44,
+        34,
+        90,
+        27
+      ],
+      "machine": [
+        86,
+        55,
+        9,
+        57,
+        80
+      ],
+      "nbExacts": 0,
+      "nbMachineExacts": 1
+    },
+    {
+      "date": "12/11/2026",
+      "tirage": "Digital Reveil 8h",
+      "heure": "07:58",
+      "nums": [
+        19,
+        33,
+        69,
+        77,
+        88
+      ],
+      "allCombos": [
+        {
+          "nom": "SUPER COMBO v2",
+          "nums": [
+            19,
+            33,
+            69,
+            77,
+            88
+          ]
+        },
+        {
+          "nom": "CONVERGENCE",
+          "nums": [
+            19,
+            33,
+            69,
+            77,
+            88
+          ]
+        },
+        {
+          "nom": "CONVERGENCE EQ",
+          "nums": [
+            19,
+            33,
+            69,
+            78,
+            88
+          ]
+        },
+        {
+          "nom": "CONDITIONNEL+",
+          "nums": [
+            10,
+            12,
+            33,
+            57,
+            69
+          ]
+        },
+        {
+          "nom": "MARKOV+",
+          "nums": [
+            19,
+            33,
+            69,
+            77,
+            78
+          ]
+        },
+        {
+          "nom": "JOUR+",
+          "nums": [
+            19,
+            33,
+            52,
+            69,
+            77
+          ]
+        },
+        {
+          "nom": "NEURAL",
+          "nums": [
+            6,
+            7,
+            8,
+            18,
+            38
+          ]
+        }
+      ],
+      "compared": false,
+      "savedAt": "2026-11-12T21:26:05.063Z",
+      "auto": true
+    },
+    {
+      "date": "12/11/2026",
+      "tirage": "Kado",
+      "heure": "09:55",
+      "nums": [
+        25,
+        35,
+        52,
+        67,
+        88
+      ],
+      "allCombos": [
+        {
+          "nom": "SUPER COMBO v2",
+          "nums": [
+            25,
+            35,
+            52,
+            67,
+            88
+          ]
+        },
+        {
+          "nom": "CONVERGENCE",
+          "nums": [
+            25,
+            35,
+            52,
+            67,
+            88
+          ]
+        },
+        {
+          "nom": "CONVERGENCE EQ",
+          "nums": [
+            25,
+            35,
+            52,
+            67,
+            88
+          ]
+        },
+        {
+          "nom": "CONDITIONNEL+",
+          "nums": [
+            25,
+            30,
+            35,
+            67,
+            88
+          ]
+        },
+        {
+          "nom": "MARKOV+",
+          "nums": [
+            21,
+            25,
+            30,
+            35,
+            62
+          ]
+        },
+        {
+          "nom": "JOUR+",
+          "nums": [
+            25,
+            52,
+            55,
+            67,
+            88
+          ]
+        },
+        {
+          "nom": "NEURAL",
+          "nums": [
+            4,
+            6,
+            7,
+            18,
+            38
+          ]
+        }
+      ],
+      "compared": true,
+      "savedAt": "2026-11-12T21:26:05.063Z",
+      "auto": true,
+      "resultat": [
+        64,
+        47,
+        18,
+        79,
+        32
+      ],
+      "machine": [
+        45,
+        56,
+        82,
+        28,
+        35
+      ],
+      "nbExacts": 0,
+      "nbMachineExacts": 1
+    },
+    {
+      "date": "12/11/2026",
+      "tirage": "Privilege",
+      "heure": "12:55",
+      "nums": [
+        15,
+        20,
+        44,
+        67,
+        68
+      ],
+      "allCombos": [
+        {
+          "nom": "SUPER COMBO v2",
+          "nums": [
+            15,
+            20,
+            44,
+            67,
+            68
+          ]
+        },
+        {
+          "nom": "CONVERGENCE",
+          "nums": [
+            15,
+            20,
+            44,
+            67,
+            68
+          ]
+        },
+        {
+          "nom": "CONVERGENCE EQ",
+          "nums": [
+            15,
+            44,
+            51,
+            67,
+            68
+          ]
+        },
+        {
+          "nom": "CONDITIONNEL+",
+          "nums": [
+            15,
+            20,
+            44,
+            67,
+            68
+          ]
+        },
+        {
+          "nom": "MARKOV+",
+          "nums": [
+            15,
+            20,
+            44,
+            51,
+            73
+          ]
+        },
+        {
+          "nom": "JOUR+",
+          "nums": [
+            15,
+            53,
+            55,
+            67,
+            68
+          ]
+        },
+        {
+          "nom": "NEURAL",
+          "nums": [
+            2,
+            8,
+            24,
+            26,
+            48
+          ]
+        }
+      ],
+      "compared": true,
+      "savedAt": "2026-11-12T21:26:05.063Z",
+      "auto": true,
+      "resultat": [
+        87,
+        80,
+        70,
+        26,
+        82
+      ],
+      "machine": [
+        4,
+        44,
+        1,
+        21,
+        55
+      ],
+      "nbExacts": 0,
+      "nbMachineExacts": 1
+    },
+    {
+      "date": "12/11/2026",
+      "tirage": "Monni",
+      "heure": "15:55",
+      "nums": [
+        18,
+        25,
+        43,
+        45,
+        52
+      ],
+      "allCombos": [
+        {
+          "nom": "SUPER COMBO v2",
+          "nums": [
+            18,
+            25,
+            43,
+            45,
+            52
+          ]
+        },
+        {
+          "nom": "CONVERGENCE",
+          "nums": [
+            14,
+            18,
+            43,
+            45,
+            52
+          ]
+        },
+        {
+          "nom": "CONVERGENCE EQ",
+          "nums": [
+            14,
+            25,
+            43,
+            45,
+            52
+          ]
+        },
+        {
+          "nom": "CONDITIONNEL+",
+          "nums": [
+            18,
+            43,
+            45,
+            76,
+            78
+          ]
+        },
+        {
+          "nom": "MARKOV+",
+          "nums": [
+            14,
+            25,
+            43,
+            46,
+            52
+          ]
+        },
+        {
+          "nom": "JOUR+",
+          "nums": [
+            14,
+            18,
+            25,
+            52,
+            76
+          ]
+        },
+        {
+          "nom": "NEURAL",
+          "nums": [
+            6,
+            8,
+            15,
+            18,
+            28
+          ]
+        }
+      ],
+      "compared": true,
+      "savedAt": "2026-11-12T21:26:05.063Z",
+      "auto": true,
+      "resultat": [
+        27,
+        18,
+        69,
+        7,
+        15
+      ],
+      "machine": [
+        64,
+        24,
+        68,
+        40,
+        81
+      ],
+      "nbExacts": 1,
+      "nbMachineExacts": 0
+    },
+    {
+      "date": "12/11/2026",
+      "tirage": "Afterwork",
+      "heure": "17:55",
+      "nums": [
+        16,
+        18,
+        19,
+        36,
+        88
+      ],
+      "allCombos": [
+        {
+          "nom": "SUPER COMBO v2",
+          "nums": [
+            16,
+            18,
+            19,
+            36,
+            88
+          ]
+        },
+        {
+          "nom": "CONVERGENCE",
+          "nums": [
+            9,
+            16,
+            19,
+            36,
+            88
+          ]
+        },
+        {
+          "nom": "CONVERGENCE EQ",
+          "nums": [
+            6,
+            9,
+            19,
+            57,
+            88
+          ]
+        },
+        {
+          "nom": "CONDITIONNEL+",
+          "nums": [
+            9,
+            16,
+            19,
+            36,
+            88
+          ]
+        },
+        {
+          "nom": "MARKOV+",
+          "nums": [
+            18,
+            44,
+            57,
+            78,
+            88
+          ]
+        },
+        {
+          "nom": "JOUR+",
+          "nums": [
+            18,
+            19,
+            41,
+            78,
+            88
+          ]
+        },
+        {
+          "nom": "NEURAL",
+          "nums": [
+            8,
+            16,
+            18,
+            28,
+            46
+          ]
+        }
+      ],
+      "compared": true,
+      "savedAt": "2026-11-12T21:26:05.063Z",
+      "auto": true,
+      "resultat": [
+        51,
+        46,
+        56,
+        28,
+        43
+      ],
+      "machine": [
+        57,
+        39,
+        23,
+        20,
+        29
+      ],
+      "nbExacts": 0,
+      "nbMachineExacts": 0
+    },
+    {
+      "date": "12/11/2026",
+      "tirage": "Fortune Thursday",
+      "heure": "18:30",
+      "nums": [
+        16,
+        19,
+        25,
+        67,
+        85
+      ],
+      "allCombos": [
+        {
+          "nom": "SUPER COMBO v2",
+          "nums": [
+            16,
+            19,
+            25,
+            67,
+            85
+          ]
+        },
+        {
+          "nom": "CONVERGENCE",
+          "nums": [
+            16,
+            19,
+            25,
+            67,
+            85
+          ]
+        },
+        {
+          "nom": "CONVERGENCE EQ",
+          "nums": [
+            16,
+            19,
+            25,
+            67,
+            85
+          ]
+        },
+        {
+          "nom": "CONDITIONNEL+",
+          "nums": [
+            6,
+            16,
+            19,
+            67,
+            85
+          ]
+        },
+        {
+          "nom": "MARKOV+",
+          "nums": [
+            14,
+            25,
+            29,
+            67,
+            69
+          ]
+        },
+        {
+          "nom": "JOUR+",
+          "nums": [
+            14,
+            19,
+            25,
+            55,
+            67
+          ]
+        },
+        {
+          "nom": "NEURAL",
+          "nums": [
+            8,
+            9,
+            19,
+            24,
+            28
+          ]
+        }
+      ],
+      "compared": false,
+      "savedAt": "2026-11-12T21:26:05.063Z",
+      "auto": true
+    },
+    {
+      "date": "12/11/2026",
+      "tirage": "Digital 21h",
+      "heure": "20:58",
+      "nums": [
+        14,
+        19,
+        25,
+        77,
+        88
+      ],
+      "allCombos": [
+        {
+          "nom": "SUPER COMBO v2",
+          "nums": [
+            14,
+            19,
+            25,
+            77,
+            88
+          ]
+        },
+        {
+          "nom": "CONVERGENCE",
+          "nums": [
+            14,
+            19,
+            25,
+            77,
+            88
+          ]
+        },
+        {
+          "nom": "CONVERGENCE EQ",
+          "nums": [
+            14,
+            19,
+            25,
+            77,
+            88
+          ]
+        },
+        {
+          "nom": "CONDITIONNEL+",
+          "nums": [
+            10,
+            25,
+            60,
+            75,
+            77
+          ]
+        },
+        {
+          "nom": "MARKOV+",
+          "nums": [
+            10,
+            19,
+            77,
+            79,
+            88
+          ]
+        },
+        {
+          "nom": "JOUR+",
+          "nums": [
+            14,
+            19,
+            25,
+            77,
+            88
+          ]
+        },
+        {
+          "nom": "NEURAL",
+          "nums": [
+            6,
+            8,
+            9,
+            26,
+            38
+          ]
+        }
+      ],
+      "compared": true,
+      "savedAt": "2026-11-12T21:26:05.063Z",
+      "auto": true,
+      "resultat": [
+        15,
+        38,
+        7,
+        74,
+        84
+      ],
+      "machine": [
+        34,
+        18,
+        41,
+        86,
+        42
+      ],
+      "nbExacts": 0,
+      "nbMachineExacts": 0
+    },
+    {
+      "date": "12/11/2026",
+      "tirage": "Digital 22h",
+      "heure": "21:58",
+      "nums": [
+        14,
+        19,
+        25,
+        72,
+        89
+      ],
+      "allCombos": [
+        {
+          "nom": "SUPER COMBO v2",
+          "nums": [
+            14,
+            19,
+            25,
+            72,
+            89
+          ]
+        },
+        {
+          "nom": "CONVERGENCE",
+          "nums": [
+            14,
+            19,
+            25,
+            72,
+            89
+          ]
+        },
+        {
+          "nom": "CONVERGENCE EQ",
+          "nums": [
+            14,
+            19,
+            25,
+            72,
+            89
+          ]
+        },
+        {
+          "nom": "CONDITIONNEL+",
+          "nums": [
+            11,
+            25,
+            72,
+            77,
+            89
+          ]
+        },
+        {
+          "nom": "MARKOV+",
+          "nums": [
+            14,
+            19,
+            40,
+            55,
+            72
+          ]
+        },
+        {
+          "nom": "JOUR+",
+          "nums": [
+            14,
+            19,
+            25,
+            77,
+            88
+          ]
+        },
+        {
+          "nom": "NEURAL",
+          "nums": [
+            2,
+            6,
+            8,
+            9,
+            26
+          ]
+        }
+      ],
+      "compared": true,
+      "savedAt": "2026-11-12T21:26:05.063Z",
+      "auto": true,
+      "resultat": [
+        19,
+        31,
+        52,
+        33,
+        27
+      ],
+      "machine": [
+        78,
+        17,
+        59,
+        70,
+        39
+      ],
+      "nbExacts": 1,
+      "nbMachineExacts": 0
+    },
+    {
+      "date": "12/11/2026",
+      "tirage": "Digital 23h",
+      "heure": "22:58",
+      "nums": [
+        16,
+        19,
+        55,
+        77,
+        88
+      ],
+      "allCombos": [
+        {
+          "nom": "SUPER COMBO v2",
+          "nums": [
+            16,
+            19,
+            55,
+            77,
+            88
+          ]
+        },
+        {
+          "nom": "CONVERGENCE",
+          "nums": [
+            16,
+            19,
+            55,
+            77,
+            88
+          ]
+        },
+        {
+          "nom": "CONVERGENCE EQ",
+          "nums": [
+            16,
+            19,
+            55,
+            77,
+            88
+          ]
+        },
+        {
+          "nom": "CONDITIONNEL+",
+          "nums": [
+            16,
+            19,
+            22,
+            77,
+            90
+          ]
+        },
+        {
+          "nom": "MARKOV+",
+          "nums": [
+            19,
+            22,
+            55,
+            77,
+            88
+          ]
+        },
+        {
+          "nom": "JOUR+",
+          "nums": [
+            18,
+            19,
+            55,
+            77,
+            88
+          ]
+        },
+        {
+          "nom": "NEURAL",
+          "nums": [
+            6,
+            8,
+            9,
+            26,
+            28
+          ]
+        }
+      ],
+      "compared": true,
+      "savedAt": "2026-11-12T21:26:05.063Z",
+      "auto": true,
+      "resultat": [
+        30,
+        82,
+        49,
+        61,
+        72
+      ],
+      "machine": [
+        16,
+        19,
+        39,
+        87,
+        59
+      ],
+      "nbExacts": 0,
+      "nbMachineExacts": 2
+    },
+    {
+      "date": "13/11/2026",
+      "tirage": "Digital Reveil 7h",
+      "heure": "06:58",
+      "nums": [
+        9,
+        19,
+        58,
+        75,
+        76
+      ],
+      "allCombos": [
+        {
+          "nom": "SUPER COMBO v2",
+          "nums": [
+            9,
+            19,
+            58,
+            75,
+            76
+          ]
+        },
+        {
+          "nom": "CONVERGENCE",
+          "nums": [
+            9,
+            19,
+            58,
+            75,
+            76
+          ]
+        },
+        {
+          "nom": "CONVERGENCE EQ",
+          "nums": [
+            9,
+            19,
+            58,
+            75,
+            76
+          ]
+        },
+        {
+          "nom": "CONDITIONNEL+",
+          "nums": [
+            9,
+            19,
+            25,
+            55,
+            76
+          ]
+        },
+        {
+          "nom": "MARKOV+",
+          "nums": [
+            9,
+            19,
+            58,
+            75,
+            76
+          ]
+        },
+        {
+          "nom": "JOUR+",
+          "nums": [
+            9,
+            19,
+            58,
+            75,
+            76
+          ]
+        },
+        {
+          "nom": "NEURAL",
+          "nums": [
+            6,
+            8,
+            18,
+            29,
+            38
+          ]
+        }
+      ],
+      "compared": true,
+      "savedAt": "2026-11-13T09:07:28.707Z",
+      "auto": true,
+      "resultat": [
+        54,
+        24,
+        35,
+        66,
+        69
+      ],
+      "machine": [
+        65,
+        23,
+        57,
+        22,
+        45
+      ],
+      "nbExacts": 0,
+      "nbMachineExacts": 0
+    },
+    {
+      "date": "13/11/2026",
+      "tirage": "Digital Reveil 8h",
+      "heure": "07:58",
+      "nums": [
+        9,
+        19,
+        33,
+        69,
+        78
+      ],
+      "allCombos": [
+        {
+          "nom": "SUPER COMBO v2",
+          "nums": [
+            9,
+            19,
+            33,
+            69,
+            78
+          ]
+        },
+        {
+          "nom": "CONVERGENCE",
+          "nums": [
+            9,
+            19,
+            33,
+            69,
+            88
+          ]
+        },
+        {
+          "nom": "CONVERGENCE EQ",
+          "nums": [
+            19,
+            33,
+            69,
+            78,
+            88
+          ]
+        },
+        {
+          "nom": "CONDITIONNEL+",
+          "nums": [
+            10,
+            33,
+            44,
+            57,
+            69
+          ]
+        },
+        {
+          "nom": "MARKOV+",
+          "nums": [
+            9,
+            19,
+            69,
+            78,
+            88
+          ]
+        },
+        {
+          "nom": "JOUR+",
+          "nums": [
+            9,
+            33,
+            44,
+            58,
+            88
+          ]
+        },
+        {
+          "nom": "NEURAL",
+          "nums": [
+            6,
+            7,
+            8,
+            18,
+            38
+          ]
+        }
+      ],
+      "compared": false,
+      "savedAt": "2026-11-13T09:07:28.707Z",
+      "auto": true
+    },
+    {
+      "date": "13/11/2026",
+      "tirage": "Cash",
+      "heure": "09:55",
+      "nums": [
+        3,
+        33,
+        43,
+        66,
+        70
+      ],
+      "allCombos": [
+        {
+          "nom": "SUPER COMBO v2",
+          "nums": [
+            3,
+            33,
+            43,
+            66,
+            70
+          ]
+        },
+        {
+          "nom": "CONVERGENCE",
+          "nums": [
+            3,
+            33,
+            43,
+            66,
+            70
+          ]
+        },
+        {
+          "nom": "CONVERGENCE EQ",
+          "nums": [
+            3,
+            33,
+            43,
+            66,
+            70
+          ]
+        },
+        {
+          "nom": "CONDITIONNEL+",
+          "nums": [
+            3,
+            33,
+            58,
+            63,
+            70
+          ]
+        },
+        {
+          "nom": "MARKOV+",
+          "nums": [
+            3,
+            43,
+            44,
+            66,
+            70
+          ]
+        },
+        {
+          "nom": "JOUR+",
+          "nums": [
+            3,
+            33,
+            43,
+            66,
+            70
+          ]
+        },
+        {
+          "nom": "NEURAL",
+          "nums": [
+            6,
+            7,
+            8,
+            9,
+            16
+          ]
+        }
+      ],
+      "compared": true,
+      "savedAt": "2026-11-13T09:07:28.707Z",
+      "auto": true,
+      "resultat": [
+        63,
+        26,
+        75,
+        50,
+        81
+      ],
+      "machine": [
+        12,
+        72,
+        60,
+        61,
+        89
+      ],
+      "nbExacts": 0,
+      "nbMachineExacts": 0
+    },
+    {
+      "date": "13/11/2026",
+      "tirage": "Solution",
+      "heure": "12:55",
+      "nums": [
+        18,
+        19,
+        21,
+        66,
+        87
+      ],
+      "allCombos": [
+        {
+          "nom": "SUPER COMBO v2",
+          "nums": [
+            18,
+            19,
+            21,
+            66,
+            87
+          ]
+        },
+        {
+          "nom": "CONVERGENCE",
+          "nums": [
+            18,
+            21,
+            23,
+            66,
+            87
+          ]
+        },
+        {
+          "nom": "CONVERGENCE EQ",
+          "nums": [
+            18,
+            21,
+            23,
+            66,
+            87
+          ]
+        },
+        {
+          "nom": "CONDITIONNEL+",
+          "nums": [
+            13,
+            19,
+            21,
+            40,
+            87
+          ]
+        },
+        {
+          "nom": "MARKOV+",
+          "nums": [
+            18,
+            21,
+            23,
+            66,
+            87
+          ]
+        },
+        {
+          "nom": "JOUR+",
+          "nums": [
+            3,
+            43,
+            58,
+            66,
+            74
+          ]
+        },
+        {
+          "nom": "NEURAL",
+          "nums": [
+            7,
+            8,
+            18,
+            28,
+            48
+          ]
+        }
+      ],
+      "compared": true,
+      "savedAt": "2026-11-13T09:07:28.707Z",
+      "auto": true,
+      "resultat": [
+        8,
+        45,
+        22,
+        44,
+        11
+      ],
+      "machine": [
+        60,
+        20,
+        67,
+        47,
+        87
+      ],
+      "nbExacts": 0,
+      "nbMachineExacts": 1
+    },
+    {
+      "date": "13/11/2026",
+      "tirage": "Wari",
+      "heure": "15:55",
+      "nums": [
+        14,
+        22,
+        33,
+        42,
+        73
+      ],
+      "allCombos": [
+        {
+          "nom": "SUPER COMBO v2",
+          "nums": [
+            14,
+            22,
+            33,
+            42,
+            73
+          ]
+        },
+        {
+          "nom": "CONVERGENCE",
+          "nums": [
+            14,
+            22,
+            33,
+            42,
+            73
+          ]
+        },
+        {
+          "nom": "CONVERGENCE EQ",
+          "nums": [
+            3,
+            14,
+            33,
+            42,
+            73
+          ]
+        },
+        {
+          "nom": "CONDITIONNEL+",
+          "nums": [
+            3,
+            19,
+            22,
+            65,
+            73
+          ]
+        },
+        {
+          "nom": "MARKOV+",
+          "nums": [
+            14,
+            22,
+            42,
+            65,
+            73
+          ]
+        },
+        {
+          "nom": "JOUR+",
+          "nums": [
+            3,
+            14,
+            33,
+            70,
+            79
+          ]
+        },
+        {
+          "nom": "NEURAL",
+          "nums": [
+            6,
+            7,
+            8,
+            22,
+            26
+          ]
+        }
+      ],
+      "compared": true,
+      "savedAt": "2026-11-13T09:07:28.707Z",
+      "auto": true,
+      "resultat": [
+        89,
+        49,
+        54,
+        67,
+        19
+      ],
+      "machine": [
+        66,
+        79,
+        43,
+        13,
+        17
+      ],
+      "nbExacts": 0,
+      "nbMachineExacts": 0
+    },
+    {
+      "date": "13/11/2026",
+      "tirage": "Afterwork",
+      "heure": "17:55",
+      "nums": [
+        6,
+        9,
+        16,
+        44,
+        88
+      ],
+      "allCombos": [
+        {
+          "nom": "SUPER COMBO v2",
+          "nums": [
+            6,
+            9,
+            16,
+            44,
+            88
+          ]
+        },
+        {
+          "nom": "CONVERGENCE",
+          "nums": [
+            6,
+            9,
+            16,
+            44,
+            88
+          ]
+        },
+        {
+          "nom": "CONVERGENCE EQ",
+          "nums": [
+            6,
+            9,
+            19,
+            57,
+            88
+          ]
+        },
+        {
+          "nom": "CONDITIONNEL+",
+          "nums": [
+            9,
+            16,
+            36,
+            44,
+            88
+          ]
+        },
+        {
+          "nom": "MARKOV+",
+          "nums": [
+            18,
+            44,
+            57,
+            78,
+            88
+          ]
+        },
+        {
+          "nom": "JOUR+",
+          "nums": [
+            9,
+            44,
+            66,
+            68,
+            88
+          ]
+        },
+        {
+          "nom": "NEURAL",
+          "nums": [
+            6,
+            8,
+            16,
+            18,
+            28
+          ]
+        }
+      ],
+      "compared": true,
+      "savedAt": "2026-11-13T09:07:28.707Z",
+      "auto": true,
+      "resultat": [
+        70,
+        68,
+        7,
+        37,
+        26
+      ],
+      "machine": [
+        90,
+        53,
+        59,
+        88,
+        62
+      ],
+      "nbExacts": 0,
+      "nbMachineExacts": 1
+    },
+    {
+      "date": "13/11/2026",
+      "tirage": "Friday Bonanza",
+      "heure": "18:30",
+      "nums": [
+        20,
+        33,
+        40,
+        43,
+        65
+      ],
+      "allCombos": [
+        {
+          "nom": "SUPER COMBO v2",
+          "nums": [
+            20,
+            33,
+            40,
+            43,
+            65
+          ]
+        },
+        {
+          "nom": "CONVERGENCE",
+          "nums": [
+            20,
+            33,
+            43,
+            65,
+            76
+          ]
+        },
+        {
+          "nom": "CONVERGENCE EQ",
+          "nums": [
+            20,
+            33,
+            43,
+            65,
+            76
+          ]
+        },
+        {
+          "nom": "CONDITIONNEL+",
+          "nums": [
+            23,
+            31,
+            40,
+            43,
+            88
+          ]
+        },
+        {
+          "nom": "MARKOV+",
+          "nums": [
+            20,
+            23,
+            65,
+            76,
+            82
+          ]
+        },
+        {
+          "nom": "JOUR+",
+          "nums": [
+            20,
+            33,
+            43,
+            65,
+            74
+          ]
+        },
+        {
+          "nom": "NEURAL",
+          "nums": [
+            5,
+            16,
+            18,
+            26,
+            28
+          ]
+        }
+      ],
+      "compared": false,
+      "savedAt": "2026-11-13T09:07:28.707Z",
+      "auto": true
+    },
+    {
+      "date": "13/11/2026",
+      "tirage": "Digital 21h",
+      "heure": "20:58",
+      "nums": [
+        14,
+        19,
+        74,
+        77,
+        79
+      ],
+      "allCombos": [
+        {
+          "nom": "SUPER COMBO v2",
+          "nums": [
+            14,
+            19,
+            74,
+            77,
+            79
+          ]
+        },
+        {
+          "nom": "CONVERGENCE",
+          "nums": [
+            14,
+            19,
+            74,
+            77,
+            79
+          ]
+        },
+        {
+          "nom": "CONVERGENCE EQ",
+          "nums": [
+            14,
+            19,
+            74,
+            77,
+            79
+          ]
+        },
+        {
+          "nom": "CONDITIONNEL+",
+          "nums": [
+            3,
+            10,
+            58,
+            60,
+            77
+          ]
+        },
+        {
+          "nom": "MARKOV+",
+          "nums": [
+            14,
+            19,
+            74,
+            77,
+            79
+          ]
+        },
+        {
+          "nom": "JOUR+",
+          "nums": [
+            14,
+            19,
+            66,
+            74,
+            79
+          ]
+        },
+        {
+          "nom": "NEURAL",
+          "nums": [
+            8,
+            19,
+            28,
+            38,
+            48
+          ]
+        }
+      ],
+      "compared": true,
+      "savedAt": "2026-11-13T09:07:28.707Z",
+      "auto": true,
+      "resultat": [
+        77,
+        15,
+        27,
+        1,
+        24
+      ],
+      "machine": [
+        6,
+        23,
+        2,
+        7,
+        45
+      ],
+      "nbExacts": 1,
+      "nbMachineExacts": 0
+    },
+    {
+      "date": "13/11/2026",
+      "tirage": "Digital 22h",
+      "heure": "21:58",
+      "nums": [
+        1,
+        44,
+        58,
+        72,
+        77
+      ],
+      "allCombos": [
+        {
+          "nom": "SUPER COMBO v2",
+          "nums": [
+            1,
+            44,
+            58,
+            72,
+            77
+          ]
+        },
+        {
+          "nom": "CONVERGENCE",
+          "nums": [
+            1,
+            44,
+            72,
+            77,
+            88
+          ]
+        },
+        {
+          "nom": "CONVERGENCE EQ",
+          "nums": [
+            1,
+            44,
+            72,
+            77,
+            88
+          ]
+        },
+        {
+          "nom": "CONDITIONNEL+",
+          "nums": [
+            1,
+            10,
+            72,
+            77,
+            89
+          ]
+        },
+        {
+          "nom": "MARKOV+",
+          "nums": [
+            1,
+            44,
+            72,
+            77,
+            88
+          ]
+        },
+        {
+          "nom": "JOUR+",
+          "nums": [
+            14,
+            44,
+            58,
+            74,
+            89
+          ]
+        },
+        {
+          "nom": "NEURAL",
+          "nums": [
+            8,
+            9,
+            18,
+            28,
+            38
+          ]
+        }
+      ],
+      "compared": true,
+      "savedAt": "2026-11-13T09:07:28.707Z",
+      "auto": true,
+      "resultat": [
+        59,
+        20,
+        80,
+        85,
+        27
+      ],
+      "machine": [
+        67,
+        31,
+        90,
+        79,
+        18
+      ],
+      "nbExacts": 0,
+      "nbMachineExacts": 0
+    },
+    {
+      "date": "13/11/2026",
+      "tirage": "Digital 23h",
+      "heure": "22:58",
+      "nums": [
+        10,
+        19,
+        22,
+        33,
+        88
+      ],
+      "allCombos": [
+        {
+          "nom": "SUPER COMBO v2",
+          "nums": [
+            10,
+            19,
+            22,
+            33,
+            88
+          ]
+        },
+        {
+          "nom": "CONVERGENCE",
+          "nums": [
+            19,
+            22,
+            33,
+            88,
+            90
+          ]
+        },
+        {
+          "nom": "CONVERGENCE EQ",
+          "nums": [
+            19,
+            22,
+            33,
+            77,
+            88
+          ]
+        },
+        {
+          "nom": "CONDITIONNEL+",
+          "nums": [
+            10,
+            19,
+            22,
+            88,
+            90
+          ]
+        },
+        {
+          "nom": "MARKOV+",
+          "nums": [
+            19,
+            22,
+            33,
+            88,
+            90
+          ]
+        },
+        {
+          "nom": "JOUR+",
+          "nums": [
+            33,
+            43,
+            58,
+            66,
+            88
+          ]
+        },
+        {
+          "nom": "NEURAL",
+          "nums": [
+            8,
+            18,
+            28,
+            29,
+            38
+          ]
+        }
+      ],
+      "compared": true,
+      "savedAt": "2026-11-13T09:07:28.707Z",
+      "auto": true,
+      "resultat": [
+        78,
+        59,
+        21,
+        26,
+        55
+      ],
+      "machine": [
+        23,
+        68,
+        72,
+        66,
+        85
+      ],
+      "nbExacts": 0,
+      "nbMachineExacts": 0
+    },
+    {
+      "date": "18/11/2026",
+      "tirage": "Digital Reveil 7h",
+      "heure": "06:58",
+      "nums": [
+        9,
+        55,
+        58,
+        76,
+        79
+      ],
+      "allCombos": [
+        {
+          "nom": "SUPER COMBO v2",
+          "nums": [
+            9,
+            55,
+            58,
+            76,
+            79
+          ]
+        },
+        {
+          "nom": "CONVERGENCE",
+          "nums": [
+            9,
+            55,
+            58,
+            76,
+            89
+          ]
+        },
+        {
+          "nom": "CONVERGENCE EQ",
+          "nums": [
+            9,
+            55,
+            58,
+            76,
+            89
+          ]
+        },
+        {
+          "nom": "CONDITIONNEL+",
+          "nums": [
+            9,
+            19,
+            55,
+            76,
+            80
+          ]
+        },
+        {
+          "nom": "MARKOV+",
+          "nums": [
+            9,
+            25,
+            55,
+            58,
+            76
+          ]
+        },
+        {
+          "nom": "JOUR+",
+          "nums": [
+            9,
+            44,
+            58,
+            76,
+            79
+          ]
+        },
+        {
+          "nom": "NEURAL",
+          "nums": [
+            29,
+            58,
+            75,
+            79,
+            88
+          ]
+        }
+      ],
+      "compared": true,
+      "savedAt": "2026-11-18T11:25:06.916Z",
+      "auto": true,
+      "resultat": [
+        70,
+        66,
+        61,
+        29,
+        75
+      ],
+      "machine": [
+        39,
+        81,
+        40,
+        8,
+        17
+      ],
+      "nbExacts": 0,
+      "nbMachineExacts": 0
+    },
+    {
+      "date": "18/11/2026",
+      "tirage": "Digital Reveil 8h",
+      "heure": "07:58",
+      "nums": [
+        9,
+        19,
+        69,
+        78,
+        88
+      ],
+      "allCombos": [
+        {
+          "nom": "SUPER COMBO v2",
+          "nums": [
+            9,
+            19,
+            69,
+            78,
+            88
+          ]
+        },
+        {
+          "nom": "CONVERGENCE",
+          "nums": [
+            9,
+            19,
+            33,
+            69,
+            88
+          ]
+        },
+        {
+          "nom": "CONVERGENCE EQ",
+          "nums": [
+            9,
+            19,
+            69,
+            78,
+            88
+          ]
+        },
+        {
+          "nom": "CONDITIONNEL+",
+          "nums": [
+            12,
+            33,
+            44,
+            57,
+            69
+          ]
+        },
+        {
+          "nom": "MARKOV+",
+          "nums": [
+            9,
+            19,
+            69,
+            78,
+            88
+          ]
+        },
+        {
+          "nom": "JOUR+",
+          "nums": [
+            9,
+            44,
+            57,
+            79,
+            88
+          ]
+        },
+        {
+          "nom": "NEURAL",
+          "nums": [
+            19,
+            37,
+            55,
+            59,
+            69
+          ]
+        }
+      ],
+      "compared": false,
+      "savedAt": "2026-11-18T11:25:06.916Z",
+      "auto": true
+    },
+    {
+      "date": "18/11/2026",
+      "tirage": "Premiere Heure",
+      "heure": "09:55",
+      "nums": [
+        13,
+        24,
+        43,
+        64,
+        80
+      ],
+      "allCombos": [
+        {
+          "nom": "SUPER COMBO v2",
+          "nums": [
+            13,
+            24,
+            43,
+            64,
+            80
+          ]
+        },
+        {
+          "nom": "CONVERGENCE",
+          "nums": [
+            13,
+            43,
+            64,
+            80,
+            83
+          ]
+        },
+        {
+          "nom": "CONVERGENCE EQ",
+          "nums": [
+            13,
+            43,
+            64,
+            80,
+            83
+          ]
+        },
+        {
+          "nom": "CONDITIONNEL+",
+          "nums": [
+            13,
+            24,
+            34,
+            43,
+            64
+          ]
+        },
+        {
+          "nom": "MARKOV+",
+          "nums": [
+            13,
+            25,
+            31,
+            43,
+            68
+          ]
+        },
+        {
+          "nom": "JOUR+",
+          "nums": [
+            13,
+            24,
+            30,
+            31,
+            80
+          ]
+        },
+        {
+          "nom": "NEURAL",
+          "nums": [
+            13,
+            43,
+            48,
+            49,
+            89
+          ]
+        }
+      ],
+      "compared": true,
+      "savedAt": "2026-11-18T11:25:06.916Z",
+      "auto": true,
+      "resultat": [
+        82,
+        54,
+        2,
+        49,
+        19
+      ],
+      "machine": [
+        43,
+        5,
+        11,
+        37,
+        6
+      ],
+      "nbExacts": 0,
+      "nbMachineExacts": 1
+    },
+    {
+      "date": "18/11/2026",
+      "tirage": "Fortune",
+      "heure": "12:55",
+      "nums": [
+        21,
+        27,
+        28,
+        39,
+        78
+      ],
+      "allCombos": [
+        {
+          "nom": "SUPER COMBO v2",
+          "nums": [
+            21,
+            27,
+            28,
+            39,
+            78
+          ]
+        },
+        {
+          "nom": "CONVERGENCE",
+          "nums": [
+            21,
+            27,
+            28,
+            39,
+            78
+          ]
+        },
+        {
+          "nom": "CONVERGENCE EQ",
+          "nums": [
+            21,
+            27,
+            28,
+            39,
+            78
+          ]
+        },
+        {
+          "nom": "CONDITIONNEL+",
+          "nums": [
+            21,
+            28,
+            38,
+            39,
+            67
+          ]
+        },
+        {
+          "nom": "MARKOV+",
+          "nums": [
+            28,
+            38,
+            39,
+            45,
+            78
+          ]
+        },
+        {
+          "nom": "JOUR+",
+          "nums": [
+            9,
+            44,
+            76,
+            79,
+            80
+          ]
+        },
+        {
+          "nom": "NEURAL",
+          "nums": [
+            13,
+            27,
+            39,
+            78,
+            79
+          ]
+        }
+      ],
+      "compared": false,
+      "savedAt": "2026-11-18T11:25:06.916Z",
+      "auto": true
+    },
+    {
+      "date": "18/11/2026",
+      "tirage": "Baraka",
+      "heure": "15:55",
+      "nums": [
+        16,
+        29,
+        41,
+        44,
+        79
+      ],
+      "allCombos": [
+        {
+          "nom": "SUPER COMBO v2",
+          "nums": [
+            16,
+            29,
+            41,
+            44,
+            79
+          ]
+        },
+        {
+          "nom": "CONVERGENCE",
+          "nums": [
+            16,
+            29,
+            41,
+            44,
+            79
+          ]
+        },
+        {
+          "nom": "CONVERGENCE EQ",
+          "nums": [
+            16,
+            29,
+            41,
+            44,
+            79
+          ]
+        },
+        {
+          "nom": "CONDITIONNEL+",
+          "nums": [
+            29,
+            41,
+            44,
+            74,
+            79
+          ]
+        },
+        {
+          "nom": "MARKOV+",
+          "nums": [
+            28,
+            29,
+            41,
+            69,
+            79
+          ]
+        },
+        {
+          "nom": "JOUR+",
+          "nums": [
+            41,
+            44,
+            49,
+            74,
+            79
+          ]
+        },
+        {
+          "nom": "NEURAL",
+          "nums": [
+            18,
+            21,
+            69,
+            77,
+            79
+          ]
+        }
+      ],
+      "compared": false,
+      "savedAt": "2026-11-18T11:25:06.916Z",
+      "auto": true
+    },
+    {
+      "date": "18/11/2026",
+      "tirage": "Afterwork",
+      "heure": "17:55",
+      "nums": [
+        7,
+        9,
+        36,
+        78,
+        88
+      ],
+      "allCombos": [
+        {
+          "nom": "SUPER COMBO v2",
+          "nums": [
+            7,
+            9,
+            36,
+            78,
+            88
+          ]
+        },
+        {
+          "nom": "CONVERGENCE",
+          "nums": [
+            7,
+            9,
+            36,
+            78,
+            88
+          ]
+        },
+        {
+          "nom": "CONVERGENCE EQ",
+          "nums": [
+            7,
+            9,
+            36,
+            41,
+            78
+          ]
+        },
+        {
+          "nom": "CONDITIONNEL+",
+          "nums": [
+            7,
+            9,
+            36,
+            78,
+            88
+          ]
+        },
+        {
+          "nom": "MARKOV+",
+          "nums": [
+            9,
+            18,
+            36,
+            78,
+            88
+          ]
+        },
+        {
+          "nom": "JOUR+",
+          "nums": [
+            9,
+            41,
+            44,
+            65,
+            88
+          ]
+        },
+        {
+          "nom": "NEURAL",
+          "nums": [
+            6,
+            36,
+            38,
+            65,
+            87
+          ]
+        }
+      ],
+      "compared": false,
+      "savedAt": "2026-11-18T11:25:06.916Z",
+      "auto": true
+    },
+    {
+      "date": "18/11/2026",
+      "tirage": "Midweek",
+      "heure": "18:30",
+      "nums": [
+        9,
+        17,
+        44,
+        71,
+        76
+      ],
+      "allCombos": [
+        {
+          "nom": "SUPER COMBO v2",
+          "nums": [
+            9,
+            17,
+            44,
+            71,
+            76
+          ]
+        },
+        {
+          "nom": "CONVERGENCE",
+          "nums": [
+            9,
+            44,
+            71,
+            76,
+            80
+          ]
+        },
+        {
+          "nom": "CONVERGENCE EQ",
+          "nums": [
+            9,
+            17,
+            44,
+            71,
+            76
+          ]
+        },
+        {
+          "nom": "CONDITIONNEL+",
+          "nums": [
+            9,
+            36,
+            44,
+            71,
+            76
+          ]
+        },
+        {
+          "nom": "MARKOV+",
+          "nums": [
+            9,
+            44,
+            71,
+            76,
+            80
+          ]
+        },
+        {
+          "nom": "JOUR+",
+          "nums": [
+            9,
+            24,
+            44,
+            76,
+            80
+          ]
+        },
+        {
+          "nom": "NEURAL",
+          "nums": [
+            6,
+            9,
+            71,
+            72,
+            78
+          ]
+        }
+      ],
+      "compared": false,
+      "savedAt": "2026-11-18T11:25:06.916Z",
+      "auto": true
+    },
+    {
+      "date": "18/11/2026",
+      "tirage": "Digital 21h",
+      "heure": "20:58",
+      "nums": [
+        14,
+        19,
+        44,
+        74,
+        79
+      ],
+      "allCombos": [
+        {
+          "nom": "SUPER COMBO v2",
+          "nums": [
+            14,
+            19,
+            44,
+            74,
+            79
+          ]
+        },
+        {
+          "nom": "CONVERGENCE",
+          "nums": [
+            14,
+            19,
+            44,
+            74,
+            79
+          ]
+        },
+        {
+          "nom": "CONVERGENCE EQ",
+          "nums": [
+            14,
+            19,
+            44,
+            77,
+            79
+          ]
+        },
+        {
+          "nom": "CONDITIONNEL+",
+          "nums": [
+            16,
+            19,
+            66,
+            77,
+            80
+          ]
+        },
+        {
+          "nom": "MARKOV+",
+          "nums": [
+            14,
+            19,
+            44,
+            74,
+            79
+          ]
+        },
+        {
+          "nom": "JOUR+",
+          "nums": [
+            14,
+            19,
+            44,
+            74,
+            79
+          ]
+        },
+        {
+          "nom": "NEURAL",
+          "nums": [
+            14,
+            19,
+            28,
+            77,
+            79
+          ]
+        }
+      ],
+      "compared": false,
+      "savedAt": "2026-11-18T11:25:06.916Z",
+      "auto": true
+    },
+    {
+      "date": "18/11/2026",
+      "tirage": "Digital 22h",
+      "heure": "21:58",
+      "nums": [
+        10,
+        19,
+        24,
+        44,
+        72
+      ],
+      "allCombos": [
+        {
+          "nom": "SUPER COMBO v2",
+          "nums": [
+            10,
+            19,
+            24,
+            44,
+            72
+          ]
+        },
+        {
+          "nom": "CONVERGENCE",
+          "nums": [
+            10,
+            19,
+            44,
+            71,
+            72
+          ]
+        },
+        {
+          "nom": "CONVERGENCE EQ",
+          "nums": [
+            10,
+            19,
+            44,
+            71,
+            72
+          ]
+        },
+        {
+          "nom": "CONDITIONNEL+",
+          "nums": [
+            10,
+            25,
+            78,
+            88,
+            89
+          ]
+        },
+        {
+          "nom": "MARKOV+",
+          "nums": [
+            10,
+            19,
+            44,
+            71,
+            72
+          ]
+        },
+        {
+          "nom": "JOUR+",
+          "nums": [
+            24,
+            30,
+            72,
+            74,
+            88
+          ]
+        },
+        {
+          "nom": "NEURAL",
+          "nums": [
+            14,
+            37,
+            59,
+            87,
+            89
+          ]
+        }
+      ],
+      "compared": false,
+      "savedAt": "2026-11-18T11:25:06.916Z",
+      "auto": true
+    },
+    {
+      "date": "18/11/2026",
+      "tirage": "Digital 23h",
+      "heure": "22:58",
+      "nums": [
+        19,
+        22,
+        33,
+        59,
+        88
+      ],
+      "allCombos": [
+        {
+          "nom": "SUPER COMBO v2",
+          "nums": [
+            19,
+            22,
+            33,
+            59,
+            88
+          ]
+        },
+        {
+          "nom": "CONVERGENCE",
+          "nums": [
+            19,
+            22,
+            33,
+            88,
+            90
+          ]
+        },
+        {
+          "nom": "CONVERGENCE EQ",
+          "nums": [
+            19,
+            22,
+            33,
+            65,
+            90
+          ]
+        },
+        {
+          "nom": "CONDITIONNEL+",
+          "nums": [
+            19,
+            21,
+            22,
+            59,
+            79
+          ]
+        },
+        {
+          "nom": "MARKOV+",
+          "nums": [
+            19,
+            22,
+            33,
+            88,
+            90
+          ]
+        },
+        {
+          "nom": "JOUR+",
+          "nums": [
+            9,
+            49,
+            65,
+            79,
+            88
+          ]
+        },
+        {
+          "nom": "NEURAL",
+          "nums": [
+            25,
+            35,
+            39,
+            69,
+            88
+          ]
+        }
+      ],
+      "compared": false,
+      "savedAt": "2026-11-18T11:25:06.916Z",
       "auto": true
     }
   ],
@@ -31117,7 +34063,7 @@
     },
     {
       "date": "11/11/2026",
-      "timestamp": "2026-11-11T19:28:04.101Z",
+      "timestamp": "2026-11-12T21:26:05.607Z",
       "comparaisons": [
         {
           "tirage": "Digital Reveil 7h",
@@ -31663,6 +34609,2286 @@
                 "predit": 38,
                 "reel": 18,
                 "terminaison": 8
+              }
+            ],
+            "score": 46,
+            "maxScore": 100
+          }
+        },
+        {
+          "tirage": "Digital 21h",
+          "prediction": [
+            14,
+            19,
+            74,
+            79,
+            88
+          ],
+          "resultat": [
+            16,
+            44,
+            43,
+            68,
+            26
+          ],
+          "machine": [
+            42,
+            12,
+            69,
+            82,
+            10
+          ],
+          "comp": {
+            "nbExacts": 0,
+            "exacts": [],
+            "nbMachineExacts": 0,
+            "machineExacts": [],
+            "proches": [
+              {
+                "predit": 14,
+                "reel": 16,
+                "ecart": 2
+              }
+            ],
+            "memeDizaine": [
+              {
+                "predit": 14,
+                "reel": 16,
+                "dizaine": "10-19"
+              },
+              {
+                "predit": 19,
+                "reel": 16,
+                "dizaine": "10-19"
+              }
+            ],
+            "memeTerminaison": [
+              {
+                "predit": 14,
+                "reel": 44,
+                "terminaison": 4
+              },
+              {
+                "predit": 74,
+                "reel": 44,
+                "terminaison": 4
+              },
+              {
+                "predit": 88,
+                "reel": 68,
+                "terminaison": 8
+              }
+            ],
+            "score": 20,
+            "maxScore": 100
+          },
+          "neuralPrediction": [
+            2,
+            6,
+            8,
+            16,
+            28
+          ],
+          "neuralComp": {
+            "nbExacts": 1,
+            "exacts": [
+              16
+            ],
+            "nbMachineExacts": 0,
+            "machineExacts": [],
+            "proches": [
+              {
+                "predit": 28,
+                "reel": 26,
+                "ecart": 2
+              }
+            ],
+            "memeDizaine": [
+              {
+                "predit": 28,
+                "reel": 26,
+                "dizaine": "20-29"
+              }
+            ],
+            "memeTerminaison": [
+              {
+                "predit": 6,
+                "reel": 26,
+                "terminaison": 6
+              },
+              {
+                "predit": 8,
+                "reel": 68,
+                "terminaison": 8
+              },
+              {
+                "predit": 28,
+                "reel": 68,
+                "terminaison": 8
+              }
+            ],
+            "score": 37,
+            "maxScore": 100
+          }
+        },
+        {
+          "tirage": "Digital 22h",
+          "prediction": [
+            14,
+            19,
+            25,
+            59,
+            72
+          ],
+          "resultat": [
+            76,
+            78,
+            21,
+            35,
+            1
+          ],
+          "machine": [
+            40,
+            14,
+            44,
+            2,
+            22
+          ],
+          "comp": {
+            "nbExacts": 0,
+            "exacts": [],
+            "nbMachineExacts": 1,
+            "machineExacts": [
+              14
+            ],
+            "proches": [
+              {
+                "predit": 19,
+                "reel": 21,
+                "ecart": 2
+              }
+            ],
+            "memeDizaine": [
+              {
+                "predit": 25,
+                "reel": 21,
+                "dizaine": "20-29"
+              },
+              {
+                "predit": 72,
+                "reel": 76,
+                "dizaine": "70-79"
+              }
+            ],
+            "memeTerminaison": [
+              {
+                "predit": 25,
+                "reel": 35,
+                "terminaison": 5
+              }
+            ],
+            "score": 26,
+            "maxScore": 100
+          },
+          "neuralPrediction": [
+            9,
+            16,
+            18,
+            26,
+            28
+          ],
+          "neuralComp": {
+            "nbExacts": 0,
+            "exacts": [],
+            "nbMachineExacts": 0,
+            "machineExacts": [],
+            "proches": [],
+            "memeDizaine": [
+              {
+                "predit": 9,
+                "reel": 1,
+                "dizaine": "0-9"
+              },
+              {
+                "predit": 26,
+                "reel": 21,
+                "dizaine": "20-29"
+              },
+              {
+                "predit": 28,
+                "reel": 21,
+                "dizaine": "20-29"
+              }
+            ],
+            "memeTerminaison": [
+              {
+                "predit": 16,
+                "reel": 76,
+                "terminaison": 6
+              },
+              {
+                "predit": 18,
+                "reel": 78,
+                "terminaison": 8
+              },
+              {
+                "predit": 26,
+                "reel": 76,
+                "terminaison": 6
+              },
+              {
+                "predit": 28,
+                "reel": 78,
+                "terminaison": 8
+              }
+            ],
+            "score": 17,
+            "maxScore": 100
+          }
+        },
+        {
+          "tirage": "Digital 23h",
+          "prediction": [
+            16,
+            19,
+            65,
+            88,
+            90
+          ],
+          "resultat": [
+            10,
+            68,
+            66,
+            71,
+            41
+          ],
+          "machine": [
+            72,
+            36,
+            29,
+            6,
+            21
+          ],
+          "comp": {
+            "nbExacts": 0,
+            "exacts": [],
+            "nbMachineExacts": 0,
+            "machineExacts": [],
+            "proches": [
+              {
+                "predit": 65,
+                "reel": 66,
+                "ecart": 1
+              }
+            ],
+            "memeDizaine": [
+              {
+                "predit": 16,
+                "reel": 10,
+                "dizaine": "10-19"
+              },
+              {
+                "predit": 19,
+                "reel": 10,
+                "dizaine": "10-19"
+              },
+              {
+                "predit": 65,
+                "reel": 68,
+                "dizaine": "60-69"
+              }
+            ],
+            "memeTerminaison": [
+              {
+                "predit": 16,
+                "reel": 66,
+                "terminaison": 6
+              },
+              {
+                "predit": 88,
+                "reel": 68,
+                "terminaison": 8
+              },
+              {
+                "predit": 90,
+                "reel": 10,
+                "terminaison": 0
+              }
+            ],
+            "score": 23,
+            "maxScore": 100
+          },
+          "neuralPrediction": [
+            4,
+            6,
+            8,
+            18,
+            28
+          ],
+          "neuralComp": {
+            "nbExacts": 0,
+            "exacts": [],
+            "nbMachineExacts": 1,
+            "machineExacts": [
+              6
+            ],
+            "proches": [
+              {
+                "predit": 8,
+                "reel": 10,
+                "ecart": 2
+              }
+            ],
+            "memeDizaine": [
+              {
+                "predit": 18,
+                "reel": 10,
+                "dizaine": "10-19"
+              }
+            ],
+            "memeTerminaison": [
+              {
+                "predit": 6,
+                "reel": 66,
+                "terminaison": 6
+              },
+              {
+                "predit": 8,
+                "reel": 68,
+                "terminaison": 8
+              },
+              {
+                "predit": 18,
+                "reel": 68,
+                "terminaison": 8
+              },
+              {
+                "predit": 28,
+                "reel": 68,
+                "terminaison": 8
+              }
+            ],
+            "score": 29,
+            "maxScore": 100
+          }
+        }
+      ]
+    },
+    {
+      "date": "12/11/2026",
+      "timestamp": "2026-11-12T23:05:14.811Z",
+      "comparaisons": [
+        {
+          "tirage": "Digital Reveil 7h",
+          "prediction": [
+            9,
+            19,
+            25,
+            58,
+            75
+          ],
+          "resultat": [
+            49,
+            44,
+            34,
+            90,
+            27
+          ],
+          "machine": [
+            86,
+            55,
+            9,
+            57,
+            80
+          ],
+          "comp": {
+            "nbExacts": 0,
+            "exacts": [],
+            "nbMachineExacts": 1,
+            "machineExacts": [
+              9
+            ],
+            "proches": [
+              {
+                "predit": 25,
+                "reel": 27,
+                "ecart": 2
+              }
+            ],
+            "memeDizaine": [
+              {
+                "predit": 25,
+                "reel": 27,
+                "dizaine": "20-29"
+              }
+            ],
+            "memeTerminaison": [
+              {
+                "predit": 9,
+                "reel": 49,
+                "terminaison": 9
+              },
+              {
+                "predit": 19,
+                "reel": 49,
+                "terminaison": 9
+              }
+            ],
+            "score": 25,
+            "maxScore": 100
+          },
+          "neuralPrediction": [
+            8,
+            9,
+            18,
+            26,
+            29
+          ],
+          "neuralComp": {
+            "nbExacts": 0,
+            "exacts": [],
+            "nbMachineExacts": 1,
+            "machineExacts": [
+              9
+            ],
+            "proches": [
+              {
+                "predit": 26,
+                "reel": 27,
+                "ecart": 1
+              },
+              {
+                "predit": 29,
+                "reel": 27,
+                "ecart": 2
+              }
+            ],
+            "memeDizaine": [
+              {
+                "predit": 26,
+                "reel": 27,
+                "dizaine": "20-29"
+              },
+              {
+                "predit": 29,
+                "reel": 27,
+                "dizaine": "20-29"
+              }
+            ],
+            "memeTerminaison": [
+              {
+                "predit": 9,
+                "reel": 49,
+                "terminaison": 9
+              },
+              {
+                "predit": 29,
+                "reel": 49,
+                "terminaison": 9
+              }
+            ],
+            "score": 36,
+            "maxScore": 100
+          }
+        },
+        {
+          "tirage": "Kado",
+          "prediction": [
+            25,
+            35,
+            52,
+            67,
+            88
+          ],
+          "resultat": [
+            64,
+            47,
+            18,
+            79,
+            32
+          ],
+          "machine": [
+            45,
+            56,
+            82,
+            28,
+            35
+          ],
+          "comp": {
+            "nbExacts": 0,
+            "exacts": [],
+            "nbMachineExacts": 1,
+            "machineExacts": [
+              35
+            ],
+            "proches": [],
+            "memeDizaine": [
+              {
+                "predit": 35,
+                "reel": 32,
+                "dizaine": "30-39"
+              },
+              {
+                "predit": 67,
+                "reel": 64,
+                "dizaine": "60-69"
+              }
+            ],
+            "memeTerminaison": [
+              {
+                "predit": 52,
+                "reel": 32,
+                "terminaison": 2
+              },
+              {
+                "predit": 67,
+                "reel": 47,
+                "terminaison": 7
+              },
+              {
+                "predit": 88,
+                "reel": 18,
+                "terminaison": 8
+              }
+            ],
+            "score": 22,
+            "maxScore": 100
+          },
+          "neuralPrediction": [
+            4,
+            6,
+            7,
+            18,
+            38
+          ],
+          "neuralComp": {
+            "nbExacts": 1,
+            "exacts": [
+              18
+            ],
+            "nbMachineExacts": 0,
+            "machineExacts": [],
+            "proches": [],
+            "memeDizaine": [
+              {
+                "predit": 38,
+                "reel": 32,
+                "dizaine": "30-39"
+              }
+            ],
+            "memeTerminaison": [
+              {
+                "predit": 4,
+                "reel": 64,
+                "terminaison": 4
+              },
+              {
+                "predit": 7,
+                "reel": 47,
+                "terminaison": 7
+              }
+            ],
+            "score": 27,
+            "maxScore": 100
+          }
+        },
+        {
+          "tirage": "Privilege",
+          "prediction": [
+            15,
+            20,
+            44,
+            67,
+            68
+          ],
+          "resultat": [
+            87,
+            80,
+            70,
+            26,
+            82
+          ],
+          "machine": [
+            4,
+            44,
+            1,
+            21,
+            55
+          ],
+          "comp": {
+            "nbExacts": 0,
+            "exacts": [],
+            "nbMachineExacts": 1,
+            "machineExacts": [
+              44
+            ],
+            "proches": [
+              {
+                "predit": 68,
+                "reel": 70,
+                "ecart": 2
+              }
+            ],
+            "memeDizaine": [
+              {
+                "predit": 20,
+                "reel": 26,
+                "dizaine": "20-29"
+              }
+            ],
+            "memeTerminaison": [
+              {
+                "predit": 20,
+                "reel": 80,
+                "terminaison": 0
+              },
+              {
+                "predit": 67,
+                "reel": 87,
+                "terminaison": 7
+              }
+            ],
+            "score": 25,
+            "maxScore": 100
+          },
+          "neuralPrediction": [
+            2,
+            8,
+            24,
+            26,
+            48
+          ],
+          "neuralComp": {
+            "nbExacts": 1,
+            "exacts": [
+              26
+            ],
+            "nbMachineExacts": 0,
+            "machineExacts": [],
+            "proches": [
+              {
+                "predit": 24,
+                "reel": 26,
+                "ecart": 2
+              }
+            ],
+            "memeDizaine": [],
+            "memeTerminaison": [
+              {
+                "predit": 2,
+                "reel": 82,
+                "terminaison": 2
+              }
+            ],
+            "score": 30,
+            "maxScore": 100
+          }
+        },
+        {
+          "tirage": "Monni",
+          "prediction": [
+            18,
+            25,
+            43,
+            45,
+            52
+          ],
+          "resultat": [
+            27,
+            18,
+            69,
+            7,
+            15
+          ],
+          "machine": [
+            64,
+            24,
+            68,
+            40,
+            81
+          ],
+          "comp": {
+            "nbExacts": 1,
+            "exacts": [
+              18
+            ],
+            "nbMachineExacts": 0,
+            "machineExacts": [],
+            "proches": [
+              {
+                "predit": 25,
+                "reel": 27,
+                "ecart": 2
+              }
+            ],
+            "memeDizaine": [
+              {
+                "predit": 25,
+                "reel": 27,
+                "dizaine": "20-29"
+              }
+            ],
+            "memeTerminaison": [
+              {
+                "predit": 25,
+                "reel": 15,
+                "terminaison": 5
+              },
+              {
+                "predit": 45,
+                "reel": 15,
+                "terminaison": 5
+              }
+            ],
+            "score": 35,
+            "maxScore": 100
+          },
+          "neuralPrediction": [
+            6,
+            8,
+            15,
+            18,
+            28
+          ],
+          "neuralComp": {
+            "nbExacts": 2,
+            "exacts": [
+              15,
+              18
+            ],
+            "nbMachineExacts": 0,
+            "machineExacts": [],
+            "proches": [
+              {
+                "predit": 6,
+                "reel": 7,
+                "ecart": 1
+              },
+              {
+                "predit": 8,
+                "reel": 7,
+                "ecart": 1
+              },
+              {
+                "predit": 28,
+                "reel": 27,
+                "ecart": 1
+              }
+            ],
+            "memeDizaine": [
+              {
+                "predit": 6,
+                "reel": 7,
+                "dizaine": "0-9"
+              },
+              {
+                "predit": 8,
+                "reel": 7,
+                "dizaine": "0-9"
+              },
+              {
+                "predit": 28,
+                "reel": 27,
+                "dizaine": "20-29"
+              }
+            ],
+            "memeTerminaison": [],
+            "score": 73,
+            "maxScore": 100
+          }
+        },
+        {
+          "tirage": "Afterwork",
+          "prediction": [
+            16,
+            18,
+            19,
+            36,
+            88
+          ],
+          "resultat": [
+            51,
+            46,
+            56,
+            28,
+            43
+          ],
+          "machine": [
+            57,
+            39,
+            23,
+            20,
+            29
+          ],
+          "comp": {
+            "nbExacts": 0,
+            "exacts": [],
+            "nbMachineExacts": 0,
+            "machineExacts": [],
+            "proches": [],
+            "memeDizaine": [],
+            "memeTerminaison": [
+              {
+                "predit": 16,
+                "reel": 46,
+                "terminaison": 6
+              },
+              {
+                "predit": 18,
+                "reel": 28,
+                "terminaison": 8
+              },
+              {
+                "predit": 36,
+                "reel": 46,
+                "terminaison": 6
+              },
+              {
+                "predit": 88,
+                "reel": 28,
+                "terminaison": 8
+              }
+            ],
+            "score": 8,
+            "maxScore": 100
+          },
+          "neuralPrediction": [
+            8,
+            16,
+            18,
+            28,
+            46
+          ],
+          "neuralComp": {
+            "nbExacts": 2,
+            "exacts": [
+              28,
+              46
+            ],
+            "nbMachineExacts": 0,
+            "machineExacts": [],
+            "proches": [],
+            "memeDizaine": [],
+            "memeTerminaison": [
+              {
+                "predit": 16,
+                "reel": 56,
+                "terminaison": 6
+              }
+            ],
+            "score": 42,
+            "maxScore": 100
+          }
+        },
+        {
+          "tirage": "Digital 21h",
+          "prediction": [
+            14,
+            19,
+            25,
+            77,
+            88
+          ],
+          "resultat": [
+            15,
+            38,
+            7,
+            74,
+            84
+          ],
+          "machine": [
+            34,
+            18,
+            41,
+            86,
+            42
+          ],
+          "comp": {
+            "nbExacts": 0,
+            "exacts": [],
+            "nbMachineExacts": 0,
+            "machineExacts": [],
+            "proches": [
+              {
+                "predit": 14,
+                "reel": 15,
+                "ecart": 1
+              }
+            ],
+            "memeDizaine": [
+              {
+                "predit": 14,
+                "reel": 15,
+                "dizaine": "10-19"
+              },
+              {
+                "predit": 19,
+                "reel": 15,
+                "dizaine": "10-19"
+              },
+              {
+                "predit": 77,
+                "reel": 74,
+                "dizaine": "70-79"
+              },
+              {
+                "predit": 88,
+                "reel": 84,
+                "dizaine": "80-89"
+              }
+            ],
+            "memeTerminaison": [
+              {
+                "predit": 14,
+                "reel": 74,
+                "terminaison": 4
+              },
+              {
+                "predit": 25,
+                "reel": 15,
+                "terminaison": 5
+              },
+              {
+                "predit": 77,
+                "reel": 7,
+                "terminaison": 7
+              },
+              {
+                "predit": 88,
+                "reel": 38,
+                "terminaison": 8
+              }
+            ],
+            "score": 28,
+            "maxScore": 100
+          },
+          "neuralPrediction": [
+            6,
+            8,
+            9,
+            26,
+            38
+          ],
+          "neuralComp": {
+            "nbExacts": 1,
+            "exacts": [
+              38
+            ],
+            "nbMachineExacts": 0,
+            "machineExacts": [],
+            "proches": [
+              {
+                "predit": 6,
+                "reel": 7,
+                "ecart": 1
+              },
+              {
+                "predit": 8,
+                "reel": 7,
+                "ecart": 1
+              },
+              {
+                "predit": 9,
+                "reel": 7,
+                "ecart": 2
+              }
+            ],
+            "memeDizaine": [
+              {
+                "predit": 6,
+                "reel": 7,
+                "dizaine": "0-9"
+              },
+              {
+                "predit": 8,
+                "reel": 7,
+                "dizaine": "0-9"
+              },
+              {
+                "predit": 9,
+                "reel": 7,
+                "dizaine": "0-9"
+              }
+            ],
+            "memeTerminaison": [],
+            "score": 53,
+            "maxScore": 100
+          }
+        },
+        {
+          "tirage": "Digital 22h",
+          "prediction": [
+            14,
+            19,
+            25,
+            72,
+            89
+          ],
+          "resultat": [
+            19,
+            31,
+            52,
+            33,
+            27
+          ],
+          "machine": [
+            78,
+            17,
+            59,
+            70,
+            39
+          ],
+          "comp": {
+            "nbExacts": 1,
+            "exacts": [
+              19
+            ],
+            "nbMachineExacts": 0,
+            "machineExacts": [],
+            "proches": [
+              {
+                "predit": 25,
+                "reel": 27,
+                "ecart": 2
+              }
+            ],
+            "memeDizaine": [
+              {
+                "predit": 25,
+                "reel": 27,
+                "dizaine": "20-29"
+              }
+            ],
+            "memeTerminaison": [
+              {
+                "predit": 72,
+                "reel": 52,
+                "terminaison": 2
+              }
+            ],
+            "score": 33,
+            "maxScore": 100
+          },
+          "neuralPrediction": [
+            2,
+            6,
+            8,
+            9,
+            26
+          ],
+          "neuralComp": {
+            "nbExacts": 0,
+            "exacts": [],
+            "nbMachineExacts": 0,
+            "machineExacts": [],
+            "proches": [
+              {
+                "predit": 26,
+                "reel": 27,
+                "ecart": 1
+              }
+            ],
+            "memeDizaine": [
+              {
+                "predit": 26,
+                "reel": 27,
+                "dizaine": "20-29"
+              }
+            ],
+            "memeTerminaison": [
+              {
+                "predit": 2,
+                "reel": 52,
+                "terminaison": 2
+              },
+              {
+                "predit": 9,
+                "reel": 19,
+                "terminaison": 9
+              }
+            ],
+            "score": 15,
+            "maxScore": 100
+          }
+        },
+        {
+          "tirage": "Digital 23h",
+          "prediction": [
+            16,
+            19,
+            55,
+            77,
+            88
+          ],
+          "resultat": [
+            30,
+            82,
+            49,
+            61,
+            72
+          ],
+          "machine": [
+            16,
+            19,
+            39,
+            87,
+            59
+          ],
+          "comp": {
+            "nbExacts": 0,
+            "exacts": [],
+            "nbMachineExacts": 2,
+            "machineExacts": [
+              16,
+              19
+            ],
+            "proches": [],
+            "memeDizaine": [
+              {
+                "predit": 77,
+                "reel": 72,
+                "dizaine": "70-79"
+              },
+              {
+                "predit": 88,
+                "reel": 82,
+                "dizaine": "80-89"
+              }
+            ],
+            "memeTerminaison": [
+              {
+                "predit": 19,
+                "reel": 49,
+                "terminaison": 9
+              }
+            ],
+            "score": 28,
+            "maxScore": 100
+          },
+          "neuralPrediction": [
+            6,
+            8,
+            9,
+            26,
+            28
+          ],
+          "neuralComp": {
+            "nbExacts": 0,
+            "exacts": [],
+            "nbMachineExacts": 0,
+            "machineExacts": [],
+            "proches": [
+              {
+                "predit": 28,
+                "reel": 30,
+                "ecart": 2
+              }
+            ],
+            "memeDizaine": [],
+            "memeTerminaison": [
+              {
+                "predit": 9,
+                "reel": 49,
+                "terminaison": 9
+              }
+            ],
+            "score": 10,
+            "maxScore": 100
+          }
+        }
+      ]
+    },
+    {
+      "date": "13/11/2026",
+      "timestamp": "2026-11-18T11:25:09.248Z",
+      "comparaisons": [
+        {
+          "tirage": "Digital Reveil 7h",
+          "prediction": [
+            9,
+            19,
+            58,
+            75,
+            76
+          ],
+          "resultat": [
+            54,
+            24,
+            35,
+            66,
+            69
+          ],
+          "machine": [
+            65,
+            23,
+            57,
+            22,
+            45
+          ],
+          "comp": {
+            "nbExacts": 0,
+            "exacts": [],
+            "nbMachineExacts": 0,
+            "machineExacts": [],
+            "proches": [],
+            "memeDizaine": [
+              {
+                "predit": 58,
+                "reel": 54,
+                "dizaine": "50-59"
+              }
+            ],
+            "memeTerminaison": [
+              {
+                "predit": 9,
+                "reel": 69,
+                "terminaison": 9
+              },
+              {
+                "predit": 19,
+                "reel": 69,
+                "terminaison": 9
+              },
+              {
+                "predit": 75,
+                "reel": 35,
+                "terminaison": 5
+              },
+              {
+                "predit": 76,
+                "reel": 66,
+                "terminaison": 6
+              }
+            ],
+            "score": 11,
+            "maxScore": 100
+          },
+          "neuralPrediction": [
+            6,
+            8,
+            18,
+            29,
+            38
+          ],
+          "neuralComp": {
+            "nbExacts": 0,
+            "exacts": [],
+            "nbMachineExacts": 0,
+            "machineExacts": [],
+            "proches": [],
+            "memeDizaine": [
+              {
+                "predit": 29,
+                "reel": 24,
+                "dizaine": "20-29"
+              },
+              {
+                "predit": 38,
+                "reel": 35,
+                "dizaine": "30-39"
+              }
+            ],
+            "memeTerminaison": [
+              {
+                "predit": 6,
+                "reel": 66,
+                "terminaison": 6
+              },
+              {
+                "predit": 29,
+                "reel": 69,
+                "terminaison": 9
+              }
+            ],
+            "score": 10,
+            "maxScore": 100
+          }
+        },
+        {
+          "tirage": "Cash",
+          "prediction": [
+            3,
+            33,
+            43,
+            66,
+            70
+          ],
+          "resultat": [
+            63,
+            26,
+            75,
+            50,
+            81
+          ],
+          "machine": [
+            12,
+            72,
+            60,
+            61,
+            89
+          ],
+          "comp": {
+            "nbExacts": 0,
+            "exacts": [],
+            "nbMachineExacts": 0,
+            "machineExacts": [],
+            "proches": [],
+            "memeDizaine": [
+              {
+                "predit": 66,
+                "reel": 63,
+                "dizaine": "60-69"
+              },
+              {
+                "predit": 70,
+                "reel": 75,
+                "dizaine": "70-79"
+              }
+            ],
+            "memeTerminaison": [
+              {
+                "predit": 3,
+                "reel": 63,
+                "terminaison": 3
+              },
+              {
+                "predit": 33,
+                "reel": 63,
+                "terminaison": 3
+              },
+              {
+                "predit": 43,
+                "reel": 63,
+                "terminaison": 3
+              },
+              {
+                "predit": 66,
+                "reel": 26,
+                "terminaison": 6
+              },
+              {
+                "predit": 70,
+                "reel": 50,
+                "terminaison": 0
+              }
+            ],
+            "score": 16,
+            "maxScore": 100
+          },
+          "neuralPrediction": [
+            6,
+            7,
+            8,
+            9,
+            16
+          ],
+          "neuralComp": {
+            "nbExacts": 0,
+            "exacts": [],
+            "nbMachineExacts": 0,
+            "machineExacts": [],
+            "proches": [],
+            "memeDizaine": [],
+            "memeTerminaison": [
+              {
+                "predit": 6,
+                "reel": 26,
+                "terminaison": 6
+              },
+              {
+                "predit": 16,
+                "reel": 26,
+                "terminaison": 6
+              }
+            ],
+            "score": 4,
+            "maxScore": 100
+          }
+        },
+        {
+          "tirage": "Solution",
+          "prediction": [
+            18,
+            19,
+            21,
+            66,
+            87
+          ],
+          "resultat": [
+            8,
+            45,
+            22,
+            44,
+            11
+          ],
+          "machine": [
+            60,
+            20,
+            67,
+            47,
+            87
+          ],
+          "comp": {
+            "nbExacts": 0,
+            "exacts": [],
+            "nbMachineExacts": 1,
+            "machineExacts": [
+              87
+            ],
+            "proches": [
+              {
+                "predit": 21,
+                "reel": 22,
+                "ecart": 1
+              }
+            ],
+            "memeDizaine": [
+              {
+                "predit": 18,
+                "reel": 11,
+                "dizaine": "10-19"
+              },
+              {
+                "predit": 19,
+                "reel": 11,
+                "dizaine": "10-19"
+              },
+              {
+                "predit": 21,
+                "reel": 22,
+                "dizaine": "20-29"
+              }
+            ],
+            "memeTerminaison": [
+              {
+                "predit": 18,
+                "reel": 8,
+                "terminaison": 8
+              },
+              {
+                "predit": 21,
+                "reel": 11,
+                "terminaison": 1
+              }
+            ],
+            "score": 31,
+            "maxScore": 100
+          },
+          "neuralPrediction": [
+            7,
+            8,
+            18,
+            28,
+            48
+          ],
+          "neuralComp": {
+            "nbExacts": 1,
+            "exacts": [
+              8
+            ],
+            "nbMachineExacts": 0,
+            "machineExacts": [],
+            "proches": [
+              {
+                "predit": 7,
+                "reel": 8,
+                "ecart": 1
+              }
+            ],
+            "memeDizaine": [
+              {
+                "predit": 18,
+                "reel": 11,
+                "dizaine": "10-19"
+              },
+              {
+                "predit": 28,
+                "reel": 22,
+                "dizaine": "20-29"
+              },
+              {
+                "predit": 48,
+                "reel": 45,
+                "dizaine": "40-49"
+              }
+            ],
+            "memeTerminaison": [],
+            "score": 37,
+            "maxScore": 100
+          }
+        },
+        {
+          "tirage": "Wari",
+          "prediction": [
+            14,
+            22,
+            33,
+            42,
+            73
+          ],
+          "resultat": [
+            89,
+            49,
+            54,
+            67,
+            19
+          ],
+          "machine": [
+            66,
+            79,
+            43,
+            13,
+            17
+          ],
+          "comp": {
+            "nbExacts": 0,
+            "exacts": [],
+            "nbMachineExacts": 0,
+            "machineExacts": [],
+            "proches": [],
+            "memeDizaine": [
+              {
+                "predit": 14,
+                "reel": 19,
+                "dizaine": "10-19"
+              },
+              {
+                "predit": 42,
+                "reel": 49,
+                "dizaine": "40-49"
+              }
+            ],
+            "memeTerminaison": [
+              {
+                "predit": 14,
+                "reel": 54,
+                "terminaison": 4
+              }
+            ],
+            "score": 8,
+            "maxScore": 100
+          },
+          "neuralPrediction": [
+            6,
+            7,
+            8,
+            22,
+            26
+          ],
+          "neuralComp": {
+            "nbExacts": 0,
+            "exacts": [],
+            "nbMachineExacts": 0,
+            "machineExacts": [],
+            "proches": [],
+            "memeDizaine": [],
+            "memeTerminaison": [
+              {
+                "predit": 7,
+                "reel": 67,
+                "terminaison": 7
+              }
+            ],
+            "score": 2,
+            "maxScore": 100
+          }
+        },
+        {
+          "tirage": "Afterwork",
+          "prediction": [
+            6,
+            9,
+            16,
+            44,
+            88
+          ],
+          "resultat": [
+            70,
+            68,
+            7,
+            37,
+            26
+          ],
+          "machine": [
+            90,
+            53,
+            59,
+            88,
+            62
+          ],
+          "comp": {
+            "nbExacts": 0,
+            "exacts": [],
+            "nbMachineExacts": 1,
+            "machineExacts": [
+              88
+            ],
+            "proches": [
+              {
+                "predit": 6,
+                "reel": 7,
+                "ecart": 1
+              },
+              {
+                "predit": 9,
+                "reel": 7,
+                "ecart": 2
+              }
+            ],
+            "memeDizaine": [
+              {
+                "predit": 6,
+                "reel": 7,
+                "dizaine": "0-9"
+              },
+              {
+                "predit": 9,
+                "reel": 7,
+                "dizaine": "0-9"
+              }
+            ],
+            "memeTerminaison": [
+              {
+                "predit": 6,
+                "reel": 26,
+                "terminaison": 6
+              },
+              {
+                "predit": 16,
+                "reel": 26,
+                "terminaison": 6
+              },
+              {
+                "predit": 88,
+                "reel": 68,
+                "terminaison": 8
+              }
+            ],
+            "score": 38,
+            "maxScore": 100
+          },
+          "neuralPrediction": [
+            6,
+            8,
+            16,
+            18,
+            28
+          ],
+          "neuralComp": {
+            "nbExacts": 0,
+            "exacts": [],
+            "nbMachineExacts": 0,
+            "machineExacts": [],
+            "proches": [
+              {
+                "predit": 6,
+                "reel": 7,
+                "ecart": 1
+              },
+              {
+                "predit": 8,
+                "reel": 7,
+                "ecart": 1
+              },
+              {
+                "predit": 28,
+                "reel": 26,
+                "ecart": 2
+              }
+            ],
+            "memeDizaine": [
+              {
+                "predit": 6,
+                "reel": 7,
+                "dizaine": "0-9"
+              },
+              {
+                "predit": 8,
+                "reel": 7,
+                "dizaine": "0-9"
+              },
+              {
+                "predit": 28,
+                "reel": 26,
+                "dizaine": "20-29"
+              }
+            ],
+            "memeTerminaison": [
+              {
+                "predit": 6,
+                "reel": 26,
+                "terminaison": 6
+              },
+              {
+                "predit": 8,
+                "reel": 68,
+                "terminaison": 8
+              },
+              {
+                "predit": 16,
+                "reel": 26,
+                "terminaison": 6
+              },
+              {
+                "predit": 18,
+                "reel": 68,
+                "terminaison": 8
+              },
+              {
+                "predit": 28,
+                "reel": 68,
+                "terminaison": 8
+              }
+            ],
+            "score": 43,
+            "maxScore": 100
+          }
+        },
+        {
+          "tirage": "Digital 21h",
+          "prediction": [
+            14,
+            19,
+            74,
+            77,
+            79
+          ],
+          "resultat": [
+            77,
+            15,
+            27,
+            1,
+            24
+          ],
+          "machine": [
+            6,
+            23,
+            2,
+            7,
+            45
+          ],
+          "comp": {
+            "nbExacts": 1,
+            "exacts": [
+              77
+            ],
+            "nbMachineExacts": 0,
+            "machineExacts": [],
+            "proches": [
+              {
+                "predit": 14,
+                "reel": 15,
+                "ecart": 1
+              },
+              {
+                "predit": 79,
+                "reel": 77,
+                "ecart": 2
+              }
+            ],
+            "memeDizaine": [
+              {
+                "predit": 14,
+                "reel": 15,
+                "dizaine": "10-19"
+              },
+              {
+                "predit": 19,
+                "reel": 15,
+                "dizaine": "10-19"
+              }
+            ],
+            "memeTerminaison": [
+              {
+                "predit": 14,
+                "reel": 24,
+                "terminaison": 4
+              },
+              {
+                "predit": 74,
+                "reel": 24,
+                "terminaison": 4
+              }
+            ],
+            "score": 46,
+            "maxScore": 100
+          },
+          "neuralPrediction": [
+            8,
+            19,
+            28,
+            38,
+            48
+          ],
+          "neuralComp": {
+            "nbExacts": 0,
+            "exacts": [],
+            "nbMachineExacts": 0,
+            "machineExacts": [],
+            "proches": [
+              {
+                "predit": 28,
+                "reel": 27,
+                "ecart": 1
+              }
+            ],
+            "memeDizaine": [
+              {
+                "predit": 8,
+                "reel": 1,
+                "dizaine": "0-9"
+              },
+              {
+                "predit": 19,
+                "reel": 15,
+                "dizaine": "10-19"
+              },
+              {
+                "predit": 28,
+                "reel": 27,
+                "dizaine": "20-29"
+              }
+            ],
+            "memeTerminaison": [],
+            "score": 17,
+            "maxScore": 100
+          }
+        },
+        {
+          "tirage": "Digital 22h",
+          "prediction": [
+            1,
+            44,
+            58,
+            72,
+            77
+          ],
+          "resultat": [
+            59,
+            20,
+            80,
+            85,
+            27
+          ],
+          "machine": [
+            67,
+            31,
+            90,
+            79,
+            18
+          ],
+          "comp": {
+            "nbExacts": 0,
+            "exacts": [],
+            "nbMachineExacts": 0,
+            "machineExacts": [],
+            "proches": [
+              {
+                "predit": 58,
+                "reel": 59,
+                "ecart": 1
+              }
+            ],
+            "memeDizaine": [
+              {
+                "predit": 58,
+                "reel": 59,
+                "dizaine": "50-59"
+              }
+            ],
+            "memeTerminaison": [
+              {
+                "predit": 77,
+                "reel": 27,
+                "terminaison": 7
+              }
+            ],
+            "score": 13,
+            "maxScore": 100
+          },
+          "neuralPrediction": [
+            8,
+            9,
+            18,
+            28,
+            38
+          ],
+          "neuralComp": {
+            "nbExacts": 0,
+            "exacts": [],
+            "nbMachineExacts": 1,
+            "machineExacts": [
+              18
+            ],
+            "proches": [
+              {
+                "predit": 18,
+                "reel": 20,
+                "ecart": 2
+              },
+              {
+                "predit": 28,
+                "reel": 27,
+                "ecart": 1
+              }
+            ],
+            "memeDizaine": [
+              {
+                "predit": 28,
+                "reel": 20,
+                "dizaine": "20-29"
+              }
+            ],
+            "memeTerminaison": [
+              {
+                "predit": 9,
+                "reel": 59,
+                "terminaison": 9
+              }
+            ],
+            "score": 31,
+            "maxScore": 100
+          }
+        },
+        {
+          "tirage": "Digital 23h",
+          "prediction": [
+            10,
+            19,
+            22,
+            33,
+            88
+          ],
+          "resultat": [
+            78,
+            59,
+            21,
+            26,
+            55
+          ],
+          "machine": [
+            23,
+            68,
+            72,
+            66,
+            85
+          ],
+          "comp": {
+            "nbExacts": 0,
+            "exacts": [],
+            "nbMachineExacts": 0,
+            "machineExacts": [],
+            "proches": [
+              {
+                "predit": 19,
+                "reel": 21,
+                "ecart": 2
+              },
+              {
+                "predit": 22,
+                "reel": 21,
+                "ecart": 1
+              }
+            ],
+            "memeDizaine": [
+              {
+                "predit": 22,
+                "reel": 21,
+                "dizaine": "20-29"
+              }
+            ],
+            "memeTerminaison": [
+              {
+                "predit": 19,
+                "reel": 59,
+                "terminaison": 9
+              },
+              {
+                "predit": 88,
+                "reel": 78,
+                "terminaison": 8
+              }
+            ],
+            "score": 23,
+            "maxScore": 100
+          },
+          "neuralPrediction": [
+            8,
+            18,
+            28,
+            29,
+            38
+          ],
+          "neuralComp": {
+            "nbExacts": 0,
+            "exacts": [],
+            "nbMachineExacts": 0,
+            "machineExacts": [],
+            "proches": [
+              {
+                "predit": 28,
+                "reel": 26,
+                "ecart": 2
+              }
+            ],
+            "memeDizaine": [
+              {
+                "predit": 28,
+                "reel": 21,
+                "dizaine": "20-29"
+              },
+              {
+                "predit": 29,
+                "reel": 21,
+                "dizaine": "20-29"
+              }
+            ],
+            "memeTerminaison": [
+              {
+                "predit": 8,
+                "reel": 78,
+                "terminaison": 8
+              },
+              {
+                "predit": 18,
+                "reel": 78,
+                "terminaison": 8
+              },
+              {
+                "predit": 28,
+                "reel": 78,
+                "terminaison": 8
+              },
+              {
+                "predit": 29,
+                "reel": 59,
+                "terminaison": 9
+              },
+              {
+                "predit": 38,
+                "reel": 78,
+                "terminaison": 8
+              }
+            ],
+            "score": 24,
+            "maxScore": 100
+          }
+        }
+      ]
+    },
+    {
+      "date": "18/11/2026",
+      "timestamp": "2026-11-18T11:25:09.451Z",
+      "comparaisons": [
+        {
+          "tirage": "Digital Reveil 7h",
+          "prediction": [
+            9,
+            55,
+            58,
+            76,
+            79
+          ],
+          "resultat": [
+            70,
+            66,
+            61,
+            29,
+            75
+          ],
+          "machine": [
+            39,
+            81,
+            40,
+            8,
+            17
+          ],
+          "comp": {
+            "nbExacts": 0,
+            "exacts": [],
+            "nbMachineExacts": 0,
+            "machineExacts": [],
+            "proches": [
+              {
+                "predit": 76,
+                "reel": 75,
+                "ecart": 1
+              }
+            ],
+            "memeDizaine": [
+              {
+                "predit": 76,
+                "reel": 70,
+                "dizaine": "70-79"
+              },
+              {
+                "predit": 79,
+                "reel": 70,
+                "dizaine": "70-79"
+              }
+            ],
+            "memeTerminaison": [
+              {
+                "predit": 9,
+                "reel": 29,
+                "terminaison": 9
+              },
+              {
+                "predit": 55,
+                "reel": 75,
+                "terminaison": 5
+              },
+              {
+                "predit": 76,
+                "reel": 66,
+                "terminaison": 6
+              },
+              {
+                "predit": 79,
+                "reel": 29,
+                "terminaison": 9
+              }
+            ],
+            "score": 22,
+            "maxScore": 100
+          },
+          "neuralPrediction": [
+            29,
+            58,
+            75,
+            79,
+            88
+          ],
+          "neuralComp": {
+            "nbExacts": 2,
+            "exacts": [
+              29,
+              75
+            ],
+            "nbMachineExacts": 0,
+            "machineExacts": [],
+            "proches": [],
+            "memeDizaine": [
+              {
+                "predit": 79,
+                "reel": 70,
+                "dizaine": "70-79"
+              }
+            ],
+            "memeTerminaison": [],
+            "score": 43,
+            "maxScore": 100
+          }
+        },
+        {
+          "tirage": "Premiere Heure",
+          "prediction": [
+            13,
+            24,
+            43,
+            64,
+            80
+          ],
+          "resultat": [
+            82,
+            54,
+            2,
+            49,
+            19
+          ],
+          "machine": [
+            43,
+            5,
+            11,
+            37,
+            6
+          ],
+          "comp": {
+            "nbExacts": 0,
+            "exacts": [],
+            "nbMachineExacts": 1,
+            "machineExacts": [
+              43
+            ],
+            "proches": [
+              {
+                "predit": 80,
+                "reel": 82,
+                "ecart": 2
+              }
+            ],
+            "memeDizaine": [
+              {
+                "predit": 13,
+                "reel": 19,
+                "dizaine": "10-19"
+              },
+              {
+                "predit": 43,
+                "reel": 49,
+                "dizaine": "40-49"
+              },
+              {
+                "predit": 80,
+                "reel": 82,
+                "dizaine": "80-89"
+              }
+            ],
+            "memeTerminaison": [
+              {
+                "predit": 24,
+                "reel": 54,
+                "terminaison": 4
+              },
+              {
+                "predit": 64,
+                "reel": 54,
+                "terminaison": 4
+              }
+            ],
+            "score": 31,
+            "maxScore": 100
+          },
+          "neuralPrediction": [
+            13,
+            43,
+            48,
+            49,
+            89
+          ],
+          "neuralComp": {
+            "nbExacts": 1,
+            "exacts": [
+              49
+            ],
+            "nbMachineExacts": 1,
+            "machineExacts": [
+              43
+            ],
+            "proches": [
+              {
+                "predit": 48,
+                "reel": 49,
+                "ecart": 1
+              }
+            ],
+            "memeDizaine": [
+              {
+                "predit": 13,
+                "reel": 19,
+                "dizaine": "10-19"
+              },
+              {
+                "predit": 89,
+                "reel": 82,
+                "dizaine": "80-89"
+              }
+            ],
+            "memeTerminaison": [
+              {
+                "predit": 89,
+                "reel": 19,
+                "terminaison": 9
               }
             ],
             "score": 46,

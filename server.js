@@ -10,7 +10,7 @@ const { NeuralNet, trainNeural, predictNeural, MODEL_PATH } = require("./neural"
 const { LSTMNet, trainLSTM, predictLSTM, LSTM_MODEL_PATH } = require("./lstm");
 
 const app = express();
-const PORT = 3000;
+const PORT = parseInt(process.env.PORT, 10) || 3000;
 const NUM_RANGE = 90;
 
 // NN global — charge ou entraine au demarrage
