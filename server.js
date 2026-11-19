@@ -440,12 +440,17 @@ function autoCompare(db) {
       if (!realDraw) continue;
       const comp = comparerPredictionResultat(pred.nums, realDraw.gagnants, realDraw.machine);
 
-      let neuralPred = null, neuralComp = null;
+      let neuralPred = null, neuralComp = null, lstmPred = null, lstmComp = null;
       if (pred.allCombos) {
         const nc = pred.allCombos.find(c => c.nom === "NEURAL");
         if (nc && nc.nums) {
           neuralPred = nc.nums;
           neuralComp = comparerPredictionResultat(nc.nums, realDraw.gagnants, realDraw.machine);
+        }
+        const lc = pred.allCombos.find(c => c.nom === "LSTM");
+        if (lc && lc.nums) {
+          lstmPred = lc.nums;
+          lstmComp = comparerPredictionResultat(lc.nums, realDraw.gagnants, realDraw.machine);
         }
       }
 
@@ -457,6 +462,8 @@ function autoCompare(db) {
         comp,
         neuralPrediction: neuralPred,
         neuralComp,
+        lstmPrediction: lstmPred,
+        lstmComp,
       });
       pred.compared = true;
       pred.resultat = realDraw.gagnants;
@@ -566,6 +573,15 @@ function autoSavePredictions(db) {
     if (nnScores) {
       conv.combos.push({ nom: "NEURAL", nums: nnScores.slice(0, 5).map(s => s.num).sort((a, b) => a - b), confiance: "IA", isNeural: true });
     }
+    // Ajouter combo LSTM (3eme source)
+    if (lstmNet) {
+      try {
+        const lstmScores = predictLSTM(lstmNet, db.draws, t.nom, jour, todayDraws);
+        if (lstmScores) {
+          conv.combos.push({ nom: "LSTM", nums: lstmScores.slice(0, 5).map(s => s.num).sort((a, b) => a - b), confiance: "LSTM", isLSTM: true });
+        }
+      } catch (e) {}
+    }
 
     history.predictions.push({
       date: todayStr,
@@ -624,6 +640,81 @@ async function catchUpResults() {
   console.log(`[CATCHUP] Termine — ${remaining} predictions encore en attente`);
 }
 
+// ═══ RETRO-GENERATION DES PREDICTIONS MANQUANTES ═══
+function retroSavePredictions(db) {
+  const history = loadHistory();
+  const existingDates = new Set(history.predictions.map(p => p.date));
+
+  // Trouver les dates avec des tirages dans la base mais sans predictions
+  const allDrawDates = [...new Set(db.draws.map(d => d.date))];
+  const missingDates = [];
+  for (const dateStr of allDrawDates) {
+    if (existingDates.has(dateStr)) continue;
+    const parts = dateStr.match(/(\d{2})\/(\d{2})\/(\d{4})/);
+    if (!parts) continue;
+    const dt = new Date(parseInt(parts[3]), parseInt(parts[2]) - 1, parseInt(parts[1]));
+    const now = new Date();
+    // Seulement les 30 derniers jours et pas aujourd'hui
+    const diffDays = (now - dt) / 86400000;
+    if (diffDays < 1 || diffDays > 30) continue;
+    missingDates.push({ dateStr, dt, jour: dt.getDay() });
+  }
+
+  if (missingDates.length === 0) return;
+  console.log(`[RETRO] ${missingDates.length} dates sans predictions detectees`);
+
+  let totalSaved = 0;
+  for (const { dateStr, dt, jour } of missingDates) {
+    const tiragesInfo = getTiragesJour(jour);
+    const dayDraws = db.draws.filter(d => d.date === dateStr);
+    // Utiliser les tirages de la veille pour le same-day boost (pas pertinent en retro)
+    const prevDateDraws = [];
+
+    for (const t of tiragesInfo) {
+      const realDraw = dayDraws.find(d => d.type === t.nom);
+      if (!realDraw) continue; // Pas de resultat = pas de prediction retro
+
+      let nnScores = null;
+      if (neuralNet) { try { nnScores = predictNeural(neuralNet, db.draws, t.nom, jour, prevDateDraws); } catch (e) {} }
+      const conv = predictConvergence(db.draws, t.nom, jour, prevDateDraws, nnScores);
+      if (!conv || !conv.combos || conv.combos.length === 0) continue;
+
+      if (nnScores) {
+        conv.combos.push({ nom: "NEURAL", nums: nnScores.slice(0, 5).map(s => s.num).sort((a, b) => a - b), confiance: "IA", isNeural: true });
+      }
+      if (lstmNet) {
+        try {
+          const lstmScores = predictLSTM(lstmNet, db.draws, t.nom, jour, prevDateDraws);
+          if (lstmScores) {
+            conv.combos.push({ nom: "LSTM", nums: lstmScores.slice(0, 5).map(s => s.num).sort((a, b) => a - b), confiance: "LSTM", isLSTM: true });
+          }
+        } catch (e) {}
+      }
+
+      history.predictions.push({
+        date: dateStr,
+        tirage: t.nom,
+        heure: t.heure,
+        nums: conv.combos[0].nums,
+        allCombos: conv.combos.map(c => ({ nom: c.nom, nums: c.nums })),
+        compared: false,
+        savedAt: new Date().toISOString(),
+        auto: true,
+        retro: true,
+      });
+      totalSaved++;
+    }
+  }
+
+  if (totalSaved > 0) {
+    saveHistory(history);
+    console.log(`[RETRO] ${totalSaved} predictions retro-generees`);
+    autoCompare(db);
+    const remaining = loadHistory().predictions.filter(p => !p.compared).length;
+    console.log(`[RETRO] Comparaisons terminees — ${remaining} en attente`);
+  }
+}
+
 if (!IS_VERCEL) setInterval(autoUpdate, 60000);
 
 // ═══ ROUTES API ═══
@@ -676,6 +767,23 @@ app.get("/api/predictions/:jour", (req, res) => {
 
   // Prediction par convergence + fusion NN (SUPER COMBO v2)
   const globalConv = predictConvergence(db.draws, null, jour, todayDraws, globalNN);
+
+  // Ajouter combo NEURAL global
+  if (globalNN && globalConv && globalConv.combos) {
+    const nnNums = globalNN.slice(0, 5).map(s => s.num).sort((a, b) => a - b);
+    const nnDetail = globalNN.slice(0, 5).map(s => "N" + s.num + "(" + (s.prob * 100).toFixed(0) + "%)").join(", ");
+    globalConv.combos.push({ nom: "NEURAL", nums: nnNums, confiance: "IA", detail: nnDetail, isNeural: true });
+  }
+  // Ajouter combo LSTM global
+  if (lstmNet && globalConv && globalConv.combos) {
+    try {
+      const globalLSTM = predictLSTM(lstmNet, db.draws, null, jour, todayDraws);
+      if (globalLSTM) {
+        const lstmNums = globalLSTM.slice(0, 5).map(s => s.num).sort((a, b) => a - b);
+        globalConv.combos.push({ nom: "LSTM", nums: lstmNums, confiance: "LSTM", isLSTM: true });
+      }
+    } catch (e) {}
+  }
 
   // Predictions classiques en backup
   const history = loadHistory();
@@ -786,11 +894,11 @@ app.post("/api/compare-now", async (req, res) => {
 
 app.get("/api/historique", (req, res) => {
   const history = loadHistory();
-  const recent = history.analyses.slice(-14);
-  const stats = { totalPredictions: 0, totalExacts: 0, totalProches: 0, totalComparisons: 0, totalMachineExacts: 0, neuralExacts: 0, neuralMachineExacts: 0, neuralComparisons: 0, parTirage: {} };
+  const recent = history.analyses.slice(-30);
+  const stats = { totalPredictions: 0, totalExacts: 0, totalProches: 0, totalComparisons: 0, totalMachineExacts: 0, neuralExacts: 0, neuralMachineExacts: 0, neuralComparisons: 0, lstmExacts: 0, lstmMachineExacts: 0, lstmComparisons: 0, parTirage: {} };
   const dailySummary = [];
   for (const a of history.analyses) {
-    let dayExacts = 0, dayProches = 0, dayMachine = 0, dayComps = 0, dayNNExacts = 0, dayNNComps = 0;
+    let dayExacts = 0, dayProches = 0, dayMachine = 0, dayComps = 0, dayNNExacts = 0, dayNNComps = 0, dayLSTMExacts = 0, dayLSTMComps = 0;
     for (const c of (a.comparaisons || [])) {
       if (!c.comp) continue;
       stats.totalComparisons++;
@@ -805,6 +913,12 @@ app.get("/api/historique", (req, res) => {
         stats.neuralMachineExacts += c.neuralComp.nbMachineExacts || 0;
         dayNNComps++; dayNNExacts += c.neuralComp.nbExacts;
       }
+      if (c.lstmComp) {
+        stats.lstmComparisons++;
+        stats.lstmExacts += c.lstmComp.nbExacts;
+        stats.lstmMachineExacts += c.lstmComp.nbMachineExacts || 0;
+        dayLSTMComps++; dayLSTMExacts += c.lstmComp.nbExacts;
+      }
       if (!stats.parTirage[c.tirage]) stats.parTirage[c.tirage] = { total: 0, exacts: 0, proches: 0, machine: 0, count: 0 };
       stats.parTirage[c.tirage].count++;
       stats.parTirage[c.tirage].exacts += c.comp.nbExacts;
@@ -813,7 +927,7 @@ app.get("/api/historique", (req, res) => {
       stats.parTirage[c.tirage].total += 5;
     }
     if (dayComps > 0) {
-      dailySummary.push({ date: a.date, comparaisons: dayComps, exacts: dayExacts, proches: dayProches, machine: dayMachine, taux: +(dayExacts / (dayComps * 5) * 100).toFixed(1), nnExacts: dayNNExacts, nnComps: dayNNComps });
+      dailySummary.push({ date: a.date, comparaisons: dayComps, exacts: dayExacts, proches: dayProches, machine: dayMachine, taux: +(dayExacts / (dayComps * 5) * 100).toFixed(1), nnExacts: dayNNExacts, nnComps: dayNNComps, lstmExacts: dayLSTMExacts, lstmComps: dayLSTMComps });
     }
   }
   const learnResult = analyserEchecs(history);
@@ -1327,6 +1441,7 @@ if (IS_VERCEL) {
     loadOrTrainNN(db);
     loadOrTrainLSTM(db);
     try { autoSavePredictions(db); } catch (e) { console.log("[AUTO-SAVE] Erreur:", e.message); }
+    try { retroSavePredictions(db); } catch (e) { console.log("[RETRO] Erreur:", e.message); }
     catchUpResults().catch(e => console.log("[CATCHUP] Erreur:", e.message));
   });
 }

@@ -710,9 +710,9 @@ function loadSuivi(){
 
     // COMPARAISONS RECENTES (5 derniers jours, detail complet)
     if(hist.allAnalyses&&hist.allAnalyses.length>0){
-      var recentDays=hist.allAnalyses.slice(-5).reverse();
+      var recentDays=hist.allAnalyses.slice(-10).reverse();
       h+='<div class="card"><div class="card-title">Derniers resultats</div>';
-      h+='<div class="card-sub"><span style="color:var(--green)">&#9679;</span> Gagnant <span style="color:var(--orange)">&#9679;</span> Machine <span style="color:var(--yellow)">&#9679;</span> Proche <span style="color:var(--text2)">&#9679;</span> Manque <span style="color:var(--purple)">&#9679;</span> IA</div>';
+      h+='<div class="card-sub"><span style="color:var(--green)">&#9679;</span> Gagnant <span style="color:var(--orange)">&#9679;</span> Machine <span style="color:var(--yellow)">&#9679;</span> Proche <span style="color:var(--text2)">&#9679;</span> Manque <span style="color:var(--purple)">&#9679;</span> IA <span style="color:var(--orange)">&#9679;</span> LSTM</div>';
       for(var di=0;di<recentDays.length;di++){
         var a=recentDays[di];
         h+='<div style="margin-bottom:10px">';
@@ -751,6 +751,22 @@ function loadSuivi(){
             h+='</div><div class="cmp-result"><span class="g">'+c.neuralComp.nbExacts+'g</span>';
             if((c.neuralComp.nbMachineExacts||0)>0) h+='<span style="color:var(--cyan)"> +'+c.neuralComp.nbMachineExacts+'m</span>';
             if(c.neuralComp.proches.length>0) h+='<span class="p"> +'+c.neuralComp.proches.length+'p</span>';
+            h+='</div></div>';
+          }
+          // LSTM
+          if(c.lstmPrediction&&c.lstmComp){
+            h+='<div class="cmp-row"><span class="lbl" style="color:var(--orange)">LSTM</span><div class="nums" style="gap:3px;justify-content:flex-start">';
+            for(var ni=0;ni<c.lstmPrediction.length;ni++){
+              var n=c.lstmPrediction[ni];
+              var isExact=c.resultat.indexOf(n)>=0;
+              var isMachine=!isExact&&mach.indexOf(n)>=0;
+              var isClose=false;
+              if(!isExact&&!isMachine){for(var ri=0;ri<c.resultat.length;ri++){if(Math.abs(c.resultat[ri]-n)<=2){isClose=true;break}}}
+              h+=Ns(n,isExact?'n-hit ns':isMachine?'n-ora ns':isClose?'n-close ns':'n-miss ns');
+            }
+            h+='</div><div class="cmp-result"><span class="g">'+c.lstmComp.nbExacts+'g</span>';
+            if((c.lstmComp.nbMachineExacts||0)>0) h+='<span style="color:var(--cyan)"> +'+c.lstmComp.nbMachineExacts+'m</span>';
+            if(c.lstmComp.proches.length>0) h+='<span class="p"> +'+c.lstmComp.proches.length+'p</span>';
             h+='</div></div>';
           }
           // Resultat
