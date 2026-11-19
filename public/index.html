@@ -171,6 +171,7 @@
 
   <div class="tabs">
     <button class="tab active" data-page="jouer" onclick="showPage('jouer')">Jouer</button>
+    <button class="tab" data-page="monjeu" onclick="showPage('monjeu')">Mon Jeu</button>
     <button class="tab" data-page="semaine" onclick="showPage('semaine')">Semaine</button>
     <button class="tab" data-page="suivi" onclick="showPage('suivi')">Suivi</button>
     <button class="tab" data-page="backtest" onclick="showPage('backtest')">Backtest</button>
@@ -179,6 +180,9 @@
   <div class="page active" id="page-jouer">
     <div class="jsel" id="jourSelect"></div>
     <div id="jouerContent"><div class="loading"><div class="spinner"></div></div></div>
+  </div>
+  <div class="page" id="page-monjeu">
+    <div id="monjeuContent"><div class="loading"><div class="spinner"></div></div></div>
   </div>
   <div class="page" id="page-semaine">
     <div id="semaineContent"><div class="loading"><div class="spinner"></div></div></div>
@@ -203,6 +207,7 @@ function showPage(id){
   document.getElementById('page-'+id).classList.add('active');
   document.querySelector('[data-page="'+id+'"]').classList.add('active');
   if(id==='jouer')loadJouer(currentJour);
+  else if(id==='monjeu')loadMonJeu();
   else if(id==='semaine')loadSemaine();
   else if(id==='suivi')loadSuivi();
   else if(id==='backtest')loadBacktest();
@@ -234,10 +239,12 @@ function buildJourSelect(cur,cb){
 
 function perfColor(pct){return pct>=6.5?'var(--green)':pct>=5.5?'var(--orange)':'var(--red)'}
 
-function showToast(msg){
+function showToast(msg,color){
   var t=document.getElementById('toast');
   t.textContent=msg;t.classList.add('show');
-  setTimeout(function(){t.classList.remove('show')},3000);
+  if(color) t.style.background=color==='green'?'var(--green)':color==='red'?'var(--red)':color==='orange'?'var(--orange)':'var(--cyan)';
+  if(color) t.style.color=color==='green'||color==='orange'?'#000':'#fff';
+  setTimeout(function(){t.classList.remove('show');t.style.background='';t.style.color=''},3000);
 }
 
 function toggleCollapse(id){
@@ -549,6 +556,331 @@ function savePredictions(jour){
   fetch('/api/save-predictions',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({predictions:preds})}).then(function(r){return r.json()}).then(function(r){
     if(r.success) showToast(r.saved+' predictions sauvegardees');
   });
+}
+
+// ═══ PAGE: MON JEU ═══
+var monJeuState={selectedTirage:null,selectedSource:'lstm',selectedMode:'ch4dc',mise:100};
+
+function loadMonJeu(){
+  var el=document.getElementById('monjeuContent');
+  el.innerHTML='<div class="loading"><div class="spinner"></div></div>';
+
+  Promise.all([
+    fetch('/api/tirages-du-jour?jour='+currentJour).then(function(r){return r.json()}),
+    fetch('/api/mes-paris').then(function(r){return r.json()}),
+    fetch('/api/paris-table').then(function(r){return r.json()})
+  ]).then(function(results){
+    var tirData=results[0],parisData=results[1],parisTable=results[2];
+    var h='';
+
+    // STATS GLOBALES
+    var st=parisData.stats||{};
+    var clrROI=parseFloat(st.roi)>0?'var(--green)':parseFloat(st.roi)<0?'var(--red)':'var(--text2)';
+    h+='<div class="card">';
+    h+='<div class="card-title" style="color:var(--yellow)">&#128176; Mon Portefeuille</div>';
+    h+='<div style="display:flex;flex-wrap:wrap;gap:8px">';
+    h+='<div class="stat-box"><div class="val" style="color:var(--red)">'+fmtF(st.totalMise||0)+'</div><div class="lbl">Total mise</div></div>';
+    h+='<div class="stat-box"><div class="val" style="color:var(--green)">'+fmtF(st.totalGain||0)+'</div><div class="lbl">Total gagne</div></div>';
+    h+='<div class="stat-box"><div class="val" style="color:'+clrROI+'">'+fmtF(st.totalNet||0)+'</div><div class="lbl">Benefice net</div></div>';
+    h+='<div class="stat-box"><div class="val" style="color:'+clrROI+'">'+(st.roi||'0')+'%</div><div class="lbl">ROI</div></div>';
+    h+='<div class="stat-box"><div class="val">'+(st.nbParis||0)+'</div><div class="lbl">Paris joues</div></div>';
+    h+='<div class="stat-box"><div class="val" style="color:var(--green)">'+(st.nbWins||0)+'</div><div class="lbl">Paris gagnes</div></div>';
+    if(parisData.pending>0) h+='<div class="stat-box"><div class="val" style="color:var(--orange)">'+parisData.pending+'</div><div class="lbl">En attente</div></div>';
+    h+='</div></div>';
+
+    // FORMULAIRE DE PARI
+    h+='<div class="card" style="border-color:var(--green)">';
+    h+='<div class="card-title">&#127922; Placer un pari</div>';
+
+    // 1. Choix du tirage
+    h+='<div style="margin-bottom:12px">';
+    h+='<div style="font-size:11px;color:var(--cyan);font-weight:700;margin-bottom:6px">1. TIRAGE</div>';
+    h+='<div style="display:flex;flex-wrap:wrap;gap:4px" id="mjTirages">';
+    for(var i=0;i<tirData.tirages.length;i++){
+      var t=tirData.tirages[i];
+      var sel=monJeuState.selectedTirage===t.nom;
+      h+='<button class="jbtn'+(sel?' active':'')+'" onclick="mjSelectTirage(\''+t.nom+'\',\''+t.heure+'\')" style="font-size:10px;padding:5px 8px">';
+      h+='<span style="color:var(--cyan)">'+t.heure+'</span> '+t.nom;
+      h+='</button>';
+    }
+    h+='</div></div>';
+
+    // 2. Source de prediction
+    h+='<div style="margin-bottom:12px">';
+    h+='<div style="font-size:11px;color:var(--cyan);font-weight:700;margin-bottom:6px">2. SOURCE</div>';
+    h+='<div style="display:flex;gap:4px;flex-wrap:wrap" id="mjSources">';
+    var sources=[{k:'bot',l:'Bot',c:'var(--green)'},{k:'nn',l:'IA Neural',c:'var(--purple)'},{k:'lstm',l:'LSTM',c:'var(--orange)'},{k:'consensus',l:'Consensus',c:'var(--cyan)'}];
+    for(var i=0;i<sources.length;i++){
+      var s=sources[i],sel=monJeuState.selectedSource===s.k;
+      h+='<button class="jbtn'+(sel?' active':'')+'" onclick="mjSelectSource(\''+s.k+'\')" style="font-size:11px;border-color:'+(sel?s.c:'var(--border)')+'">';
+      h+='<span style="color:'+s.c+'">&#9679;</span> '+s.l+'</button>';
+    }
+    h+='</div></div>';
+
+    // 3. Type de pari
+    h+='<div style="margin-bottom:12px">';
+    h+='<div style="font-size:11px;color:var(--cyan);font-weight:700;margin-bottom:6px">3. TYPE DE PARI</div>';
+    h+='<select id="mjMode" onchange="mjUpdateGains()" style="background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:8px 12px;font-size:12px;width:100%">';
+    var modes=['ch4dc','ch4','ch3dc','ch3','ch5dc','ch5','1n','1ndc','2n','2ndc','3n','3ndc','4n','4ndc','5n','5ndc'];
+    for(var i=0;i<modes.length;i++){
+      var m=modes[i],p=parisTable[m];
+      if(!p)continue;
+      var sel=monJeuState.selectedMode===m?' selected':'';
+      var maxGain=0;for(var g in p.gains){if(p.gains[g]>maxGain)maxGain=p.gains[g]}
+      h+='<option value="'+m+'"'+sel+'>'+p.label+' ('+p.pick+' nums, max '+fmtF(maxGain)+')</option>';
+    }
+    h+='</select></div>';
+
+    // 4. Mise
+    h+='<div style="margin-bottom:12px">';
+    h+='<div style="font-size:11px;color:var(--cyan);font-weight:700;margin-bottom:6px">4. MISE (FCFA)</div>';
+    h+='<div style="display:flex;gap:6px;align-items:center">';
+    var mises=[100,200,500,1000,2000,5000];
+    for(var i=0;i<mises.length;i++){
+      var m=mises[i],sel=monJeuState.mise===m;
+      h+='<button class="jbtn'+(sel?' active':'')+'" onclick="mjSetMise('+m+')" style="font-size:11px;padding:5px 10px">'+fmtF(m)+'</button>';
+    }
+    h+='<input type="number" id="mjMiseCustom" value="'+monJeuState.mise+'" min="25" max="100000" step="25" onchange="mjSetMise(parseInt(this.value))" style="background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:6px 10px;font-size:12px;width:80px">';
+    h+='</div></div>';
+
+    // PREVIEW: numeros et gains possibles
+    h+='<div id="mjPreview" style="margin-bottom:12px"></div>';
+
+    // Bouton placer
+    h+='<button class="btn btn-green" onclick="mjPlacerPari()" style="width:100%;padding:12px;font-size:14px" id="mjBtnPlacer" disabled>Selectionne un tirage</button>';
+    h+='</div>';
+
+    // GAINS POSSIBLES (tableau)
+    h+='<div class="card" id="mjGainsCard">';
+    h+='<div class="card-title" style="color:var(--orange)">&#128200; Grille des gains (mise 100F)</div>';
+    h+='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:11px">';
+    h+='<tr style="border-bottom:2px solid var(--border)">';
+    h+='<th style="text-align:left;padding:6px;color:var(--text2)">Type</th>';
+    h+='<th style="text-align:center;padding:6px;color:var(--text2)">Nums</th>';
+    h+='<th style="text-align:right;padding:6px;color:var(--text2)">2 bons</th>';
+    h+='<th style="text-align:right;padding:6px;color:var(--text2)">3 bons</th>';
+    h+='<th style="text-align:right;padding:6px;color:var(--text2)">4 bons</th>';
+    h+='<th style="text-align:right;padding:6px;color:var(--text2)">5 bons</th></tr>';
+    var tblModes=['ch3','ch3dc','ch4','ch4dc','ch5','ch5dc','1n','1ndc','2n','2ndc','3n','3ndc'];
+    for(var i=0;i<tblModes.length;i++){
+      var m=tblModes[i],p=parisTable[m];
+      if(!p)continue;
+      var isDC=m.includes('dc');
+      var bg=isDC?'rgba(68,138,255,.04)':'transparent';
+      h+='<tr style="border-bottom:1px solid var(--border);background:'+bg+'">';
+      h+='<td style="padding:6px;font-weight:600;color:'+(isDC?'var(--blue)':'var(--text)')+'">'+p.label+'</td>';
+      h+='<td style="text-align:center;padding:6px">'+p.pick+'</td>';
+      for(var g=2;g<=5;g++){
+        var val=p.gains[g];
+        h+='<td style="text-align:right;padding:6px;color:'+(val?'var(--green)':'var(--text2)');
+        h+=';font-weight:'+(val?'700':'400')+'">'+(val?fmtF(val):'-')+'</td>';
+      }
+      h+='</tr>';
+    }
+    h+='</table></div>';
+    h+='<div style="font-size:9px;color:var(--text2);margin-top:6px">DC = Double Chance (gagnants OU machine, cotes /2). Gains proportionnels a la mise.</div>';
+    h+='</div>';
+
+    // HISTORIQUE DES PARIS
+    if(parisData.bets&&parisData.bets.length>0){
+      var sortedBets=parisData.bets.slice().reverse();
+      h+='<div class="card">';
+      h+='<div class="card-title">&#128203; Historique des paris</div>';
+      for(var i=0;i<Math.min(sortedBets.length,20);i++){
+        var b=sortedBets[i];
+        var isWin=b.resolved&&(b.gain||0)>0;
+        var isPending=!b.resolved;
+        var borderC=isPending?'var(--orange)':isWin?'var(--green)':'var(--red)';
+        h+='<div style="padding:8px;border-left:3px solid '+borderC+';margin-bottom:6px;background:var(--card2);border-radius:0 6px 6px 0">';
+        h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">';
+        h+='<div><span style="font-weight:700;font-size:12px">'+b.tirage+'</span> <span style="color:var(--text2);font-size:10px">'+b.date+'</span></div>';
+        h+='<div style="display:flex;gap:6px;align-items:center">';
+        if(isPending) h+='<span style="color:var(--orange);font-size:10px;font-weight:700">EN ATTENTE</span>';
+        else if(isWin) h+='<span style="color:var(--green);font-size:12px;font-weight:800">+'+fmtF(b.gain)+'</span>';
+        else h+='<span style="color:var(--red);font-size:10px;font-weight:600">PERDU</span>';
+        h+='<button onclick="mjDeleteBet(\''+b.id+'\')" style="background:none;border:none;color:var(--text2);cursor:pointer;font-size:14px" title="Supprimer">&#10005;</button>';
+        h+='</div></div>';
+        h+='<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;font-size:10px">';
+        h+='<span style="color:var(--text2)">'+b.modeLabel+'</span>';
+        h+='<span style="color:var(--text2)">Mise: '+fmtF(b.mise)+'</span>';
+        h+='<span style="color:var(--cyan)">'+b.source.toUpperCase()+'</span>';
+        h+='<div class="nums" style="gap:2px">';
+        for(var ni=0;ni<b.nums.length;ni++){
+          var n=b.nums[ni];
+          var cls='n-miss ns';
+          if(b.resolved){
+            if(b.resultat&&b.resultat.indexOf(n)>=0) cls='n-hit ns';
+            else if(b.machine&&b.machine.indexOf(n)>=0) cls='n-ora ns';
+          } else cls='n-blu ns';
+          h+=Ns(n,cls);
+        }
+        h+='</div>';
+        if(b.resolved&&b.resultat){
+          h+='<span style="color:var(--text2)">&#8594;</span>';
+          h+='<div class="nums" style="gap:2px">';
+          for(var ni=0;ni<b.resultat.length;ni++) h+=Ns(b.resultat[ni],'n-grn ns');
+          h+='</div>';
+          h+='<span style="font-weight:600">'+b.totalHits+'/'+b.nums.length+' bons</span>';
+        }
+        h+='</div></div>';
+      }
+      h+='</div>';
+
+      // STATS PAR SOURCE
+      if(parisData.bySource&&Object.keys(parisData.bySource).length>0){
+        h+='<div class="card"><div class="card-title" style="color:var(--cyan)">Par source</div>';
+        h+='<div style="display:flex;gap:6px;flex-wrap:wrap">';
+        var srcColors={bot:'var(--green)',nn:'var(--purple)',lstm:'var(--orange)',consensus:'var(--cyan)'};
+        for(var sk in parisData.bySource){
+          var s=parisData.bySource[sk];
+          var sroi=s.mise>0?((s.gain/s.mise-1)*100).toFixed(0):'0';
+          var sc=parseInt(sroi)>=0?'var(--green)':'var(--red)';
+          h+='<div class="stat-box" style="border:1px solid '+(srcColors[sk]||'var(--border)')+'">';
+          h+='<div class="val" style="color:'+(srcColors[sk]||'var(--text)')+'">'+sk.toUpperCase()+'</div>';
+          h+='<div style="font-size:11px;margin-top:4px">'+s.count+' paris, '+s.wins+' gagnes</div>';
+          h+='<div style="font-size:11px;color:'+sc+';font-weight:700">'+(parseInt(sroi)>=0?'+':'')+sroi+'% ROI</div>';
+          h+='<div style="font-size:9px;color:var(--text2)">Mise: '+fmtF(s.mise)+' / Gain: '+fmtF(s.gain)+'</div>';
+          h+='</div>';
+        }
+        h+='</div></div>';
+      }
+    }
+
+    el.innerHTML=h;
+
+    // Initialiser le preview si un tirage est selectionne
+    if(monJeuState.selectedTirage) mjUpdatePreview(tirData);
+
+    // Stocker les tirages pour acces global
+    window._mjTirages=tirData;
+    window._mjParisTable=parisTable;
+  });
+}
+
+function fmtF(n){
+  if(n>=1000000) return (n/1000000).toFixed(1)+'M';
+  if(n>=1000) return Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g,' ')+'F';
+  return n+'F';
+}
+
+function mjSelectTirage(nom,heure){
+  monJeuState.selectedTirage=nom;
+  monJeuState.selectedHeure=heure;
+  loadMonJeu();
+}
+
+function mjSelectSource(src){
+  monJeuState.selectedSource=src;
+  mjUpdatePreview(window._mjTirages);
+}
+
+function mjSetMise(val){
+  monJeuState.mise=Math.max(25,Math.min(100000,val||100));
+  mjUpdatePreview(window._mjTirages);
+}
+
+function mjUpdatePreview(tirData){
+  var el=document.getElementById('mjPreview');
+  var btn=document.getElementById('mjBtnPlacer');
+  if(!el||!tirData||!monJeuState.selectedTirage){
+    if(el) el.innerHTML='';
+    if(btn){btn.disabled=true;btn.textContent='Selectionne un tirage'}
+    return;
+  }
+  var t=tirData.tirages.find(function(x){return x.nom===monJeuState.selectedTirage});
+  if(!t||!t.sources){el.innerHTML='<div style="color:var(--red);font-size:11px">Tirage non trouve</div>';return}
+
+  var src=monJeuState.selectedSource;
+  var nums=t.sources[src]||[];
+  var mode=document.getElementById('mjMode')?document.getElementById('mjMode').value:(monJeuState.selectedMode||'ch4dc');
+  monJeuState.selectedMode=mode;
+  var pari=window._mjParisTable?window._mjParisTable[mode]:null;
+  if(!pari){el.innerHTML='';return}
+  var pickNums=nums.slice(0,pari.pick);
+  var mise=monJeuState.mise;
+
+  var srcLabels={bot:'Bot',nn:'IA Neural',lstm:'LSTM',consensus:'Consensus'};
+  var srcColors={bot:'var(--green)',nn:'var(--purple)',lstm:'var(--orange)',consensus:'var(--cyan)'};
+
+  var h='<div style="background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:12px">';
+  h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">';
+  h+='<div style="font-weight:700;font-size:13px;color:'+(srcColors[src]||'var(--text)')+'">'+monJeuState.selectedTirage+' &mdash; '+(srcLabels[src]||src)+'</div>';
+  h+='<div style="font-size:11px;color:var(--text2)">'+monJeuState.selectedHeure+'</div>';
+  h+='</div>';
+
+  // Numeros
+  if(pickNums.length===0){
+    h+='<div style="color:var(--red);font-size:11px">Pas de numeros disponibles pour cette source</div>';
+  } else {
+    h+='<div class="nums" style="gap:6px;margin-bottom:10px">';
+    for(var i=0;i<pickNums.length;i++){
+      h+=N(pickNums[i],i<pari.pick?'n-grn':'n-miss');
+    }
+    h+='</div>';
+
+    // Gains possibles
+    h+='<div style="font-size:11px;margin-bottom:6px;color:var(--text2)">Gains possibles avec <b style="color:var(--text)">'+fmtF(mise)+'</b> en <b style="color:var(--text)">'+pari.label+'</b> :</div>';
+    h+='<div style="display:flex;gap:6px;flex-wrap:wrap">';
+    for(var hits in pari.gains){
+      var gain=pari.gains[hits]*(mise/100);
+      h+='<div style="background:rgba(0,230,118,.08);border:1px solid rgba(0,230,118,.2);border-radius:6px;padding:6px 10px;text-align:center">';
+      h+='<div style="font-size:10px;color:var(--text2)">'+hits+' bon'+(parseInt(hits)>1?'s':'')+'</div>';
+      h+='<div style="font-size:14px;font-weight:800;color:var(--green)">'+fmtF(gain)+'</div>';
+      h+='<div style="font-size:9px;color:var(--text2)">x'+(gain/mise).toFixed(0)+'</div>';
+      h+='</div>';
+    }
+    h+='</div>';
+  }
+  h+='</div>';
+  el.innerHTML=h;
+
+  // Activer le bouton
+  if(btn&&pickNums.length>=pari.pick){
+    btn.disabled=false;
+    btn.textContent='Jouer '+fmtF(mise)+' sur '+monJeuState.selectedTirage+' ('+pari.label+')';
+  }
+}
+
+function mjPlacerPari(){
+  if(!monJeuState.selectedTirage||!window._mjTirages)return;
+  var t=window._mjTirages.tirages.find(function(x){return x.nom===monJeuState.selectedTirage});
+  if(!t)return;
+  var src=monJeuState.selectedSource;
+  var nums=t.sources[src]||[];
+  var mode=monJeuState.selectedMode||'ch4dc';
+  var pari=window._mjParisTable?window._mjParisTable[mode]:null;
+  if(!pari||nums.length<pari.pick)return;
+
+  var btn=document.getElementById('mjBtnPlacer');
+  if(btn){btn.disabled=true;btn.textContent='Enregistrement...'}
+
+  fetch('/api/placer-pari',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      tirage:monJeuState.selectedTirage,
+      source:src,
+      mode:mode,
+      mise:monJeuState.mise,
+      nums:nums.slice(0,pari.pick)
+    })
+  }).then(function(r){return r.json()}).then(function(data){
+    if(data.error){showToast(data.error,'red');return}
+    var bet=data.bet;
+    if(bet.resolved&&bet.gain>0) showToast('GAGNE! +'+fmtF(bet.gain),'green');
+    else if(bet.resolved) showToast('Pari enregistre — pas de gain','orange');
+    else showToast('Pari enregistre — en attente du tirage','cyan');
+    loadMonJeu();
+  });
+}
+
+function mjDeleteBet(id){
+  fetch('/api/supprimer-pari/'+id,{method:'DELETE'}).then(function(r){return r.json()}).then(function(){loadMonJeu()});
+}
+
+function mjUpdateGains(){
+  monJeuState.selectedMode=document.getElementById('mjMode').value;
+  mjUpdatePreview(window._mjTirages);
 }
 
 // ═══ PAGE: SEMAINE ═══

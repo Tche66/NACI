@@ -46,6 +46,34 @@ function loadOrTrainLSTM(db) {
   } catch (e) { console.log("[LSTM] Erreur:", e.message); lstmNet = null; }
 }
 const HISTORY_PATH = getDataPath("historique_predictions.json");
+const BETS_PATH = getDataPath("mes_paris.json");
+
+const PARIS_TABLE = {
+  "1n":    { label: "1 numero",       pick: 1, gains: { 1: 1100 } },
+  "1ndc":  { label: "1 numero DC",    pick: 1, gains: { 1: 550 } },
+  "2n":    { label: "2 numeros",      pick: 2, gains: { 2: 24000 } },
+  "2ndc":  { label: "2 numeros DC",   pick: 2, gains: { 2: 12000 } },
+  "3n":    { label: "3 numeros",      pick: 3, gains: { 3: 200000 } },
+  "3ndc":  { label: "3 numeros DC",   pick: 3, gains: { 3: 100000 } },
+  "4n":    { label: "4 numeros",      pick: 4, gains: { 4: 500000 } },
+  "4ndc":  { label: "4 numeros DC",   pick: 4, gains: { 4: 250000 } },
+  "5n":    { label: "5 numeros",      pick: 5, gains: { 5: 4000000 } },
+  "5ndc":  { label: "5 numeros DC",   pick: 5, gains: { 5: 2000000 } },
+  "ch3":   { label: "Chance 3+",      pick: 3, gains: { 2: 6000, 3: 175000 } },
+  "ch3dc": { label: "Chance 3+ DC",   pick: 3, gains: { 2: 3000, 3: 87500 } },
+  "ch4":   { label: "Chance 4+",      pick: 4, gains: { 2: 3000, 3: 30000, 4: 1000000 } },
+  "ch4dc": { label: "Chance 4+ DC",   pick: 4, gains: { 2: 1500, 3: 15000, 4: 500000 } },
+  "ch5":   { label: "Chance 5+",      pick: 5, gains: { 2: 2000, 3: 10000, 4: 200000, 5: 5000000 } },
+  "ch5dc": { label: "Chance 5+ DC",   pick: 5, gains: { 2: 1000, 3: 5000, 4: 100000, 5: 2500000 } },
+};
+
+function loadBets() {
+  if (!fs.existsSync(BETS_PATH)) return { bets: [], budget: { total: 0, daily: 0 } };
+  return JSON.parse(fs.readFileSync(BETS_PATH, "utf8"));
+}
+function saveBets(data) {
+  fs.writeFileSync(BETS_PATH, JSON.stringify(data, null, 2), "utf8");
+}
 
 const MONTHS_FR = [
   "janvier","février","mars","avril","mai","juin",
@@ -1415,6 +1443,201 @@ app.get("/api/semaine", (req, res) => {
     });
   }
   res.json(jours);
+});
+
+// ═══ MON JEU — PORTEFEUILLE DE PARIS ═══
+app.get("/api/paris-table", (req, res) => {
+  res.json(PARIS_TABLE);
+});
+
+app.get("/api/mes-paris", (req, res) => {
+  const data = loadBets();
+  const db = loadDB();
+  // Calculer les resultats pour les paris passes
+  for (const bet of data.bets) {
+    if (bet.resolved) continue;
+    const dayDraws = db.draws.filter(d => d.date === bet.date);
+    const realDraw = dayDraws.find(d => d.type === bet.tirage);
+    if (!realDraw) continue;
+    const pari = PARIS_TABLE[bet.mode];
+    if (!pari) continue;
+    const isDC = bet.mode.includes("dc");
+    const nums = bet.nums.slice(0, pari.pick);
+    const gagnants = realDraw.gagnants || [];
+    const machine = realDraw.machine || [];
+    const hitsG = nums.filter(n => gagnants.includes(n)).length;
+    const hitsM = isDC ? nums.filter(n => !gagnants.includes(n) && machine.includes(n)).length : 0;
+    const totalHits = hitsG + hitsM;
+    const gain = (pari.gains[totalHits] || 0) * (bet.mise / 100);
+    bet.resolved = true;
+    bet.resultat = gagnants;
+    bet.machine = machine;
+    bet.hitsGagnants = hitsG;
+    bet.hitsMachine = hitsM;
+    bet.totalHits = totalHits;
+    bet.gain = gain;
+    bet.net = gain - bet.mise;
+  }
+  saveBets(data);
+
+  // Stats globales
+  const resolved = data.bets.filter(b => b.resolved);
+  const pending = data.bets.filter(b => !b.resolved);
+  const totalMise = resolved.reduce((s, b) => s + b.mise, 0);
+  const totalGain = resolved.reduce((s, b) => s + (b.gain || 0), 0);
+  const totalNet = totalGain - totalMise;
+  const roi = totalMise > 0 ? ((totalGain / totalMise - 1) * 100).toFixed(1) : "0";
+
+  // Stats par source
+  const bySource = {};
+  for (const b of resolved) {
+    if (!bySource[b.source]) bySource[b.source] = { mise: 0, gain: 0, count: 0, wins: 0 };
+    bySource[b.source].mise += b.mise;
+    bySource[b.source].gain += b.gain || 0;
+    bySource[b.source].count++;
+    if ((b.gain || 0) > 0) bySource[b.source].wins++;
+  }
+
+  // Stats par tirage
+  const byTirage = {};
+  for (const b of resolved) {
+    if (!byTirage[b.tirage]) byTirage[b.tirage] = { mise: 0, gain: 0, count: 0, wins: 0 };
+    byTirage[b.tirage].mise += b.mise;
+    byTirage[b.tirage].gain += b.gain || 0;
+    byTirage[b.tirage].count++;
+    if ((b.gain || 0) > 0) byTirage[b.tirage].wins++;
+  }
+
+  // Stats par jour
+  const byDate = {};
+  for (const b of data.bets) {
+    if (!byDate[b.date]) byDate[b.date] = { mise: 0, gain: 0, count: 0, pending: 0 };
+    byDate[b.date].mise += b.mise;
+    byDate[b.date].gain += b.gain || 0;
+    byDate[b.date].count++;
+    if (!b.resolved) byDate[b.date].pending++;
+  }
+
+  res.json({
+    bets: data.bets,
+    pending: pending.length,
+    stats: { totalMise, totalGain, totalNet, roi, nbParis: resolved.length, nbWins: resolved.filter(b => (b.gain || 0) > 0).length },
+    bySource, byTirage, byDate,
+    budget: data.budget,
+  });
+});
+
+app.post("/api/placer-pari", (req, res) => {
+  const { tirage, source, mode, mise, nums, date } = req.body || {};
+  if (!tirage || !source || !mode || !mise || !nums) return res.json({ error: "Parametres manquants" });
+  if (mise < 25 || mise > 100000) return res.json({ error: "Mise entre 25 et 100000 FCFA" });
+  const pari = PARIS_TABLE[mode];
+  if (!pari) return res.json({ error: "Type de pari invalide" });
+  if (nums.length < pari.pick) return res.json({ error: `Il faut ${pari.pick} numeros pour ${pari.label}` });
+
+  const data = loadBets();
+  const now = new Date();
+  const dateStr = date || `${String(now.getDate()).padStart(2, "0")}/${String(now.getMonth() + 1).padStart(2, "0")}/${now.getFullYear()}`;
+
+  // Gains possibles
+  const gainsPossibles = {};
+  for (const [hits, gain] of Object.entries(pari.gains)) {
+    gainsPossibles[hits] = gain * (mise / 100);
+  }
+
+  const bet = {
+    id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+    date: dateStr,
+    tirage, source, mode,
+    modeLabel: pari.label,
+    mise,
+    nums: nums.slice(0, pari.pick),
+    gainsPossibles,
+    resolved: false,
+    createdAt: now.toISOString(),
+  };
+
+  data.bets.push(bet);
+  data.budget.total = (data.budget.total || 0) + mise;
+
+  // Verifier immediatement si le resultat existe deja
+  const db = loadDB();
+  const dayDraws = db.draws.filter(d => d.date === dateStr);
+  const realDraw = dayDraws.find(d => d.type === tirage);
+  if (realDraw) {
+    const isDC = mode.includes("dc");
+    const gagnants = realDraw.gagnants || [];
+    const machine = realDraw.machine || [];
+    const pickNums = nums.slice(0, pari.pick);
+    const hitsG = pickNums.filter(n => gagnants.includes(n)).length;
+    const hitsM = isDC ? pickNums.filter(n => !gagnants.includes(n) && machine.includes(n)).length : 0;
+    const totalHits = hitsG + hitsM;
+    const gain = (pari.gains[totalHits] || 0) * (mise / 100);
+    bet.resolved = true;
+    bet.resultat = gagnants;
+    bet.machine = machine;
+    bet.hitsGagnants = hitsG;
+    bet.hitsMachine = hitsM;
+    bet.totalHits = totalHits;
+    bet.gain = gain;
+    bet.net = gain - mise;
+  }
+
+  saveBets(data);
+  res.json({ success: true, bet });
+});
+
+app.delete("/api/supprimer-pari/:id", (req, res) => {
+  const data = loadBets();
+  const idx = data.bets.findIndex(b => b.id === req.params.id);
+  if (idx < 0) return res.json({ error: "Pari introuvable" });
+  const removed = data.bets.splice(idx, 1)[0];
+  if (removed.resolved) data.budget.total = Math.max(0, (data.budget.total || 0) - removed.mise);
+  saveBets(data);
+  res.json({ success: true });
+});
+
+app.get("/api/tirages-du-jour", (req, res) => {
+  const now = new Date();
+  const jour = parseInt(req.query.jour) || now.getDay();
+  const tiragesInfo = getTiragesJour(jour);
+  const db = loadDB();
+  const todayStr = `${String(now.getDate()).padStart(2, "0")}/${String(now.getMonth() + 1).padStart(2, "0")}/${now.getFullYear()}`;
+  const todayDraws = db.draws.filter(d => d.date === todayStr);
+
+  const result = [];
+  for (const t of tiragesInfo) {
+    let botNums = [], nnNums = [], lstmNums = [];
+    const conv = predictConvergence(db.draws, t.nom, jour, todayDraws, null);
+    if (conv && conv.combos) {
+      const sc = conv.combos.find(c => c.isSuper || c.confiance === "MAXIMALE");
+      botNums = sc ? sc.nums : conv.combos[0].nums;
+    }
+    if (neuralNet) {
+      try {
+        const nn = predictNeural(neuralNet, db.draws, t.nom, jour, todayDraws);
+        if (nn) nnNums = nn.slice(0, 5).map(s => s.num).sort((a, b) => a - b);
+      } catch (e) {}
+    }
+    if (lstmNet) {
+      try {
+        const ls = predictLSTM(lstmNet, db.draws, t.nom, jour, todayDraws);
+        if (ls) lstmNums = ls.slice(0, 5).map(s => s.num).sort((a, b) => a - b);
+      } catch (e) {}
+    }
+    // Consensus = numeros presents dans 2+ sources
+    const voteMap = {};
+    for (const n of botNums) voteMap[n] = (voteMap[n] || 0) + 1;
+    for (const n of nnNums) voteMap[n] = (voteMap[n] || 0) + 1;
+    for (const n of lstmNums) voteMap[n] = (voteMap[n] || 0) + 1;
+    const consensusNums = Object.entries(voteMap).filter(([, v]) => v >= 2).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([n]) => parseInt(n)).sort((a, b) => a - b);
+
+    result.push({
+      nom: t.nom, heure: t.heure, type: t.type,
+      sources: { bot: botNums, nn: nnNums, lstm: lstmNums, consensus: consensusNums },
+    });
+  }
+  res.json({ jour, tirages: result });
 });
 
 if (IS_VERCEL) {
