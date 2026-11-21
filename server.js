@@ -11,6 +11,15 @@ const { LSTMNet, trainLSTM, predictLSTM, LSTM_MODEL_PATH } = require("./lstm");
 
 const app = express();
 const PORT = parseInt(process.env.PORT, 10) || 3000;
+
+app.use((req, res, next) => {
+  const allowed = process.env.CORS_ORIGIN || '*';
+  res.header('Access-Control-Allow-Origin', allowed);
+  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  if (req.method === 'OPTIONS') return res.sendStatus(204);
+  next();
+});
 const NUM_RANGE = 90;
 
 // NN global — charge ou entraine au demarrage
