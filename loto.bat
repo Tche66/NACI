@@ -5,46 +5,80 @@ cd /d "%~dp0"
 echo.
 echo ====================================================
 echo        LONACI LOTO BONHEUR - MENU PRINCIPAL
-echo        Bot v5 - IA + Auto-apprentissage
-echo        Base: 15000+ tirages / 5 ans de donnees
+echo        Bot v6 + IA Neural + LSTM
+echo        Base: 15800+ tirages / 5 ans de donnees
 echo ====================================================
 echo.
-echo   1. Mise a jour des resultats
-echo   2. Chargement complet (scrape historique)
-echo   3. Predictions du jour - Excel
-echo   4. Paires du jour - Excel
-echo   5. Analyse complete - Excel
+echo   --- DASHBOARD (RECOMMANDE) ---
+echo   1. DASHBOARD WEB (ouvrir le navigateur)
+echo   2. MAJ resultats + Dashboard
 echo.
-echo   6. DASHBOARD WEB - RECOMMANDE
-echo   7. MAJ + Dashboard - tout en 1
+echo   --- DONNEES ---
+echo   3. Mise a jour des resultats
+echo   4. Chargement complet (scrape historique)
+echo.
+echo   --- EXPORTS EXCEL ---
+echo   5. Predictions du jour - Excel
+echo   6. Paires du jour - Excel
+echo   7. Analyse complete - Excel
 echo   8. MAJ + Predictions + Paires - Excel
 echo.
-echo   9. Backtest apprentissage (walk-forward)
-echo   A. Backtest sequentiel 6 mois
-echo   B. Entrainer le reseau de neurones
-echo   C. Backtest comparaison profondeurs (6m a 5 ans)
+echo   --- ENTRAINEMENT IA ---
+echo   9. Entrainer le reseau de neurones (NN)
+echo   A. Entrainer le modele LSTM
+echo   B. Apprentissage Bot (walk-forward)
+echo.
+echo   --- BACKTEST ---
+echo   C. Backtest sequentiel 6 mois
+echo   D. Backtest comparaison profondeurs (6m a 5 ans)
 echo.
 echo   0. Quitter
 echo.
 echo ====================================================
 echo.
-set /p choix="Ton choix [0-9/A/B/C]: "
+set /p choix="Ton choix [0-9/A-D]: "
 
 if "%choix%"=="0" exit /b 0
-if "%choix%"=="1" goto update
-if "%choix%"=="2" goto full
-if "%choix%"=="3" goto predict
-if "%choix%"=="4" goto paires
-if "%choix%"=="5" goto analyse
-if "%choix%"=="6" goto dashboard
-if "%choix%"=="7" goto majdashboard
+if "%choix%"=="1" goto dashboard
+if "%choix%"=="2" goto majdashboard
+if "%choix%"=="3" goto update
+if "%choix%"=="4" goto full
+if "%choix%"=="5" goto predict
+if "%choix%"=="6" goto paires
+if "%choix%"=="7" goto analyse
 if "%choix%"=="8" goto toutexcel
-if "%choix%"=="9" goto backtest
-if /i "%choix%"=="A" goto backtestseq
-if /i "%choix%"=="B" goto trainnn
-if /i "%choix%"=="C" goto backtestdepth
+if "%choix%"=="9" goto trainnn
+if /i "%choix%"=="A" goto trainlstm
+if /i "%choix%"=="B" goto backtest
+if /i "%choix%"=="C" goto backtestseq
+if /i "%choix%"=="D" goto backtestdepth
 
 echo Choix invalide
+goto fin
+
+:dashboard
+echo.
+echo Lancement du Dashboard (Bot v6 + NN + LSTM)...
+echo.
+echo   Le navigateur va s'ouvrir sur http://localhost:3000
+echo   Pour arreter: fermer cette fenetre ou Ctrl+C
+echo.
+start http://localhost:3000
+node server.js
+goto fin
+
+:majdashboard
+echo.
+echo --- Mise a jour des resultats ---
+node update.js
+echo.
+echo --- Lancement du Dashboard ---
+echo.
+echo   Le navigateur va s'ouvrir sur http://localhost:3000
+echo   Pour arreter: fermer cette fenetre ou Ctrl+C
+echo.
+start http://localhost:3000
+node server.js
 goto fin
 
 :update
@@ -77,25 +111,6 @@ echo --- Analyse complete ---
 node analyse.js
 goto fin
 
-:dashboard
-echo.
-echo Lancement du Dashboard (Stats + IA + Auto-apprentissage)...
-echo Ouvre http://localhost:3000
-echo.
-start http://localhost:3000
-node server.js
-goto fin
-
-:majdashboard
-echo.
-echo --- Mise a jour ---
-node update.js
-echo.
-echo --- Lancement du Dashboard ---
-start http://localhost:3000
-node server.js
-goto fin
-
 :toutexcel
 echo.
 echo --- MAJ + Predictions + Paires ---
@@ -104,6 +119,24 @@ echo.
 node predict.js
 echo.
 node paires.js
+goto fin
+
+:trainnn
+echo.
+echo --- Entrainement du reseau de neurones (NN) ---
+echo Architecture: 20 features -> 48 -> 24 -> 1
+echo Sur 15800+ tirages...
+echo.
+node neural.js
+goto fin
+
+:trainlstm
+echo.
+echo --- Entrainement du modele LSTM ---
+echo Architecture: seq(12)x10 -> LSTM(32) + num(20) -> Dense(32) -> 1
+echo Sur 15800+ tirages...
+echo.
+node lstm.js
 goto fin
 
 :backtest
@@ -116,18 +149,10 @@ goto fin
 
 :backtestseq
 echo.
-echo --- Backtest sequentiel 6 mois (predire + apprendre + suivant) ---
+echo --- Backtest sequentiel 6 mois ---
 echo Cela prend environ 5-10 minutes...
 echo.
 node backtest_sequential.js
-goto fin
-
-:trainnn
-echo.
-echo --- Entrainement du reseau de neurones ---
-echo 12 features x 32 neurones, 5 epochs sur 15000+ tirages...
-echo.
-node neural.js
 goto fin
 
 :backtestdepth

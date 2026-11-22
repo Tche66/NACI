@@ -781,6 +781,34 @@ app.post("/api/update", async (req, res) => {
   } catch (e) { res.json({ success: false, error: e.message }); }
 });
 
+app.get("/api/keep-alive", (req, res) => {
+  res.json({ ok: true, time: new Date().toISOString() });
+});
+
+app.get("/api/cron-update", async (req, res) => {
+  const secret = req.query.secret;
+  if (process.env.CRON_SECRET && secret !== process.env.CRON_SECRET) {
+    return res.status(403).json({ error: "Unauthorized" });
+  }
+  try {
+    const db = loadDB();
+    const now = new Date();
+    let totalNew = 0;
+    for (let i = 0; i < 2; i++) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i);
+      const m = `${MONTHS_FR[d.getMonth()]} ${d.getFullYear()}`;
+      const json = await fetchJSON(`https://lotobonheur.ci/api/results?monthYear=${encodeURIComponent(m)}`);
+      totalNew += mergeDraws(db.draws, parseAPIDraws(json));
+    }
+    saveDB(db);
+    if (totalNew > 0) {
+      autoSavePredictions(db);
+      autoCompare(db);
+    }
+    res.json({ success: true, newDraws: totalNew, total: db.draws.length, time: now.toISOString() });
+  } catch (e) { res.json({ success: false, error: e.message }); }
+});
+
 app.get("/api/horaires/:jour", (req, res) => {
   const jour = parseInt(req.params.jour);
   res.json({ jour, jourNom: JOURS_NOMS[jour], tirages: getTiragesJour(jour) });
